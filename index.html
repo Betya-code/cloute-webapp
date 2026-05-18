@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CLOUTE</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+:root{--purple:#8b00ff;--pink:#ff0099;--cyan:#00d4ff;--green:#00ff88;--dark:#080010;--card:#12001e;--text:#e8d4ff;--muted:#664488}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(139,0,255,.12),transparent 60%);pointer-events:none;z-index:0}
+
+/* VIEWS */
+.view{display:none;position:relative;z-index:1;min-height:100vh;padding-bottom:72px}
+.view.active{display:block}
+
+/* ONBOARDING */
+#view-onboarding{display:none;position:fixed;inset:0;z-index:1000;background:var(--dark);overflow-y:auto;padding-bottom:40px}
+#view-onboarding.active{display:block}
+.onboard-wrap{padding:32px 20px}
+.onboard-logo{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.onboard-sub{font-size:14px;color:#664488;margin-bottom:32px}
+.avatar-section{display:flex;flex-direction:column;align-items:center;margin-bottom:28px}
+.avatar-circle{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 30px rgba(139,0,255,.4);margin-bottom:10px;overflow:hidden;position:relative}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-tg-label{font-size:12px;color:#664488}
+.onboard-step{margin-bottom:20px}
+.onboard-label{font-size:12px;font-weight:600;color:#886699;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.onboard-input{width:100%;background:var(--card);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:14px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+.onboard-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,0,255,.15)}
+.onboard-input::placeholder{color:#664488}
+.tg-field{background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:13px 16px;font-size:14px;color:#c084fc;display:flex;align-items:center;gap:10px}
+.tg-field-icon{font-size:18px}
+.btn-register{width:100%;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4);margin-top:8px}
+.terms{font-size:11px;color:#664488;text-align:center;margin-top:12px;line-height:1.6}
+
+/* HEADER */
+.header{padding:14px 16px 12px;position:sticky;top:0;background:rgba(8,0,16,.97);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(139,0,255,.15)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.role-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.role-admin{background:rgba(255,0,153,.2);border:1px solid rgba(255,0,153,.4);color:#f9a8d4}
+.role-org{background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);color:#67e8f9}
+.role-user{background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid rgba(139,0,255,.2);background:transparent;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif}
+.tab.active{background:linear-gradient(90deg,var(--purple),var(--pink));border-color:transparent;color:#fff;box-shadow:0 4px 16px rgba(139,0,255,.35)}
+
+/* HERO */
+.hero-banner{margin:14px;background:linear-gradient(135deg,#1a0033,#000d1a);border:1px solid rgba(139,0,255,.3);border-radius:20px;padding:20px;position:relative;overflow:hidden}
+.hero-banner::before{content:'🎉';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:56px;opacity:.12}
+.hero-banner h2{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;margin-bottom:4px}
+.hero-banner p{font-size:12px;color:#888}
+.hero-stats{display:flex;gap:20px;margin-top:12px}
+.hero-stat-num{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-stat-label{font-size:10px;color:#555;margin-top:1px}
+
+/* SECTION */
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#664488;padding:0 16px;margin:16px 0 10px}
+
+/* EVENT CARDS */
+/* ── FEED (афиши) ── */
+.feed{display:flex;flex-direction:column;gap:0}
+.poster-card{position:relative;width:100%;cursor:pointer;overflow:hidden;background:var(--card)}
+.poster-card:not(:last-child){border-bottom:1px solid rgba(139,0,255,.1)}
+.poster-img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:linear-gradient(135deg,#1a0033,#0d0020)}
+.poster-img-placeholder{width:100%;aspect-ratio:4/5;background:linear-gradient(135deg,#1a0033,#0d0020);display:flex;align-items:center;justify-content:center;font-size:80px}
+.poster-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(5,0,12,.97) 0%,rgba(5,0,12,.7) 60%,transparent 100%);padding:20px 16px 16px}
+.poster-badges{display:flex;gap:6px;margin-bottom:10px}
+.badge{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-hot{background:rgba(255,0,153,.9);color:#fff}
+.badge-free{background:rgba(0,255,136,.9);color:#000}
+.badge-new{background:rgba(139,0,255,.9);color:#fff}
+.poster-name{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px}
+.poster-meta{display:flex;flex-direction:column;gap:4px}
+.poster-org{font-size:12px;color:#c084fc;font-weight:600}
+.poster-row{display:flex;align-items:center;justify-content:space-between}
+.poster-place{font-size:12px;color:#aaa;display:flex;align-items:center;gap:5px}
+.poster-date{font-size:13px;font-weight:700;color:var(--cyan)}
+.poster-price{font-size:14px;font-weight:800;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.poster-actions{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.poster-fav{background:none;border:none;font-size:20px;cursor:pointer;padding:4px}
+.poster-share{background:none;border:none;font-size:20px;cursor:pointer;padding:4px}
+.poster-buy{flex:1;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;padding:11px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 4px 16px rgba(139,0,255,.4)}
+
+/* ── SMALL CARD (для поиска/избранного) ── */
+.events-list{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.event-card{background:var(--card);border:1px solid rgba(139,0,255,.2);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .15s}
+.event-card:active{transform:scale(.98)}
+.event-body{padding:12px}
+.event-date{font-size:11px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.event-name{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3}
+.event-meta{display:flex;align-items:center;justify-content:space-between}
+.event-place{font-size:11px;color:#664488}
+.event-price{font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* DETAIL */
+.detail-img{height:200px;background:linear-gradient(135deg,#1a0033,#000d1a);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative}
+.detail-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,var(--dark) 100%)}
+.back-btn{position:absolute;top:14px;left:14px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15);color:#fff;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;backdrop-filter:blur(10px)}
+.detail-body{padding:18px}
+.detail-org{font-size:11px;color:#664488;margin-bottom:6px}
+.detail-name{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:14px;line-height:1.2}
+.detail-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.detail-row{display:flex;align-items:center;gap:12px;background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.12);border-radius:12px;padding:11px 14px}
+.detail-row-icon{font-size:16px}
+.detail-row-label{font-size:9px;color:#664488;text-transform:uppercase;letter-spacing:.06em}
+.detail-row-val{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px}
+.detail-desc{font-size:13px;color:#886699;line-height:1.7;margin-bottom:16px}
+
+/* PROMO BLOCK */
+.promo-block{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:16px}
+.promo-label{font-size:11px;color:#67e8f9;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.promo-row{display:flex;gap:8px}
+.promo-input{flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(0,212,255,.25);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;text-transform:uppercase}
+.promo-input::placeholder{color:#664488;text-transform:none}
+.btn-promo{padding:10px 16px;border-radius:10px;background:linear-gradient(90deg,#0077aa,var(--cyan));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.promo-result{margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px;display:none}
+.promo-result.success{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:#4ade80}
+.promo-result.error{background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.2);color:#ff4466}
+
+.detail-actions{display:flex;gap:10px;margin-bottom:16px}
+.btn-fav{flex:1;padding:13px;border-radius:14px;background:rgba(255,0,153,.1);border:1px solid rgba(255,0,153,.3);color:#f9a8d4;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-fav.active{background:rgba(255,0,153,.3)}
+.btn-share{flex:1;padding:13px;border-radius:14px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);color:#67e8f9;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-buy{width:100%;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4)}
+
+/* CALENDAR */
+.calendar-wrap{padding:14px}
+.cal-month{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:14px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.cal-day-name{text-align:center;font-size:10px;color:#664488;font-weight:600;padding:4px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;color:#888;cursor:pointer;position:relative;transition:all .15s}
+.cal-day.has-event{color:#fff;background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3)}
+.cal-day.has-event::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--pink)}
+.cal-day.today{background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff}
+.cal-day.empty{pointer-events:none}
+.cal-events{display:flex;flex-direction:column;gap:8px}
+.cal-event-item{background:var(--card);border:1px solid rgba(139,0,255,.2);border-radius:12px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.cal-date-box{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.cal-date-day{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;color:#fff;line-height:1}
+.cal-date-mon{font-size:8px;color:rgba(255,255,255,.7);text-transform:uppercase}
+.cei-name{font-size:13px;font-weight:600;color:#fff}
+.cei-place{font-size:11px;color:#664488;margin-top:2px}
+
+/* SEARCH */
+.search-wrap{padding:14px}
+.search-input{width:100%;background:var(--card);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px}
+.search-input::placeholder{color:#664488}
+
+/* CABINET */
+.cab-hero{padding:24px 16px 20px;background:linear-gradient(135deg,#1a0033,#000d1a);border-bottom:1px solid rgba(139,0,255,.2);position:relative;overflow:hidden}
+.cab-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(139,0,255,.2),transparent 70%)}
+.cab-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;box-shadow:0 0 20px rgba(139,0,255,.4);overflow:hidden}
+.cab-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cab-name{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:2px}
+.cab-username{font-size:12px;color:#886699;margin-bottom:4px}
+.cab-role{font-size:12px;color:#886699;margin-bottom:16px}
+.cab-stats{display:flex;gap:20px}
+.cab-stat-num{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cab-stat-label{font-size:10px;color:#555;margin-top:1px}
+.cab-menu{padding:14px;display:flex;flex-direction:column;gap:8px}
+.cab-menu-item{background:var(--card);border:1px solid rgba(139,0,255,.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s}
+.cab-menu-item:active{transform:scale(.98)}
+.cab-menu-icon{font-size:22px;width:40px;height:40px;background:rgba(139,0,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cab-menu-title{font-size:14px;font-weight:600;color:#fff}
+.cab-menu-sub{font-size:11px;color:#664488;margin-top:2px}
+.cab-menu-arrow{margin-left:auto;color:#664488;font-size:16px}
+
+/* PROFILE CARD */
+.profile-card{background:var(--card);border:1px solid rgba(139,0,255,.2);border-radius:16px;padding:16px;margin-bottom:14px}
+.profile-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(139,0,255,.08)}
+.profile-row:last-child{border-bottom:none}
+.profile-icon{font-size:18px;width:36px;text-align:center}
+.profile-label{font-size:10px;color:#664488;text-transform:uppercase;letter-spacing:.06em}
+.profile-val{font-size:14px;color:#e8d4ff;font-weight:500;margin-top:2px}
+
+/* SUBVIEWS */
+.subview{display:none;padding:0}
+.subview.active{display:block}
+.subview-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.15);background:rgba(8,0,16,.98);position:sticky;top:0;z-index:50}
+.subview-back{background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif}
+.subview-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.subview-body{padding:14px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.stat-card{background:var(--card);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;text-align:center}
+.stat-num{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:11px;color:#664488;margin-top:3px}
+.stat-card.cyan .stat-num{background:linear-gradient(90deg,#0077aa,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card.green .stat-num{background:linear-gradient(90deg,#00aa55,var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* FORMS */
+.form-wrap{display:none;background:var(--card);border:1px solid rgba(139,0,255,.2);border-radius:16px;padding:16px;margin-bottom:14px}
+.form-wrap.open{display:block}
+.form-input{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(139,0,255,.25);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
+.form-input::placeholder{color:#664488}
+.form-select{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(139,0,255,.25);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
+.form-row{display:flex;gap:8px}
+.btn-save{flex:2;padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--purple),var(--pink));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-cancel{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#888;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-add{width:100%;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(139,0,255,.35);margin-bottom:14px}
+.btn-add.cyan{background:linear-gradient(90deg,#0077aa,var(--cyan))}
+
+/* LIST ITEMS */
+.list-item{background:var(--card);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.li-name{font-size:13px;font-weight:600;color:#fff}
+.li-meta{font-size:11px;color:#664488;margin-top:2px}
+.btn-sm-delete{background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.2);color:#ff4466;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif}
+
+/* TICKET */
+.ticket-card{background:var(--card);border:1px dashed rgba(139,0,255,.4);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.ticket-card::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--dark)}
+.ticket-card::after{content:'';position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--dark)}
+.ticket-name{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+.ticket-info{font-size:12px;color:#886699;line-height:1.8}
+.ticket-num{font-family:monospace;font-size:13px;color:var(--cyan);margin-top:8px;background:rgba(0,212,255,.08);padding:6px 12px;border-radius:8px;text-align:center}
+.ticket-discount{display:inline-block;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:#4ade80;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px}
+
+/* PROMO ADMIN */
+.promo-admin-card{background:var(--card);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:12px;margin-bottom:8px}
+.promo-code{font-family:monospace;font-size:16px;font-weight:700;color:var(--cyan);letter-spacing:.1em}
+.promo-info{font-size:11px;color:#664488;margin-top:4px}
+
+/* NOTIF */
+.notif-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.notif-title{font-size:13px;font-weight:600;color:#fff}
+.notif-sub{font-size:11px;color:#664488;margin-top:2px}
+.toggle{width:44px;height:24px;border-radius:12px;background:#2a0040;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:linear-gradient(90deg,var(--purple),var(--pink))}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:23px}
+
+.empty{text-align:center;padding:40px 20px;color:#664488}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty-text{font-size:13px;line-height:1.6}
+.loading{text-align:center;padding:40px 20px;color:#664488;font-size:13px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,0,16,.97);border-top:1px solid rgba(139,0,255,.15);display:flex;backdrop-filter:blur(20px);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all .2s}
+.nav-icon{font-size:20px}
+.nav-label{font-size:9px;color:#443355;font-weight:600;text-transform:uppercase;letter-spacing:.04em;transition:color .2s}
+.nav-item.active .nav-label{color:#c084fc}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 6px rgba(139,0,255,.6))}
+</style>
+</head>
+<body>
+
+<!-- ══ ONBOARDING ══════════════════════════════════════ -->
+<div id="view-onboarding">
+  <div class="onboard-wrap">
+    <div class="onboard-logo">CLOUTE</div>
+    <div class="onboard-sub">Добро пожаловать! Заполни профиль 👇</div>
+
+    <div class="avatar-section">
+      <div class="avatar-circle" id="onboard-avatar">👤</div>
+      <div class="avatar-tg-label">Аватарка из Telegram</div>
+    </div>
+
+    <div class="onboard-step">
+      <div class="onboard-label">Telegram</div>
+      <div class="tg-field">
+        <span class="tg-field-icon">✈️</span>
+        <span id="ob-tg-name">Загружаем из Telegram...</span>
+      </div>
+    </div>
+
+    <div class="onboard-step">
+      <div class="onboard-label">Имя *</div>
+      <input class="onboard-input" id="ob-name" placeholder="Как тебя зовут?">
+    </div>
+
+    <div class="onboard-step">
+      <div class="onboard-label">Email</div>
+      <input class="onboard-input" id="ob-email" type="email" placeholder="example@mail.com">
+    </div>
+
+    <div class="onboard-step">
+      <div class="onboard-label">Дата рождения</div>
+      <input class="onboard-input" id="ob-birth" type="date">
+    </div>
+
+    <button class="btn-register" onclick="completeRegistration()">
+      🚀 Войти в CLOUTE
+    </button>
+    <div class="terms">Нажимая кнопку, ты соглашаешься с правилами сервиса</div>
+  </div>
+</div>
+
+<!-- ══ HOME ══════════════════════════════════════════════ -->
+<div id="view-home" class="view active">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">CLOUTE</div>
+      <div id="role-badge" class="role-badge role-user">👤 Гость</div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="filterTab('all',this)">Все</div>
+      <div class="tab" onclick="filterTab('today',this)">Сегодня</div>
+      <div class="tab" onclick="filterTab('week',this)">На неделе</div>
+      <div class="tab" onclick="filterTab('month',this)">В мае</div>
+    </div>
+  </div>
+  <div class="hero-banner">
+    <h2>Тусовки Москвы 🔥</h2>
+    <p>Все вечеринки города в одном месте</p>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num" id="cnt-total">0</div><div class="hero-stat-label">событий</div></div>
+      <div><div class="hero-stat-num" id="cnt-orgs">0</div><div class="hero-stat-label">организаторов</div></div>
+    </div>
+  </div>
+  <div class="feed" id="events-list"><div class="loading" style="padding:40px 20px;text-align:center;color:#664488;font-size:13px">Загружаем тусовки...</div></div>
+</div>
+
+<!-- ══ DETAIL ════════════════════════════════════════════ -->
+<div id="view-detail" class="view" style="padding-bottom:0">
+
+  <!-- Полноэкранная афиша -->
+  <div style="position:relative;width:100%;background:linear-gradient(135deg,#1a0033,#0d0020);overflow:hidden">
+    <img id="detail-poster-img" src="" alt="" style="width:100%;display:none;object-fit:cover;max-height:70vh">
+    <div id="detail-poster-emoji" style="font-size:100px;padding:60px 0;text-align:center;display:flex;align-items:center;justify-content:center">🎉</div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,#080010,transparent)"></div>
+    <!-- Кнопка назад -->
+    <button onclick="navTo('home')" style="position:absolute;top:14px;left:14px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;backdrop-filter:blur(10px);font-family:'Inter',sans-serif">← Назад</button>
+    <!-- Избранное и поделиться -->
+    <div style="position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:8px">
+      <button id="btn-fav" onclick="toggleFav()" style="background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px)">🤍</button>
+      <button onclick="shareEvent()" style="background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px)">🔗</button>
+    </div>
+  </div>
+
+  <!-- Инфо -->
+  <div style="padding:20px 16px 16px;background:#080010">
+    <div id="detail-org" style="font-size:12px;color:#c084fc;margin-bottom:6px;font-weight:600"></div>
+    <div id="detail-name" style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px"></div>
+    <div id="detail-rows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <div id="detail-desc" style="font-size:14px;color:#886699;line-height:1.7;margin-bottom:24px"></div>
+    <button id="btn-buy-main" onclick="openBuyModal()"
+      style="width:100%;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4);margin-bottom:32px">
+      🎟 Купить билет
+    </button>
+  </div>
+</div>
+
+<!-- ══ CALENDAR ══════════════════════════════════════════ -->
+<div id="view-calendar" class="view">
+  <div class="header">
+    <div class="header-top"><div class="logo">CLOUTE</div><div class="role-badge role-user">📅 Календарь</div></div>
+  </div>
+  <div class="calendar-wrap">
+    <div class="cal-month" id="cal-month"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="section-title">События выбранного дня</div>
+    <div class="cal-events" id="cal-events"></div>
+  </div>
+</div>
+
+<!-- ══ SEARCH ════════════════════════════════════════════ -->
+<div id="view-search" class="view">
+  <div class="header">
+    <div class="header-top"><div class="logo">CLOUTE</div><div class="role-badge role-user">🔍 Поиск</div></div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" id="search-input" placeholder="🔍 Поиск тусовки..." oninput="doSearch(this.value)">
+    <div class="events-list" id="search-results"></div>
+  </div>
+</div>
+
+<!-- ══ CABINET ════════════════════════════════════════════ -->
+<div id="view-cabinet" class="view">
+  <div id="cab-main" class="subview active">
+    <div class="cab-hero">
+      <div class="cab-avatar" id="cab-avatar">👤</div>
+      <div class="cab-name" id="cab-name">...</div>
+      <div class="cab-username" id="cab-username"></div>
+      <div class="cab-role" id="cab-role-text"></div>
+      <div class="cab-stats" id="cab-stats"></div>
+    </div>
+    <div class="cab-menu" id="cab-menu"></div>
+  </div>
+
+  <!-- Профиль пользователя -->
+  <div id="sub-user-profile" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">👤 Мой профиль</div></div>
+    <div class="subview-body">
+      <div class="profile-card" id="profile-card"></div>
+      <button class="btn-add" style="margin-top:8px" onclick="editProfile()">✏️ Редактировать</button>
+    </div>
+  </div>
+
+  <!-- Мои билеты -->
+  <div id="sub-user-tickets" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">🎟 Мои билеты</div></div>
+    <div class="subview-body" id="user-tickets-list"></div>
+  </div>
+
+  <!-- Избранное -->
+  <div id="sub-user-favs" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">❤️ Избранное</div></div>
+    <div class="events-list" style="padding:14px" id="user-favs-list"></div>
+  </div>
+
+  <!-- Уведомления -->
+  <div id="sub-user-notifs" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">🔔 Уведомления</div></div>
+    <div class="subview-body">
+      <div class="notif-row"><div><div class="notif-title">Новые тусовки</div><div class="notif-sub">Когда появляется новое событие</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="notif-row"><div><div class="notif-title">Напоминания</div><div class="notif-sub">За день до тусовки</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="notif-row"><div><div class="notif-title">Акции и скидки</div><div class="notif-sub">Специальные предложения</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+    </div>
+  </div>
+
+  <!-- ADMIN: Статистика -->
+  <div id="sub-admin-stats" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">📊 Статистика</div></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="as-events">0</div><div class="stat-label">Событий</div></div>
+      <div class="stat-card cyan"><div class="stat-num" id="as-orgs">0</div><div class="stat-label">Организаторов</div></div>
+      <div class="stat-card green"><div class="stat-num" id="as-users">0</div><div class="stat-label">Пользователей</div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN: Организаторы -->
+  <div id="sub-admin-orgs" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">🏢 Организаторы</div></div>
+    <div class="subview-body">
+      <button class="btn-add cyan" onclick="toggleForm('form-add-org')">➕ Добавить организатора</button>
+      <div class="form-wrap" id="form-add-org">
+        <input class="form-input" id="fo-name" placeholder="🏢 Название организации">
+        <input class="form-input" id="fo-id" placeholder="🔑 Telegram ID">
+        <div class="form-row">
+          <button class="btn-cancel" onclick="toggleForm('form-add-org')">Отмена</button>
+          <button class="btn-save" onclick="saveOrg()">Добавить</button>
+        </div>
+      </div>
+      <div id="orgs-list"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN/ORG: События -->
+  <div id="sub-admin-events" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title" id="events-subview-title">🎉 События</div></div>
+    <div class="subview-body">
+      <button class="btn-add" onclick="toggleForm('form-add-event')">➕ Добавить событие</button>
+      <div class="form-wrap" id="form-add-event">
+        <input class="form-input" id="fe-name" placeholder="🎉 Название">
+        <!-- Загрузка афиши -->
+        <div style="margin-bottom:8px">
+          <div style="font-size:11px;color:#67e8f9;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🖼 Афиша</div>
+          <div id="poster-preview" style="display:none;margin-bottom:8px;border-radius:12px;overflow:hidden;max-height:200px">
+            <img id="poster-preview-img" style="width:100%;object-fit:cover;border-radius:12px" src="" alt="Превью">
+          </div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(0,212,255,.05);border:1px dashed rgba(0,212,255,.3);border-radius:12px;padding:14px;cursor:pointer;color:#67e8f9;font-size:13px;font-family:'Inter',sans-serif">
+            📸 Выбрать фото из галереи
+            <input type="file" id="fe-poster-file" accept="image/*" onchange="previewPoster(this)" style="display:none">
+          </label>
+          <input class="form-input" id="fe-poster" placeholder="🔗 Или вставь ссылку на фото" style="margin-top:8px">
+        </div>
+        <input class="form-input" id="fe-date" placeholder="📅 Дата (25.06.2026)">
+        <input class="form-input" id="fe-time" placeholder="⏰ Время (22:00)">
+        <input class="form-input" id="fe-venue" placeholder="📍 Место">
+        <input class="form-input" id="fe-price" placeholder="💵 Цена">
+        <input class="form-input" id="fe-link" placeholder="🔗 Ссылка (или нет)">
+        <textarea class="form-input" id="fe-desc" rows="2" placeholder="📝 Описание"></textarea>
+        <select class="form-select" id="fe-emoji">
+          <option value="🎉">🎉 Вечеринка</option><option value="🌙">🌙 Клуб</option>
+          <option value="🎵">🎵 Концерт</option><option value="🔥">🔥 Горячее</option>
+          <option value="🌊">🌊 Open air</option><option value="🎸">🎸 Живая музыка</option>
+        </select>
+        <div class="form-row">
+          <button class="btn-cancel" onclick="toggleForm('form-add-event')">Отмена</button>
+          <button class="btn-save" onclick="saveEvent()">Сохранить</button>
+        </div>
+      </div>
+      <div id="admin-events-list"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN: Промокоды -->
+  <!-- ORG: Статистика -->
+  <div id="sub-org-stats" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">📊 Моя статистика</div></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="os-total">0</div><div class="stat-label">Всего событий</div></div>
+      <div class="stat-card cyan"><div class="stat-num" id="os-active">0</div><div class="stat-label">Активных</div></div>
+    </div>
+    <div class="subview-body">
+      <div class="section-title" style="padding:0;margin-bottom:12px">Мои мероприятия</div>
+      <div id="org-stats-events"></div>
+    </div>
+  </div>
+
+  <div id="sub-admin-promos" class="subview">
+    <div class="subview-header"><button class="subview-back" onclick="showCabMain()">← Назад</button><div class="subview-title">🏷 Промокоды</div></div>
+    <div class="subview-body">
+      <button class="btn-add" style="background:linear-gradient(90deg,#005588,var(--cyan))" onclick="toggleForm('form-add-promo')">➕ Создать промокод</button>
+      <div class="form-wrap" id="form-add-promo">
+        <input class="form-input" id="fp-code" placeholder="КОД (например PARTY20)" style="text-transform:uppercase">
+        <input class="form-input" id="fp-discount" placeholder="Скидка (например 20%  или  200 ₽)">
+        <input class="form-input" id="fp-uses" placeholder="Кол-во использований (0 = безлимит)" type="number">
+        <div class="form-row">
+          <button class="btn-cancel" onclick="toggleForm('form-add-promo')">Отмена</button>
+          <button class="btn-save" onclick="savePromo()">Создать</button>
+        </div>
+      </div>
+      <div id="promos-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BUY MODAL ══ -->
+<div id="buy-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center">
+  <div style="background:#0d0018;border:1px solid rgba(139,0,255,.3);border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:480px">
+    <div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;margin-bottom:4px" id="modal-event-name">Название</div>
+    <div style="font-size:13px;color:#664488;margin-bottom:20px" id="modal-event-info"></div>
+
+    <!-- Цена -->
+    <div style="background:rgba(139,0,255,.08);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;color:#886699">Стоимость</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="modal-price"></div>
+    </div>
+
+    <!-- Промокод -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:#67e8f9;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🏷 Промокод (если есть)</div>
+      <div style="display:flex;gap:8px">
+        <input id="modal-promo-input" placeholder="Введи промокод" maxlength="20"
+          style="flex:1;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;text-transform:uppercase">
+        <button onclick="applyModalPromo()"
+          style="padding:11px 16px;border-radius:10px;background:linear-gradient(90deg,#005588,var(--cyan));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
+          Применить
+        </button>
+      </div>
+      <div id="modal-promo-result" style="display:none;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px"></div>
+    </div>
+
+    <!-- Итого -->
+    <div id="modal-total-row" style="display:none;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:#4ade80">Итого со скидкой</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:#4ade80" id="modal-total-price"></div>
+    </div>
+
+    <!-- Кнопки -->
+    <div style="display:flex;gap:10px">
+      <button onclick="closeBuyModal()"
+        style="flex:1;padding:14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#888;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif">
+        Отмена
+      </button>
+      <button onclick="confirmBuy()"
+        style="flex:2;padding:14px;border-radius:14px;background:linear-gradient(90deg,var(--purple),var(--pink));border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 20px rgba(139,0,255,.4)">
+        🎟 Подтвердить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Главная</div></div>
+  <div class="nav-item" id="nav-calendar" onclick="navTo('calendar')"><div class="nav-icon">📅</div><div class="nav-label">Календарь</div></div>
+  <div class="nav-item" id="nav-search" onclick="navTo('search')"><div class="nav-icon">🔍</div><div class="nav-label">Поиск</div></div>
+  <div class="nav-item" id="nav-cabinet" onclick="navTo('cabinet')"><div class="nav-icon">👤</div><div class="nav-label">Кабинет</div></div>
+</div>
+
+<script>
+const API = 'https://cloute-bot-production.up.railway.app';
+const ADMIN_IDS = [1316655383];
+
+let tgUser = null;
+let currentRole = 'user';
+let currentEventId = null;
+let events = [];
+let orgs = [];
+let promos = JSON.parse(localStorage.getItem('cloute_promos') || '[]');
+let favs = JSON.parse(localStorage.getItem('cloute_favs') || '[]');
+let tickets = JSON.parse(localStorage.getItem('cloute_tickets') || '[]');
+let userProfile = JSON.parse(localStorage.getItem('cloute_profile') || 'null');
+let activeDiscount = null;
+
+// ══ API ══
+async function apiGet(path) {
+  try {
+    const res = await fetch(API + path);
+    return res.json();
+  } catch(e) { return null; }
+}
+
+async function apiPost(path, data) {
+  try {
+    const uid = parseInt(localStorage.getItem('cloute_uid') || '0') || tgUser?.id || 0;
+    const res = await fetch(API + path, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({...data, userId: uid})
+    });
+    return res.json();
+  } catch(e) { return null; }
+}
+
+async function apiDelete(path) {
+  try {
+    const uid = parseInt(localStorage.getItem('cloute_uid') || '0') || tgUser?.id || 0;
+    const res = await fetch(API + path + '?userId=' + uid, {method: 'DELETE'});
+    return res.json();
+  } catch(e) { return null; }
+}
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded', async () => {
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+  }
+
+  const uid = tgUser?.id || 0;
+
+  // Читаем токен из URL — бот передаёт его при открытии
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    // Спрашиваем сервер кто это
+    const authData = await apiGet('/api/auth/' + token);
+    if (authData) {
+      currentRole = authData.role;
+      // Сохраняем чтобы при обновлении страницы не терялось
+      localStorage.setItem('cloute_role', authData.role);
+      localStorage.setItem('cloute_uid', authData.user_id);
+    }
+  } else {
+    // Нет токена — проверяем сохранённую роль
+    const savedRole = localStorage.getItem('cloute_role');
+    if (savedRole) {
+      currentRole = savedRole;
+    }
+  }
+
+  // Бейдж
+  const badge = document.getElementById('role-badge');
+  if (currentRole === 'admin') { badge.textContent = '👑 Админ'; badge.className = 'role-badge role-admin'; }
+  else if (currentRole === 'org') { badge.textContent = '🏢 Организатор'; badge.className = 'role-badge role-org'; }
+
+  // Онбординг
+  if (currentRole === 'user' && !userProfile) {
+    showOnboarding();
+  }
+
+  await loadEvents();
+  await loadOrgs();
+  renderCalendar();
+});
+
+// ══ ONBOARDING ══
+function showOnboarding() {
+  const ob = document.getElementById('view-onboarding');
+  ob.classList.add('active');
+
+  // Подставляем данные из Telegram
+  const name = tgUser?.first_name || '';
+  const username = tgUser?.username ? '@' + tgUser.username : 'Нет username';
+  const photoUrl = tgUser?.photo_url;
+
+  document.getElementById('ob-name').value = name;
+  document.getElementById('ob-tg-name').textContent = username;
+
+  if (photoUrl) {
+    document.getElementById('onboard-avatar').innerHTML = `<img src="${photoUrl}" alt="avatar">`;
+  }
+}
+
+function completeRegistration() {
+  const name = document.getElementById('ob-name').value.trim();
+  if (!name) { alert('Введи имя!'); return; }
+
+  userProfile = {
+    name,
+    email: document.getElementById('ob-email').value.trim(),
+    birthdate: document.getElementById('ob-birth').value,
+    tgUsername: tgUser?.username || '',
+    tgId: tgUser?.id || 0,
+    tgFirstName: tgUser?.first_name || '',
+    photoUrl: tgUser?.photo_url || '',
+    registeredAt: new Date().toLocaleDateString('ru-RU'),
+  };
+  localStorage.setItem('cloute_profile', JSON.stringify(userProfile));
+  document.getElementById('view-onboarding').classList.remove('active');
+}
+
+function editProfile() {
+  document.getElementById('view-onboarding').classList.add('active');
+  if (userProfile) {
+    document.getElementById('ob-name').value = userProfile.name || '';
+    document.getElementById('ob-email').value = userProfile.email || '';
+    document.getElementById('ob-birth').value = userProfile.birthdate || '';
+  }
+}
+
+// ══ NAV ══
+function navTo(page) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + page).classList.add('active');
+  const nav = document.getElementById('nav-' + page);
+  if (nav) nav.classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'calendar') renderCalendar();
+  if (page === 'cabinet') renderCabinet();
+}
+
+function showSubview(id) {
+  document.querySelectorAll('.subview').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showCabMain() { showSubview('cab-main'); }
+
+// ══ LOAD DATA ══
+async function loadEvents() {
+  const data = await apiGet('/api/events');
+  if (data) { events = data; renderHome(); }
+}
+async function loadOrgs() {
+  const data = await apiGet('/api/orgs');
+  if (data) { orgs = data; document.getElementById('cnt-orgs').textContent = orgs.length; }
+}
+
+// ══ HOME ══
+function renderHome(list) {
+  const data = list || events;
+  document.getElementById('cnt-total').textContent = events.length;
+  const c = document.getElementById('events-list');
+  if (data.length === 0) {
+    c.innerHTML = '<div class="empty" style="padding:60px 20px"><div class="empty-icon">🎉</div><div class="empty-text">Скоро появятся первые тусовки!</div></div>';
+    return;
+  }
+  c.innerHTML = data.map(ev => {
+    const org = orgs.find(o => o.tg_id == ev.org_id);
+    const isFav = favs.includes(ev.id);
+    const imgHtml = ev.poster_url
+      ? `<img class="poster-img" src="${ev.poster_url}" alt="${ev.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const placeholderHtml = `<div class="poster-img-placeholder" style="${ev.poster_url ? 'display:none' : ''}">${ev.emoji}</div>`;
+    return `
+    <div class="poster-card" onclick="openDetail(${ev.id})">
+      ${imgHtml}
+      ${placeholderHtml}
+      <div class="poster-overlay">
+        <div class="poster-badges">
+          ${ev.hot ? '<span class="badge badge-hot">🔥 Хит</span>' : ''}
+          ${ev.price?.toLowerCase() === 'бесплатно' ? '<span class="badge badge-free">Бесплатно</span>' : ''}
+        </div>
+        <div class="poster-name">${ev.name}</div>
+        <div class="poster-meta">
+          ${org ? `<div class="poster-org">🏢 ${org.name}</div>` : ''}
+          <div class="poster-row">
+            <div class="poster-place">📍 ${ev.venue}</div>
+            <div class="poster-date">${ev.date}</div>
+          </div>
+          <div class="poster-row">
+            <div style="font-size:12px;color:#aaa">⏰ ${ev.time}</div>
+            <div class="poster-price">${ev.price}</div>
+          </div>
+        </div>
+        <div class="poster-actions">
+          <button class="poster-fav" onclick="event.stopPropagation();quickFav(${ev.id},this)">${isFav ? '💜' : '🤍'}</button>
+          <button class="poster-share" onclick="event.stopPropagation();quickShare(${ev.id})">🔗</button>
+          <button class="poster-buy" onclick="event.stopPropagation();currentEventId=${ev.id};openBuyModal()">🎟 Купить билет</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function quickFav(id, btn) {
+  const idx = favs.indexOf(id);
+  if (idx >= 0) { favs.splice(idx, 1); btn.textContent = '🤍'; }
+  else { favs.push(id); btn.textContent = '💜'; }
+  localStorage.setItem('cloute_favs', JSON.stringify(favs));
+}
+
+function quickShare(id) {
+  const ev = events.find(e => e.id === id);
+  if (ev && navigator.share) navigator.share({title: ev.name, text: `${ev.name} — ${ev.date} в ${ev.venue}`});
+}
+
+function filterTab(f, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderHome(events);
+}
+
+// ══ DETAIL ══
+function openDetail(id) {
+  currentEventId = id;
+  activeDiscount = null;
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  const org = orgs.find(o => o.tg_id == ev.org_id);
+
+  // Афиша — показываем картинку если есть, иначе эмодзи
+  const posterImg = document.getElementById('detail-poster-img');
+  const posterEmoji = document.getElementById('detail-poster-emoji');
+  if (ev.poster_url) {
+    posterImg.src = ev.poster_url;
+    posterImg.style.display = 'block';
+    posterEmoji.style.display = 'none';
+  } else {
+    posterImg.style.display = 'none';
+    posterEmoji.style.display = 'flex';
+    posterEmoji.textContent = ev.emoji;
+  }
+
+  // Текстовая информация
+  document.getElementById('detail-org').textContent = org ? '🏢 ' + org.name : '';
+  document.getElementById('detail-name').textContent = ev.name;
+  document.getElementById('detail-desc').textContent = ev.description || '';
+  document.getElementById('detail-rows').innerHTML = `
+    <div class="detail-row"><div class="detail-row-icon">📅</div><div><div class="detail-row-label">Дата</div><div class="detail-row-val">${ev.date}</div></div></div>
+    <div class="detail-row"><div class="detail-row-icon">⏰</div><div><div class="detail-row-label">Время</div><div class="detail-row-val">${ev.time}</div></div></div>
+    <div class="detail-row"><div class="detail-row-icon">📍</div><div><div class="detail-row-label">Место</div><div class="detail-row-val">${ev.venue}</div></div></div>
+    <div class="detail-row"><div class="detail-row-icon">💵</div><div><div class="detail-row-label">Вход</div><div class="detail-row-val">${ev.price}</div></div></div>`;
+  document.getElementById('btn-buy-main').textContent = '🎟 Купить билет — ' + ev.price;
+
+  // Избранное
+  const isFav = favs.includes(id);
+  document.getElementById('btn-fav').textContent = isFav ? '💜' : '🤍';
+
+  navTo('detail');
+}
+
+// ══ BUY MODAL ══
+function openBuyModal() {
+  const ev = events.find(e => e.id === currentEventId);
+  if (!ev) return;
+  if (ev.link) { window.open(ev.link, '_blank'); return; }
+
+  activeDiscount = null;
+  document.getElementById('modal-promo-input').value = '';
+  document.getElementById('modal-promo-result').style.display = 'none';
+  document.getElementById('modal-total-row').style.display = 'none';
+  document.getElementById('modal-event-name').textContent = ev.name;
+  document.getElementById('modal-event-info').textContent = `📅 ${ev.date} · 📍 ${ev.venue}`;
+  document.getElementById('modal-price').textContent = ev.price;
+
+  const modal = document.getElementById('buy-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.style.opacity = '1', 10);
+}
+
+function closeBuyModal() {
+  document.getElementById('buy-modal').style.display = 'none';
+  activeDiscount = null;
+}
+
+function applyModalPromo() {
+  const code = document.getElementById('modal-promo-input').value.trim().toUpperCase();
+  const resultEl = document.getElementById('modal-promo-result');
+  const totalRow = document.getElementById('modal-total-row');
+
+  if (!code) return;
+
+  const promo = promos.find(p => p.code === code);
+
+  if (!promo) {
+    resultEl.textContent = '❌ Промокод не найден';
+    resultEl.style.cssText = 'display:block;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.2);color:#ff4466';
+    totalRow.style.display = 'none';
+    activeDiscount = null;
+    return;
+  }
+
+  if (promo.uses > 0 && (promo.usedCount || 0) >= promo.uses) {
+    resultEl.textContent = '❌ Промокод исчерпан';
+    resultEl.style.cssText = 'display:block;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.2);color:#ff4466';
+    totalRow.style.display = 'none';
+    activeDiscount = null;
+    return;
+  }
+
+  activeDiscount = promo;
+  resultEl.textContent = `✅ Промокод применён! Скидка: ${promo.discount}`;
+  resultEl.style.cssText = 'display:block;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:#4ade80';
+  totalRow.style.display = 'flex';
+  document.getElementById('modal-total-price').textContent = `${promo.discount} скидка`;
+}
+
+function confirmBuy() {
+  const ev = events.find(e => e.id === currentEventId);
+  if (!ev) return;
+
+  const ticket = {
+    id: Date.now(),
+    eventId: currentEventId,
+    eventName: ev.name,
+    date: ev.date,
+    venue: ev.venue,
+    price: ev.price,
+    num: 'TKT-' + Math.random().toString(36).substr(2,8).toUpperCase(),
+    discount: activeDiscount ? activeDiscount.discount : null,
+    promoCode: activeDiscount ? activeDiscount.code : null,
+  };
+
+  if (activeDiscount) {
+    const idx = promos.findIndex(p => p.code === activeDiscount.code);
+    if (idx >= 0) promos[idx].usedCount = (promos[idx].usedCount || 0) + 1;
+    localStorage.setItem('cloute_promos', JSON.stringify(promos));
+  }
+
+  tickets.push(ticket);
+  localStorage.setItem('cloute_tickets', JSON.stringify(tickets));
+  closeBuyModal();
+  activeDiscount = null;
+
+  window.Telegram?.WebApp?.showAlert('🎟 Билет добавлен в "Мои билеты"!') || alert('Билет добавлен!');
+}
+
+function buyTicket() { openBuyModal(); }
+
+function toggleFav() {
+  const idx = favs.indexOf(currentEventId);
+  if (idx >= 0) favs.splice(idx, 1); else favs.push(currentEventId);
+  localStorage.setItem('cloute_favs', JSON.stringify(favs));
+  const isFav = favs.includes(currentEventId);
+  const btn = document.getElementById('btn-fav');
+  btn.textContent = isFav ? '💜 В избранном' : '❤️ В избранное';
+  btn.classList.toggle('active', isFav);
+}
+
+function shareEvent() {
+  const ev = events.find(e => e.id === currentEventId);
+  if (ev && navigator.share) navigator.share({title: ev.name, text: `${ev.name} — ${ev.date} в ${ev.venue}`});
+}
+
+// ══ CALENDAR ══
+function renderCalendar() {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  document.getElementById('cal-month').textContent = months[month] + ' ' + year;
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const eventDays = new Set(events.map(e => parseInt(e.date.split('.')[0])));
+  let html = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d => `<div class="cal-day-name">${d}</div>`).join('');
+  for (let i = 0; i < offset; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === now.getDate();
+    const hasEv = eventDays.has(d);
+    html += `<div class="cal-day ${isToday?'today':''} ${hasEv&&!isToday?'has-event':''}" onclick="selectDay(${d})">${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+  renderCalEvents(null);
+}
+function selectDay(d) { renderCalEvents(d); }
+function renderCalEvents(day) {
+  const c = document.getElementById('cal-events');
+  const filtered = day ? events.filter(e => parseInt(e.date.split('.')[0]) === day) : events;
+  if (filtered.length === 0) { c.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">${day?'В этот день нет тусовок':'Выбери день выше'}</div></div>`; return; }
+  c.innerHTML = filtered.map(ev => `
+    <div class="cal-event-item" onclick="openDetail(${ev.id})">
+      <div class="cal-date-box"><div class="cal-date-day">${ev.date.split('.')[0]}</div><div class="cal-date-mon">МАЯ</div></div>
+      <div><div class="cei-name">${ev.emoji} ${ev.name}</div><div class="cei-place">📍 ${ev.venue} · ${ev.time}</div></div>
+    </div>`).join('');
+}
+
+// ══ SEARCH ══
+function doSearch(q) {
+  const c = document.getElementById('search-results');
+  if (!q.trim()) { c.innerHTML = ''; return; }
+  const found = events.filter(e => e.name.toLowerCase().includes(q.toLowerCase()) || e.venue.toLowerCase().includes(q.toLowerCase()));
+  if (found.length === 0) { c.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Ничего не найдено</div></div>'; return; }
+  c.innerHTML = found.map(ev => `
+    <div class="event-card" onclick="openDetail(${ev.id})">
+      <div class="event-body" style="padding:14px">
+        <div class="event-date">${ev.date} · ${ev.time}</div>
+        <div class="event-name">${ev.name}</div>
+        <div class="event-meta"><div class="event-place">📍 ${ev.venue}</div><div class="event-price">${ev.price}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+// ══ CABINET ══
+function renderCabinet() {
+  showSubview('cab-main');
+  const name = userProfile?.name || tgUser?.first_name || 'Пользователь';
+  const username = tgUser?.username ? '@' + tgUser.username : '';
+  const photo = userProfile?.photoUrl || tgUser?.photo_url;
+  const uid = tgUser?.id || 0;
+
+  // Аватарка
+  if (photo) {
+    document.getElementById('cab-avatar').innerHTML = `<img src="${photo}" alt="avatar">`;
+  } else {
+    document.getElementById('cab-avatar').textContent = currentRole === 'admin' ? '👑' : currentRole === 'org' ? '🏢' : '👤';
+  }
+  document.getElementById('cab-name').textContent = name;
+  document.getElementById('cab-username').textContent = username;
+
+  if (currentRole === 'admin') {
+    document.getElementById('cab-role-text').textContent = 'Администратор платформы';
+    document.getElementById('cab-stats').innerHTML = `
+      <div><div class="cab-stat-num">${events.length}</div><div class="cab-stat-label">событий</div></div>
+      <div><div class="cab-stat-num">${orgs.length}</div><div class="cab-stat-label">организаторов</div></div>
+      <div><div class="cab-stat-num">${promos.length}</div><div class="cab-stat-label">промокодов</div></div>`;
+    document.getElementById('cab-menu').innerHTML = `
+      <div class="cab-menu-item" onclick="openAdminStats()"><div class="cab-menu-icon">📊</div><div><div class="cab-menu-title">Статистика</div><div class="cab-menu-sub">Пользователи, события</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="openAdminOrgs()"><div class="cab-menu-icon">🏢</div><div><div class="cab-menu-title">Организаторы</div><div class="cab-menu-sub">${orgs.length} подключено</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="openAdminEvents()"><div class="cab-menu-icon">🎉</div><div><div class="cab-menu-title">Все события</div><div class="cab-menu-sub">${events.length} событий</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="openAdminPromos()"><div class="cab-menu-icon">🏷</div><div><div class="cab-menu-title">Промокоды</div><div class="cab-menu-sub">${promos.length} активных</div></div><div class="cab-menu-arrow">›</div></div>`;
+  } else if (currentRole === 'org') {
+    const org = orgs.find(o => o.tg_id == uid);
+    const orgName = org?.name || 'Организатор';
+    document.getElementById('cab-avatar').textContent = '🏢';
+    document.getElementById('cab-name').textContent = orgName;
+    document.getElementById('cab-role-text').textContent = 'Организатор мероприятий';
+    const myEvents = events.filter(e => e.org_id == uid);
+    const activeEvents = myEvents.filter(e => e.status === 'active');
+    document.getElementById('cab-stats').innerHTML = `
+      <div><div class="cab-stat-num">${myEvents.length}</div><div class="cab-stat-label">всего событий</div></div>
+      <div><div class="cab-stat-num">${activeEvents.length}</div><div class="cab-stat-label">активных</div></div>`;
+    document.getElementById('cab-menu').innerHTML = `
+      <div class="cab-menu-item" onclick="openOrgAddEvent()">
+        <div class="cab-menu-icon" style="background:linear-gradient(135deg,var(--purple),var(--pink))">➕</div>
+        <div><div class="cab-menu-title">Добавить мероприятие</div><div class="cab-menu-sub">Создать новое событие с афишей</div></div>
+        <div class="cab-menu-arrow">›</div>
+      </div>
+      <div class="cab-menu-item" onclick="openOrgEvents()">
+        <div class="cab-menu-icon">🎉</div>
+        <div><div class="cab-menu-title">Мои мероприятия</div><div class="cab-menu-sub">${myEvents.length} событий</div></div>
+        <div class="cab-menu-arrow">›</div>
+      </div>
+      <div class="cab-menu-item" onclick="openOrgStats()">
+        <div class="cab-menu-icon">📊</div>
+        <div><div class="cab-menu-title">Статистика</div><div class="cab-menu-sub">Просмотры и активность</div></div>
+        <div class="cab-menu-arrow">›</div>
+      </div>
+      <div class="cab-menu-item" onclick="openAdminPromos()">
+        <div class="cab-menu-icon">🏷</div>
+        <div><div class="cab-menu-title">Промокоды</div><div class="cab-menu-sub">Создать скидку для гостей</div></div>
+        <div class="cab-menu-arrow">›</div>
+      </div>`;
+  } else {
+    document.getElementById('cab-role-text').textContent = userProfile ? 'Участник сообщества' : 'Нажми для регистрации';
+    document.getElementById('cab-stats').innerHTML = `
+      <div><div class="cab-stat-num">${tickets.length}</div><div class="cab-stat-label">билетов</div></div>
+      <div><div class="cab-stat-num">${favs.length}</div><div class="cab-stat-label">избранных</div></div>`;
+    document.getElementById('cab-menu').innerHTML = `
+      <div class="cab-menu-item" onclick="openUserProfile()"><div class="cab-menu-icon">👤</div><div><div class="cab-menu-title">Мой профиль</div><div class="cab-menu-sub">${userProfile ? userProfile.name : 'Заполни профиль'}</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="openUserTickets()"><div class="cab-menu-icon">🎟</div><div><div class="cab-menu-title">Мои билеты</div><div class="cab-menu-sub">${tickets.length} куплено</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="openUserFavs()"><div class="cab-menu-icon">❤️</div><div><div class="cab-menu-title">Избранное</div><div class="cab-menu-sub">${favs.length} сохранено</div></div><div class="cab-menu-arrow">›</div></div>
+      <div class="cab-menu-item" onclick="showSubview('sub-user-notifs')"><div class="cab-menu-icon">🔔</div><div><div class="cab-menu-title">Уведомления</div><div class="cab-menu-sub">Настроить оповещения</div></div><div class="cab-menu-arrow">›</div></div>`;
+  }
+}
+
+function openUserProfile() {
+  const c = document.getElementById('profile-card');
+  if (!userProfile) { showOnboarding(); return; }
+  const photo = userProfile.photoUrl;
+  c.innerHTML = `
+    ${photo ? `<div style="text-align:center;margin-bottom:16px"><img src="${photo}" style="width:80px;height:80px;border-radius:50%;border:2px solid var(--purple)"></div>` : ''}
+    <div class="profile-row"><div class="profile-icon">👤</div><div><div class="profile-label">Имя</div><div class="profile-val">${userProfile.name}</div></div></div>
+    <div class="profile-row"><div class="profile-icon">✈️</div><div><div class="profile-label">Telegram</div><div class="profile-val">${userProfile.tgUsername ? '@'+userProfile.tgUsername : '—'}</div></div></div>
+    ${userProfile.email ? `<div class="profile-row"><div class="profile-icon">📧</div><div><div class="profile-label">Email</div><div class="profile-val">${userProfile.email}</div></div></div>` : ''}
+    ${userProfile.birthdate ? `<div class="profile-row"><div class="profile-icon">🎂</div><div><div class="profile-label">Дата рождения</div><div class="profile-val">${new Date(userProfile.birthdate).toLocaleDateString('ru-RU')}</div></div></div>` : ''}
+    <div class="profile-row"><div class="profile-icon">📅</div><div><div class="profile-label">В CLOUTE с</div><div class="profile-val">${userProfile.registeredAt}</div></div></div>`;
+  showSubview('sub-user-profile');
+}
+
+function openUserTickets() {
+  const c = document.getElementById('user-tickets-list');
+  c.innerHTML = tickets.length === 0 ? '<div class="empty"><div class="empty-icon">🎟</div><div class="empty-text">Билетов пока нет</div></div>' :
+  tickets.map(t => `
+    <div class="ticket-card">
+      <div class="ticket-name">${t.eventName}</div>
+      <div class="ticket-info">📅 ${t.date}<br>📍 ${t.venue}<br>💵 ${t.price}</div>
+      ${t.discount ? `<div class="ticket-discount">🏷 Скидка: ${t.discount} (${t.promoCode})</div>` : ''}
+      <div class="ticket-num">🎟 ${t.num}</div>
+    </div>`).join('');
+  showSubview('sub-user-tickets');
+}
+
+function openUserFavs() {
+  const c = document.getElementById('user-favs-list');
+  const favEvents = events.filter(e => favs.includes(e.id));
+  c.innerHTML = favEvents.length === 0 ? '<div class="empty"><div class="empty-icon">❤️</div><div class="empty-text">Нет сохранённых тусовок</div></div>' :
+  favEvents.map(ev => `
+    <div class="event-card" onclick="openDetail(${ev.id})">
+      <div class="event-body" style="padding:14px">
+        <div class="event-date">${ev.date} · ${ev.time}</div>
+        <div class="event-name">${ev.name}</div>
+        <div class="event-meta"><div class="event-place">📍 ${ev.venue}</div><div class="event-price">${ev.price}</div></div>
+      </div>
+    </div>`).join('');
+  showSubview('sub-user-favs');
+}
+
+// ══ ADMIN ══
+async function openAdminStats() {
+  const stats = await apiGet('/api/stats');
+  if (stats) {
+    document.getElementById('as-events').textContent = stats.events;
+    document.getElementById('as-orgs').textContent = stats.orgs;
+    document.getElementById('as-users').textContent = stats.users;
+  }
+  showSubview('sub-admin-stats');
+}
+
+async function openAdminOrgs() {
+  orgs = await apiGet('/api/orgs') || orgs;
+  const c = document.getElementById('orgs-list');
+  c.innerHTML = orgs.length === 0 ? '<div class="empty"><div class="empty-text">Организаторов пока нет</div></div>' :
+  orgs.map(o => `
+    <div class="list-item">
+      <div><div class="li-name">🏢 ${o.name}</div><div class="li-meta" style="font-family:monospace">ID: ${o.tg_id}</div></div>
+      <button class="btn-sm-delete" onclick="removeOrg(${o.tg_id})">Удалить</button>
+    </div>`).join('');
+  showSubview('sub-admin-orgs');
+}
+
+async function openAdminEvents() {
+  events = await apiGet('/api/events') || events;
+  document.getElementById('events-subview-title').textContent = '🎉 Все события';
+  const c = document.getElementById('admin-events-list');
+  c.innerHTML = events.length === 0 ? '<div class="empty"><div class="empty-text">Событий нет</div></div>' :
+  events.map(ev => `
+    <div class="list-item">
+      <div><div class="li-name">${ev.emoji} ${ev.name}</div><div class="li-meta">${ev.date} · ${ev.venue}</div></div>
+      <button class="btn-sm-delete" onclick="deleteEvent(${ev.id})">🗑</button>
+    </div>`).join('');
+  showSubview('sub-admin-events');
+}
+
+async function openOrgAddEvent() {
+  // Открываем форму добавления события сразу
+  document.getElementById('events-subview-title').textContent = '➕ Новое мероприятие';
+  document.getElementById('admin-events-list').innerHTML = '';
+  showSubview('sub-admin-events');
+  // Автоматически открываем форму
+  setTimeout(() => {
+    document.getElementById('form-add-event').classList.add('open');
+  }, 100);
+}
+
+async function openOrgStats() {
+  const uid = parseInt(localStorage.getItem('cloute_uid') || '0');
+  events = await apiGet('/api/events') || events;
+  const myEvents = events.filter(e => e.org_id == uid);
+  const activeEvents = myEvents.filter(e => e.status === 'active');
+
+  document.getElementById('os-total').textContent = myEvents.length;
+  document.getElementById('os-active').textContent = activeEvents.length;
+
+  const c = document.getElementById('org-stats-events');
+  if (myEvents.length === 0) {
+    c.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Событий пока нет</div></div>';
+  } else {
+    c.innerHTML = myEvents.map(ev => `
+      <div class="list-item" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+          <div><div class="li-name">${ev.emoji} ${ev.name}</div><div class="li-meta">${ev.date} · ${ev.venue}</div></div>
+          <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,255,136,.15);color:#4ade80;border:1px solid rgba(0,255,136,.3)">Активно</span>
+        </div>
+        <div style="display:flex;gap:8px;width:100%">
+          <div style="flex:1;background:rgba(139,0,255,.08);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:#c084fc">—</div>
+            <div style="font-size:10px;color:#664488">просмотров</div>
+          </div>
+          <div style="flex:1;background:rgba(0,212,255,.08);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:#67e8f9">—</div>
+            <div style="font-size:10px;color:#664488">билетов</div>
+          </div>
+          <div style="flex:1;background:rgba(0,255,136,.08);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:#4ade80">${ev.price}</div>
+            <div style="font-size:10px;color:#664488">цена входа</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  showSubview('sub-org-stats');
+}
+  const uid = tgUser?.id || 0;
+  events = await apiGet('/api/events') || events;
+  const myEvs = events.filter(e => e.org_id == uid);
+  document.getElementById('events-subview-title').textContent = '🎉 Мои события';
+  const c = document.getElementById('admin-events-list');
+  c.innerHTML = myEvs.length === 0 ? '<div class="empty"><div class="empty-text">Событий нет</div></div>' :
+  myEvs.map(ev => `
+    <div class="list-item">
+      <div><div class="li-name">${ev.emoji} ${ev.name}</div><div class="li-meta">${ev.date} · ${ev.time}</div></div>
+      <button class="btn-sm-delete" onclick="deleteEvent(${ev.id})">🗑</button>
+    </div>`).join('');
+  showSubview('sub-admin-events');
+}
+
+function openAdminPromos() {
+  renderPromosList();
+  showSubview('sub-admin-promos');
+}
+
+async function openOrgEvents() {
+  const uid = parseInt(localStorage.getItem('cloute_uid') || '0');
+  events = await apiGet('/api/events') || events;
+  const myEvs = events.filter(e => e.org_id == uid);
+  document.getElementById('events-subview-title').textContent = '🎉 Мои мероприятия';
+  const c = document.getElementById('admin-events-list');
+  c.innerHTML = myEvs.length === 0 ? '<div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">Мероприятий пока нет.<br>Нажми ➕ чтобы добавить!</div></div>' :
+  myEvs.map(ev => `
+    <div class="list-item">
+      <div>
+        <div class="li-name">${ev.emoji} ${ev.name}</div>
+        <div class="li-meta">${ev.date} · ${ev.time} · ${ev.venue}</div>
+        <div class="li-meta">${ev.price}</div>
+      </div>
+      <button class="btn-sm-delete" onclick="deleteEvent(${ev.id})">🗑</button>
+    </div>`).join('');
+  showSubview('sub-admin-events');
+}
+
+function renderPromosList() {
+  const c = document.getElementById('promos-list');
+  c.innerHTML = promos.length === 0 ? '<div class="empty"><div class="empty-icon">🏷</div><div class="empty-text">Промокодов пока нет</div></div>' :
+  promos.map(p => `
+    <div class="promo-admin-card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="promo-code">${p.code}</div>
+        <button class="btn-sm-delete" onclick="deletePromo('${p.code}')">Удалить</button>
+      </div>
+      <div class="promo-info">Скидка: ${p.discount} · Использований: ${p.usedCount||0}${p.uses > 0 ? '/'+p.uses : '/∞'}</div>
+    </div>`).join('');
+}
+
+function savePromo() {
+  const code = document.getElementById('fp-code').value.trim().toUpperCase();
+  const discount = document.getElementById('fp-discount').value.trim();
+  const uses = parseInt(document.getElementById('fp-uses').value) || 0;
+  if (!code || !discount) { alert('Заполни код и скидку!'); return; }
+  if (promos.find(p => p.code === code)) { alert('Такой промокод уже существует!'); return; }
+  promos.push({code, discount, uses, usedCount: 0, createdAt: new Date().toLocaleDateString('ru-RU')});
+  localStorage.setItem('cloute_promos', JSON.stringify(promos));
+  document.getElementById('fp-code').value = '';
+  document.getElementById('fp-discount').value = '';
+  document.getElementById('fp-uses').value = '';
+  document.getElementById('form-add-promo').classList.remove('open');
+  renderPromosList();
+}
+
+function deletePromo(code) {
+  if (!confirm('Удалить промокод ' + code + '?')) return;
+  promos = promos.filter(p => p.code !== code);
+  localStorage.setItem('cloute_promos', JSON.stringify(promos));
+  renderPromosList();
+}
+
+function toggleForm(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ══ ЗАГРУЗКА ФОТО ══
+function previewPoster(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('poster-preview-img').src = e.target.result;
+    document.getElementById('poster-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPoster(file) {
+  // Загружаем на imgbb.com (бесплатный хостинг картинок)
+  const formData = new FormData();
+  formData.append('image', file);
+  try {
+    const res = await fetch('https://api.imgbb.com/1/upload?key=37c43b29e20091e53ca74640de81676f', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) return data.data.url;
+  } catch(e) {}
+  return null;
+}
+
+async function saveEvent() {
+  const name = document.getElementById('fe-name').value.trim();
+  const date = document.getElementById('fe-date').value.trim();
+  if (!name || !date) { alert('Заполни название и дату!'); return; }
+
+  // Показываем загрузку
+  const saveBtn = document.querySelector('#form-add-event .btn-save');
+  saveBtn.textContent = 'Загружаем...';
+  saveBtn.disabled = true;
+
+  // Загружаем фото если выбрано
+  let posterUrl = document.getElementById('fe-poster').value.trim();
+  const fileInput = document.getElementById('fe-poster-file');
+  if (fileInput.files[0]) {
+    const uploaded = await uploadPoster(fileInput.files[0]);
+    if (uploaded) posterUrl = uploaded;
+  }
+
+  await apiPost('/api/events', {
+    name, date,
+    time: document.getElementById('fe-time').value.trim() || '—',
+    venue: document.getElementById('fe-venue').value.trim() || 'Место уточняется',
+    price: document.getElementById('fe-price').value.trim() || 'Уточняется',
+    link: document.getElementById('fe-link').value.trim(),
+    desc: document.getElementById('fe-desc').value.trim(),
+    emoji: document.getElementById('fe-emoji').value,
+    poster_url: posterUrl,
+  });
+
+  ['fe-name','fe-date','fe-time','fe-venue','fe-price','fe-link','fe-desc','fe-poster'].forEach(i => document.getElementById(i).value = '');
+  fileInput.value = '';
+  document.getElementById('poster-preview').style.display = 'none';
+  saveBtn.textContent = 'Сохранить';
+  saveBtn.disabled = false;
+  document.getElementById('form-add-event').classList.remove('open');
+  await loadEvents();
+  openAdminEvents();
+}
+
+async function saveOrg() {
+  const name = document.getElementById('fo-name').value.trim();
+  const tgId = document.getElementById('fo-id').value.trim();
+  if (!name || !tgId) { alert('Заполни все поля!'); return; }
+
+  const uid = parseInt(localStorage.getItem('cloute_uid') || '0');
+  if (uid === 0) {
+    alert('Ошибка: твой ID не определён. Закрой WebApp и открой заново через кнопку в боте!');
+    return;
+  }
+
+  const result = await apiPost('/api/orgs', {name, tgId: parseInt(tgId)});
+  if (result?.error) {
+    alert('Ошибка: ' + result.error);
+    return;
+  }
+  document.getElementById('fo-name').value = '';
+  document.getElementById('fo-id').value = '';
+  document.getElementById('form-add-org').classList.remove('open');
+  await loadOrgs();
+  openAdminOrgs();
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Удалить событие?')) return;
+  await apiDelete('/api/events/' + id);
+  await loadEvents();
+  openAdminEvents();
+}
+
+async function removeOrg(tgId) {
+  if (!confirm('Удалить организатора?')) return;
+  await apiDelete('/api/orgs/' + tgId);
+  await loadOrgs();
+  openAdminOrgs();
+}
+</script>
+</body>
+</html>
