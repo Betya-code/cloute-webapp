@@ -535,7 +535,8 @@ body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height
 
 <script>
 const API = 'https://cloute-bot-production.up.railway.app';
-const ADMIN_IDS = [1316655383]; // ← замени на свой ID
+const ADMIN_IDS = [1316655383]; // ← замени на свой ID 
+console.log('TG USER:', JSON.stringify(window.Telegram?.WebApp?.initDataUnsafe?.user));
 
 let tgUser = null;
 let currentRole = 'user';
