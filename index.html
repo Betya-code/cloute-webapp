@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -586,9 +586,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   const uid = tgUser?.id || 0;
 
   // Роль
-  const roleData = await apiGet('/api/role/' + uid);
-  if (roleData) currentRole = roleData.role;
-  else if (ADMIN_IDS.includes(uid)) currentRole = 'admin';
+  // Роль
+  if (ADMIN_IDS.includes(uid)) {
+    currentRole = 'admin';
+  } else {
+    const roleData = await apiGet('/api/role/' + uid);
+    if (roleData) currentRole = roleData.role;
+  }
 
   // Бейдж
   const badge = document.getElementById('role-badge');
