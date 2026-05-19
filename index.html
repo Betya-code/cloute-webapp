@@ -631,7 +631,7 @@ async function completeRegistration() {
   if (!email) {
     document.getElementById('ob-email').style.borderColor = 'var(--pink)';
     document.getElementById('ob-email').focus();
-    alert('⚠️ Введи email — на него будут приходить билеты!');
+    alert('⚠️ Введи email ');
     return;
   }
   if (!emailRegex.test(email)) {
