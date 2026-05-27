@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CLOUTE</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+:root{--p:#8b00ff;--pk:#ff0099;--cy:#00d4ff;--gn:#00ff88;--dk:#080010;--cd:#12001e;--tx:#e8d4ff;--mt:#664488}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--dk);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(139,0,255,.12),transparent 60%);pointer-events:none;z-index:0}
+
+/* VIEWS & TRANSITIONS */
+.view{display:none;position:relative;z-index:1;min-height:100vh;padding-bottom:72px}
+.view.active{display:block;animation:fadeSlideIn .25s ease}
+.view.slide-back{animation:fadeSlideBack .25s ease}
+
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateX(18px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes fadeSlideBack{
+  from{opacity:0;transform:translateX(-18px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* SUBVIEW TRANSITIONS */
+.sv{display:none}
+.sv.active{display:block;animation:fadeIn .2s ease}
+
+/* SKELETON */
+@keyframes shimmer{
+  0%{background-position:-600px 0}
+  100%{background-position:600px 0}
+}
+.skeleton{
+  background:linear-gradient(90deg,rgba(139,0,255,.08) 25%,rgba(139,0,255,.15) 50%,rgba(139,0,255,.08) 75%);
+  background-size:600px 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:8px;
+}
+.skeleton-poster{width:100%;aspect-ratio:4/5;border-radius:0}
+.skeleton-line{height:14px;margin-bottom:8px}
+.skeleton-line.sm{height:10px;width:60%}
+.skeleton-line.md{height:12px;width:80%}
+.skeleton-card{background:var(--cd);border-bottom:1px solid rgba(139,0,255,.1);overflow:hidden}
+.skeleton-body{padding:16px}
+
+/* BUTTON ANIMATIONS */
+button{transition:transform .1s ease,opacity .1s ease}
+button:active{transform:scale(.96);opacity:.85}
+.ci{transition:transform .15s ease,background .15s ease,border-color .15s ease}
+.ci:active{transform:scale(.98)}
+.poster{transition:transform .2s ease}
+.poster:active{transform:scale(.99)}
+.tab{transition:all .2s ease}
+.ni{transition:all .15s ease}
+.ni.active .nicon{animation:navPop .3s ease}
+@keyframes navPop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.25)}
+  100%{transform:scale(1)}
+}
+
+/* CARD APPEAR ANIMATIONS */
+.poster-appear{animation:cardAppear .35s ease both}
+@keyframes cardAppear{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* TODAY CARD */
+.today-card{transition:transform .15s ease}
+.today-card:active{transform:scale(.97)}
+.hdr{padding:14px 16px 12px;position:sticky;top:0;background:rgba(8,0,16,.97);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(139,0,255,.15)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.rbadge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.ra{background:rgba(255,0,153,.2);border:1px solid rgba(255,0,153,.4);color:#f9a8d4}
+.ro{background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);color:#67e8f9}
+.ru{background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid rgba(139,0,255,.2);background:transparent;color:var(--mt);font-family:'Inter',sans-serif}
+.tab.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+
+/* HERO */
+.hero{margin:14px;background:linear-gradient(135deg,#1a0033,#000d1a);border:1px solid rgba(139,0,255,.3);border-radius:20px;padding:20px;position:relative;overflow:hidden}
+.hero::before{content:'🎉';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:56px;opacity:.12}
+.hero h2{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;margin-bottom:4px}
+.hero p{font-size:12px;color:#888}
+.hstats{display:flex;gap:20px;margin-top:12px}
+.hnum{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hlbl{font-size:10px;color:#555;margin-top:1px}
+
+/* CATEGORIES ROW */
+.cats-row{display:flex;gap:8px;padding:0 14px 14px;overflow-x:auto;scrollbar-width:none}
+.cats-row::-webkit-scrollbar{display:none}
+.cat-chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid rgba(139,0,255,.2);background:transparent;color:var(--mt);font-family:'Inter',sans-serif;flex-shrink:0}
+.cat-chip.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+
+/* TODAY ROW */
+.today-section{padding:0 14px 16px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.section-sub{font-size:11px;color:var(--mt)}
+.today-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.today-scroll::-webkit-scrollbar{display:none}
+.today-card{flex-shrink:0;width:140px;background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;overflow:hidden;cursor:pointer}
+.today-card-img{width:100%;height:90px;object-fit:cover}
+.today-card-emoji{width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(135deg,#1a0033,#0d0020)}
+.today-card-body{padding:8px}
+.today-card-name{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.today-card-time{font-size:10px;color:var(--cy)}
+
+/* FEED */
+.feed{display:flex;flex-direction:column}
+.poster{position:relative;width:100%;cursor:pointer;overflow:hidden;background:var(--cd);border-bottom:1px solid rgba(139,0,255,.1)}
+.pimg{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.pph{width:100%;aspect-ratio:4/5;background:linear-gradient(135deg,#1a0033,#0d0020);display:flex;align-items:center;justify-content:center;font-size:80px}
+.pov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(5,0,12,.97),rgba(5,0,12,.7) 60%,transparent);padding:20px 16px 16px}
+.pbdg{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:8px}
+.ph{background:rgba(255,0,153,.9);color:#fff}
+.pfree{background:rgba(0,255,136,.9);color:#000}
+.page{background:rgba(255,100,0,.85);color:#fff}
+.pname{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px}
+.porg{font-size:12px;color:#c084fc;font-weight:600;margin-bottom:4px}
+.prow{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.pplace{font-size:12px;color:#aaa}
+.pdate{font-size:13px;font-weight:700;color:var(--cy)}
+.pprice{font-size:14px;font-weight:800;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pact{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.bfav{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
+.bshr{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
+.bgoing{flex:1;background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:10px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.bgoing.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+.bbuy{flex:1;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:11px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif}
+
+/* DETAIL */
+.dh{position:relative;width:100%;background:linear-gradient(135deg,#1a0033,#0d0020);overflow:hidden}
+.dh img{width:100%;object-fit:cover;max-height:70vh;display:block}
+.demoji{font-size:100px;padding:60px 0;text-align:center}
+.dho{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,#080010,transparent)}
+.bback{position:absolute;top:14px;left:14px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;backdrop-filter:blur(10px)}
+.dtop{position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:8px}
+.bcircle{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
+.dbody{padding:20px 16px;background:#080010}
+.dorglbl{font-size:12px;color:#c084fc;margin-bottom:6px;font-weight:600;cursor:pointer}
+.dtitle{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px}
+.dinfo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.drow{display:flex;align-items:center;gap:12px;background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.12);border-radius:12px;padding:11px 14px}
+.dricon{font-size:16px}
+.drlbl{font-size:9px;color:#664488;text-transform:uppercase;letter-spacing:.06em}
+.drval{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px}
+.ddesc{font-size:14px;color:#886699;line-height:1.7;margin-bottom:16px}
+.dbtns{display:flex;gap:10px;margin-bottom:16px}
+.bbiggoing{flex:1;background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:14px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;text-align:center}
+.bbiggoing.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+.bbigbuy{flex:2;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4);text-align:center}
+.dgoing-count{text-align:center;font-size:12px;color:#664488;margin-bottom:16px}
+
+/* ORG PAGE */
+.org-banner{background:linear-gradient(135deg,#1a0033,#000d1a);padding:24px 16px;border-bottom:1px solid rgba(139,0,255,.2);position:relative;overflow:hidden}
+.org-logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;overflow:hidden}
+.org-logo img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.org-name{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.org-desc{font-size:13px;color:#886699;line-height:1.6;margin-bottom:12px}
+.btn-follow{background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-follow.following{background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc}
+
+/* CALENDAR */
+.cw{padding:14px}
+.cm{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:14px}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
+.cdn{text-align:center;font-size:9px;color:#664488;font-weight:700;padding:4px 0}
+.cd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:11px;font-weight:600;color:#555;cursor:pointer;position:relative;min-width:0}
+.cd.hev{color:#c084fc;background:rgba(139,0,255,.1)}
+.cd.hev::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--pk)}
+.cd.tod{background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;font-weight:900}
+.cd.tod::after{display:none}
+.cd.sel{background:rgba(139,0,255,.25);border:1px solid var(--p);color:#fff}
+.cd.emp{pointer-events:none;color:transparent}
+.cew{background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:16px;overflow:hidden;min-height:80px}
+.cetit{padding:12px 14px 8px;font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(139,0,255,.08)}
+.cei{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.06)}
+.cei:last-child{border-bottom:none}
+.cdb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.cdday{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:#fff;line-height:1}
+.cdmon{font-size:8px;color:rgba(255,255,255,.7);text-transform:uppercase}
+
+/* SEARCH */
+.sw{padding:14px}
+.si{width:100%;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px}
+.si::placeholder{color:#664488}
+.sc{background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;cursor:pointer;margin-bottom:10px}
+.scdate{font-size:11px;color:var(--cy);font-weight:600;margin-bottom:3px}
+.scname{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.scmeta{display:flex;justify-content:space-between;font-size:11px;color:#664488}
+
+/* CABINET */
+.ch{padding:24px 16px 20px;background:linear-gradient(135deg,#1a0033,#000d1a);border-bottom:1px solid rgba(139,0,255,.2);position:relative;overflow:hidden}
+.ch::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(139,0,255,.2),transparent 70%)}
+.cava{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;box-shadow:0 0 20px rgba(139,0,255,.4);overflow:hidden}
+.cava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cname{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:2px}
+.cuname{font-size:12px;color:#886699;margin-bottom:4px}
+.crole{font-size:12px;color:#886699;margin-bottom:16px}
+.cstats{display:flex;gap:20px}
+.csnum{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cslbl{font-size:10px;color:#555;margin-top:1px}
+.cmenu{padding:14px;display:flex;flex-direction:column;gap:8px}
+.ci{background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer}
+.ci:active{opacity:.8}
+.ciico{font-size:22px;width:40px;height:40px;background:rgba(139,0,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.citit{font-size:14px;font-weight:600;color:#fff}
+.cisub{font-size:11px;color:#664488;margin-top:2px}
+.carr{margin-left:auto;color:#664488;font-size:16px}
+
+/* SUBVIEWS */
+.sh{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.15);background:rgba(8,0,16,.98);position:sticky;top:0;z-index:50}
+.sbk{background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif}
+.stit{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.sbody{padding:14px}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.scard{background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;text-align:center}
+.snum{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.slbl{font-size:11px;color:#664488;margin-top:3px}
+.scard.c .snum{background:linear-gradient(90deg,#0077aa,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.scard.g .snum{background:linear-gradient(90deg,#00aa55,var(--gn));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* FORMS */
+.fb{display:none;background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:16px;padding:16px;margin-bottom:14px}
+.fb.open{display:block}
+.fi{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(139,0,255,.25);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
+.fi::placeholder{color:#664488}
+.fsel{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(139,0,255,.25);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
+.frow{display:flex;gap:8px}
+.bsave{flex:2;padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--p),var(--pk));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.bcanc{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#888;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+.badd{width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(139,0,255,.35);margin-bottom:14px}
+.badd.cy{background:linear-gradient(90deg,#0077aa,var(--cy))}
+.pulbl{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(0,212,255,.05);border:1px dashed rgba(0,212,255,.3);border-radius:12px;padding:14px;cursor:pointer;color:#67e8f9;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px}
+.pprev{display:none;margin-bottom:8px;border-radius:12px;overflow:hidden;max-height:200px}
+.pprev img{width:100%;object-fit:cover;border-radius:12px}
+.li{background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.liname{font-size:13px;font-weight:600;color:#fff}
+.limeta{font-size:11px;color:#664488;margin-top:2px}
+.bdel{background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.2);color:#ff4466;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif}
+
+/* NOTIF */
+.nr{display:flex;align-items:center;justify-content:space-between;background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.ntit{font-size:13px;font-weight:600;color:#fff}
+.nsub{font-size:11px;color:#664488;margin-top:2px}
+.tgl{width:44px;height:24px;border-radius:12px;background:#2a0040;border:none;cursor:pointer;position:relative;flex-shrink:0}
+.tgl.on{background:linear-gradient(90deg,var(--p),var(--pk))}
+.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s}
+.tgl.on::after{left:23px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:#664488}
+.empty-i{font-size:40px;margin-bottom:10px}
+.empty-t{font-size:13px;line-height:1.6}
+
+/* BOTTOM NAV */
+.bn{position:fixed;bottom:0;left:0;right:0;background:rgba(8,0,16,.97);border-top:1px solid rgba(139,0,255,.15);display:flex;backdrop-filter:blur(20px);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.ni{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.nicon{font-size:20px}
+.nlbl{font-size:9px;color:#443355;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.ni.active .nlbl{color:#c084fc}
+.ni.active .nicon{filter:drop-shadow(0 0 6px rgba(139,0,255,.6))}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
+<div style="padding:40px 20px;max-width:420px;margin:0 auto">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">CLOUTE</div>
+    <button onclick="openOrgApply()" style="background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">🏢 Я организатор</button>
+  </div>
+  <div style="font-size:14px;color:#664488;margin-bottom:32px">Добро пожаловать! Заполни профиль 👇</div>
+  <div style="text-align:center;margin-bottom:28px">
+    <div id="ob-ava" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;box-shadow:0 0 24px rgba(139,0,255,.4);overflow:hidden">👤</div>
+    <div style="font-size:11px;color:#664488">Аватарка из Telegram</div>
+  </div>
+  <div style="margin-bottom:24px">
+    <div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Имя *</div>
+    <input id="ob-name" style="width:100%;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none" placeholder="Как тебя зовут?">
+  </div>
+  <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4)">🚀 Войти в CLOUTE</button>
+</div>
+</div>
+
+<!-- HOME -->
+<div id="vh" class="view active">
+  <div class="hdr">
+    <div class="hdr-top"><div class="logo">CLOUTE</div><div id="rbadge" class="rbadge ru">👤 Гость</div></div>
+    <div class="tabs">
+      <div class="tab active" onclick="ftab(this,'all')">Все</div>
+      <div class="tab" onclick="ftab(this,'today')">Сегодня</div>
+      <div class="tab" onclick="ftab(this,'week')">На неделе</div>
+    </div>
+  </div>
+  <div class="hero"><h2>Тусовки Москвы 🔥</h2><p>Все вечеринки города в одном месте</p>
+    <div class="hstats"><div><div class="hnum" id="cnt-ev">0</div><div class="hlbl">событий</div></div><div id="cnt-or-wrap" style="display:none"><div class="hnum" id="cnt-or">0</div><div class="hlbl">организаторов</div></div></div>
+  </div>
+  <!-- Сегодня -->
+  <div class="today-section" id="today-section" style="display:none">
+    <div class="section-hdr"><div class="section-title">Сегодня 🔥</div><div class="section-sub" id="today-count"></div></div>
+    <div class="today-scroll" id="today-scroll"></div>
+  </div>
+  <div class="feed" id="feed"><div style="text-align:center;padding:40px;color:#664488">Загружаем тусовки...</div></div>
+</div>
+
+<!-- DETAIL -->
+<div id="vd" class="view" style="padding-bottom:0">
+  <div class="dh">
+    <img id="d-img" src="" style="display:none">
+    <div id="d-emoji" class="demoji">🎉</div>
+    <div class="dho"></div>
+    <button class="bback" onclick="nav('h')">← Назад</button>
+    <div class="dtop">
+      <button class="bcircle" id="btn-fav" onclick="togFav()">🤍</button>
+      <button class="bcircle" onclick="shareEv()">🔗</button>
+    </div>
+  </div>
+  <div class="dbody">
+    <div class="dorglbl" id="d-org" onclick="openOrgPage()"></div>
+    <div class="dtitle" id="d-name"></div>
+    <div class="dinfo" id="d-rows"></div>
+    <div class="ddesc" id="d-desc"></div>
+    <div class="dgoing-count" id="d-going"></div>
+    <div class="dbtns">
+      <button class="bbigbuy" id="btn-buy" onclick="buyTicket()" style="width:100%">🎟 Купить билет</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORG PAGE -->
+<div id="vorg" class="view" style="padding-bottom:80px">
+  <div style="position:relative">
+    <button class="bback" style="position:absolute;top:14px;left:14px;z-index:10" onclick="nav('h')">← Назад</button>
+  </div>
+  <div class="org-banner">
+    <div style="height:20px"></div>
+    <div class="org-logo" id="org-logo">🏢</div>
+    <div class="org-name" id="org-name"></div>
+    <div class="org-desc" id="org-desc"></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn-follow" id="btn-follow" onclick="togFollow()">✈️ Telegram канал</button>
+      <div style="font-size:12px;color:#664488" id="org-followers"></div>
+    </div>
+  </div>
+  <div style="padding:14px">
+    <div style="font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">События организатора</div>
+    <div id="org-events"></div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div id="vc" class="view">
+  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">📅 Календарь</div></div></div>
+  <div class="cw">
+    <div class="cm" id="cal-m"></div>
+    <div class="cg" id="cal-g"></div>
+    <div class="cew"><div class="cetit" id="cal-t">Сегодня</div><div id="cal-e"></div></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div id="vs" class="view">
+  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">🔍 Поиск</div></div></div>
+  <div class="sw">
+    <input class="si" placeholder="🔍 Название, место или организатор..." oninput="doSearch(this.value)">
+    <div id="sr"></div>
+  </div>
+</div>
+
+<!-- CABINET -->
+<div id="vk" class="view">
+  <div id="sm" class="sv active">
+    <div class="ch">
+      <div class="cava" id="cava">👤</div>
+      <div class="cname" id="cname">...</div>
+      <div class="cuname" id="cuname"></div>
+      <div class="crole" id="crole"></div>
+      <div class="cstats" id="cstats"></div>
+    </div>
+    <div class="cmenu" id="cmenu"></div>
+  </div>
+
+  <!-- PROFILE EDIT -->
+  <div id="spf" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">👤 Мой профиль</div></div>
+    <div class="sbody">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
+        <div id="pf-ava" onclick="document.getElementById('pf-ava-inp').click()" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 24px rgba(139,0,255,.4);overflow:hidden;cursor:pointer">👤</div>
+        <input type="file" id="pf-ava-inp" accept="image/*" style="display:none" onchange="prevAva(this)">
+        <div style="font-size:12px;color:#664488;margin-top:8px;cursor:pointer" onclick="document.getElementById('pf-ava-inp').click()">Нажми чтобы изменить фото</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Имя</div><input id="pf-name" class="fi" placeholder="Твоё имя" style="margin-bottom:0"></div>
+        <div style="background:rgba(139,0,255,.05);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:14px">
+          <div style="font-size:11px;color:#664488;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Telegram</div>
+          <div id="pf-tg" style="font-size:13px;color:#c084fc"></div>
+        </div>
+        <button onclick="savePf()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить профиль</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMOTION -->
+  <div id="sprom" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🔥 Продвижение</div></div>
+    <div class="sbody">
+      <div style="background:linear-gradient(135deg,rgba(139,0,255,.15),rgba(255,0,153,.1));border:1px solid rgba(255,0,153,.3);border-radius:16px;padding:16px;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Как работает продвижение</div>
+        <div style="font-size:12px;color:#886699;line-height:1.7">
+          🔥 Событие показывается <b style="color:#fff">первым</b> в ленте<br>
+          📌 Помечается значком <b style="color:#f9a8d4">"Рекомендуем"</b><br>
+          ⏰ Ты сам управляешь когда включать и выключать
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Все события</div>
+      <div id="prom-list"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN STATS -->
+  <div id="sas" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📊 Статистика</div></div>
+    <div class="sgrid">
+      <div class="scard"><div class="snum" id="as-e">0</div><div class="slbl">Событий</div></div>
+      <div class="scard c"><div class="snum" id="as-o">0</div><div class="slbl">Организаторов</div></div>
+      <div class="scard g"><div class="snum" id="as-u">0</div><div class="slbl">Пользователей</div></div>
+      <div class="scard" style="border-color:rgba(255,0,153,.2)"><div class="snum" id="as-v" style="background:linear-gradient(90deg,#aa0055,var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent">0</div><div class="slbl">Всего просмотров</div></div>
+    </div>
+    <!-- Топ событий по просмотрам -->
+    <div style="padding:0 14px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em">🔥 Топ по просмотрам</div>
+        <div style="font-size:10px;color:#443355" id="as-update-time"></div>
+      </div>
+      <div id="as-top"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN ORGS -->
+  <div id="sao" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🏢 Организаторы</div></div>
+    <div class="sbody">
+      <button class="badd cy" onclick="tog('fo')">➕ Добавить организатора</button>
+      <div class="fb" id="fo">
+        <div style="font-size:12px;color:#67e8f9;margin-bottom:10px;line-height:1.6">ℹ️ Организатор должен сначала написать <b>/start</b> боту</div>
+        <input class="fi" id="fo-un" placeholder="@username организатора">
+        <input class="fi" id="fo-nm" placeholder="🏢 Название организации">
+        <div class="frow"><button class="bcanc" onclick="tog('fo')">Отмена</button><button class="bsave" id="fo-btn" onclick="saveOrg()">Добавить</button></div>
+      </div>
+      <div id="ol"></div>
+    </div>
+  </div>
+
+  <!-- EVENTS (admin/org) -->
+  <div id="sev" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit" id="sev-t">🎉 События</div></div>
+    <div class="sbody">
+      <button class="badd" onclick="tog('fev')">➕ Добавить событие</button>
+      <div class="fb" id="fev">
+        <div class="pprev" id="pprev"><img id="pprev-img" src="" alt=""></div>
+        <label class="pulbl">📸 Выбрать афишу из галереи<input type="file" accept="image/*" onchange="prevPost(this)" style="display:none"></label>
+        <input class="fi" id="fe-pu" placeholder="🔗 Или вставь ссылку на афишу">
+        <input class="fi" id="fe-nm" placeholder="🎉 Название *">
+        <input class="fi" id="fe-dt" placeholder="📅 Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+        <div style="display:flex;gap:8px">
+          <input class="fi" id="fe-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+          <input class="fi" id="fe-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+        </div>
+        <div style="height:8px"></div>
+        <input class="fi" id="fe-vn" placeholder="📍 Место *">
+        <input class="fi" id="fe-pr" placeholder="💵 Цена (или Бесплатно)">
+        <input class="fi" id="fe-lk" placeholder="🔗 Ссылка на билеты">
+        <input class="fi" id="fe-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
+        <textarea class="fi" id="fe-dc" rows="3" placeholder="📝 Описание"></textarea>
+        <select class="fsel" id="fe-em">
+          <option value="🎉">🎉 Вечеринка</option>
+          <option value="🌙">🌙 Ночной клуб</option>
+          <option value="🎵">🎵 Концерт</option>
+          <option value="🔥">🔥 Горячее</option>
+          <option value="🌊">🌊 Open air</option>
+          <option value="🎸">🎸 Живая музыка</option>
+        </select>
+        <select class="fsel" id="fe-age">
+          <option value="">Без ограничений</option>
+          <option value="14+">14+</option>
+          <option value="16+">16+</option>
+          <option value="18+">18+</option>
+        </select>
+        <div class="frow">
+          <button class="bcanc" onclick="saveDraft()">💾 Черновик</button>
+          <button class="bsave" id="fev-btn" onclick="saveEv()">Опубликовать</button>
+        </div>
+      </div>
+      <div id="evl"></div>
+    </div>
+  </div>
+
+  <!-- DRAFTS -->
+  <div id="sdr" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📝 Черновики</div></div>
+    <div class="sbody" id="drl"></div>
+  </div>
+
+  <!-- EDIT EVENT -->
+  <div id="see" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">✏️ Редактировать</div></div>
+    <div class="sbody">
+      <div class="pprev" id="eprev"><img id="eprev-img" src="" alt=""></div>
+      <label class="pulbl">📸 Изменить афишу<input type="file" accept="image/*" onchange="prevEpost(this)" style="display:none"></label>
+      <input class="fi" id="ee-pu" placeholder="🔗 Или вставь ссылку на афишу">
+      <input class="fi" id="ee-nm" placeholder="🎉 Название *">
+      <input class="fi" id="ee-dt" placeholder="📅 Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="ee-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+        <input class="fi" id="ee-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+      </div>
+      <div style="height:8px"></div>
+      <input class="fi" id="ee-vn" placeholder="📍 Место *">
+      <input class="fi" id="ee-pr" placeholder="💵 Цена">
+      <input class="fi" id="ee-lk" placeholder="🔗 Ссылка на билеты">
+      <input class="fi" id="ee-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
+      <textarea class="fi" id="ee-dc" rows="3" placeholder="📝 Описание"></textarea>
+      <select class="fsel" id="ee-em">
+        <option value="🎉">🎉 Вечеринка</option><option value="🌙">🌙 Ночной клуб</option>
+        <option value="🎵">🎵 Концерт</option><option value="🔥">🔥 Горячее</option>
+        <option value="🌊">🌊 Open air</option><option value="🎸">🎸 Живая музыка</option>
+      </select>
+      <select class="fsel" id="ee-age">
+        <option value="">Без ограничений</option>
+        <option value="14+">14+</option>
+        <option value="16+">16+</option>
+        <option value="18+">18+</option>
+      </select>
+      <button id="ee-btn" onclick="saveEditEv()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить изменения</button>
+    </div>
+  </div>
+
+  <!-- ORG STATS -->
+  <div id="sos" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📊 Статистика</div></div>
+    <div class="sbody" id="sos-body">
+      <div style="text-align:center;padding:30px;color:#664488">Загружаем...</div>
+    </div>
+  </div>
+
+  <!-- FAVS -->
+  <div id="sfv" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">❤️ Избранное</div></div>
+    <div class="sbody" id="fvl"></div>
+  </div>
+
+  <!-- TICKETS -->
+  <div id="stk" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🎟 Мои билеты</div></div>
+    <div class="sbody" id="tkl"></div>
+  </div>
+
+  <!-- GOING -->
+  <div id="sgo" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🙋 Я иду</div></div>
+    <div class="sbody" id="gol"></div>
+  </div>
+
+  <!-- NOTIFS -->
+  <div id="snt" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🔔 Уведомления</div></div>
+    <div class="sbody">
+      <div class="nr"><div><div class="ntit">Новые тусовки</div><div class="nsub">Когда появляется новое событие</div></div><button class="tgl on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="nr"><div><div class="ntit">Напоминания</div><div class="nsub">За день до тусовки</div></div><button class="tgl on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="nr"><div><div class="ntit">Новые события оргов</div><div class="nsub">От подписанных организаторов</div></div><button class="tgl on" onclick="this.classList.toggle('on')"></button></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bn">
+  <div class="ni active" id="ni-h" onclick="nav('h')"><div class="nicon">🏠</div><div class="nlbl">Главная</div></div>
+  <div class="ni" id="ni-c" onclick="nav('c')"><div class="nicon">📅</div><div class="nlbl">Календарь</div></div>
+  <div class="ni" id="ni-s" onclick="nav('s')"><div class="nicon">🔍</div><div class="nlbl">Поиск</div></div>
+  <div class="ni" id="ni-k" onclick="nav('k')"><div class="nicon">👤</div><div class="nlbl">Кабинет</div></div>
+</div>
+
+<script>
+const API='https://cloute-bot-production.up.railway.app';
+let tgU=null,role='user',uid=0,curEv=null,curOrgId=null;
+let evs=[],orgs=[];
+let favs=JSON.parse(localStorage.getItem('cf')||'[]');
+let going=JSON.parse(localStorage.getItem('cg')||'[]');
+let follows=JSON.parse(localStorage.getItem('cfl')||'[]');
+let _avaFile=null,editEvId=null,_editAvaFile=null;
+let selCalDay=null,statsEvId=null,statsTimer=null;
+let currentFilter='all',currentCat='all';
+
+async function G(p){try{return await(await fetch(API+p)).json()}catch(e){return null}}
+async function P(p,d){try{return await(await fetch(API+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...d,userId:uid})})).json()}catch(e){return null}}
+async function D(p){try{return await(await fetch(API+p+'?userId='+uid,{method:'DELETE'})).json()}catch(e){return null}}
+
+// ── INIT ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
+  const token=new URLSearchParams(window.location.search).get('token');
+  if(token){const a=await G('/api/auth/'+token);if(a?.role){role=a.role;uid=a.user_id;localStorage.setItem('cr',a.role);localStorage.setItem('cu',a.user_id)}}
+  else{role=localStorage.getItem('cr')||'user';uid=parseInt(localStorage.getItem('cu')||'0')}
+  const b=document.getElementById('rbadge');
+  if(role==='admin'){b.textContent='👑 Админ';b.className='rbadge ra'}
+  else if(role==='org'){b.textContent='🏢 Организатор';b.className='rbadge ro'}
+  if(role==='user'){
+    let pf=JSON.parse(localStorage.getItem('cpf')||'null');
+    if(!pf&&uid){const sp=await G('/api/profile/'+uid);if(sp?.email){pf=sp;localStorage.setItem('cpf',JSON.stringify(pf))}}
+    if(!pf)showOb();
+  }
+  showFeedSkeleton();
+  await loadAll();
+  // Автообновление каждые 30 сек
+  setInterval(async()=>{
+    const ed=await G('/api/events');
+    if(ed&&JSON.stringify(ed)!==JSON.stringify(evs)){
+      evs=ed;renderFeed(evs);renderCal();
+      document.getElementById('cnt-ev').textContent=evs.length;
+    }
+  },30000);
+});
+
+async function loadAll(){
+  const[ed,od]=await Promise.all([G('/api/events'),G('/api/orgs')]);
+  if(ed)evs=filterPast(ed);if(od)orgs=od;
+  document.getElementById('cnt-ev').textContent=evs.length;
+  document.getElementById('cnt-or').textContent=orgs.length;
+  if(role==='admin')document.getElementById('cnt-or-wrap').style.display='block';
+  renderFeed(evs);renderCal();
+  renderTodayRow();
+}
+
+function filterPast(list){
+  const now=new Date();now.setHours(0,0,0,0);
+  return list.filter(e=>{
+    const p=e.date.split('.');
+    if(p.length<3)return true;
+    const d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+    return d>=now;
+  });
+}
+
+// ── NAV ──────────────────────────────────────────────────
+let _prevPage='h';
+function nav(p){
+  const goingBack=(p==='h'&&_prevPage!=='h')||(p==='d'&&_prevPage==='org');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active','slide-back'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const view=document.getElementById('v'+p);
+  view.classList.add('active');
+  if(goingBack)view.classList.add('slide-back');
+  const ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('active');
+  _prevPage=p;
+  window.scrollTo(0,0);
+  if(p==='c')renderCal();if(p==='k')renderCab();
+}
+function showS(id){document.querySelectorAll('.sv').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function tog(id){document.getElementById(id).classList.toggle('open')}
+
+// ── FILTERS ──────────────────────────────────────────────
+const catMap={'club':'🌙','concert':'🎵','open':'🌊','party':'🎉','live':'🎸'};
+function ftab(el,f){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  currentFilter=f;applyFilters();
+}
+function filterCat(el,cat){
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
+  currentCat=cat;applyFilters();
+}
+function applyFilters(){
+  const now=new Date();
+  const tod=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  let list=evs;
+  if(currentFilter==='today')list=list.filter(e=>e.date===tod);
+  else if(currentFilter==='week')list=list.filter(e=>{const p=e.date.split('.');const d=new Date(p[2],p[1]-1,p[0]);return(d-now)/(864e5)>=0&&(d-now)/(864e5)<=7});
+  if(currentCat!=='all'){const em=catMap[currentCat];if(em)list=list.filter(e=>e.emoji===em)}
+  renderFeed(list);
+}
+
+// ── TODAY ROW ────────────────────────────────────────────
+function renderTodayRow(){
+  const now=new Date();
+  const tod=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+  const todEvs=evs.filter(e=>e.date===tod);
+  const sec=document.getElementById('today-section');
+  if(!todEvs.length){sec.style.display='none';return}
+  sec.style.display='block';
+  document.getElementById('today-count').textContent=todEvs.length+' событий';
+  document.getElementById('today-scroll').innerHTML=todEvs.map(ev=>`
+    <div class="today-card" onclick="openEv(${ev.id})">
+      ${ev.poster_url?`<img class="today-card-img" src="${ev.poster_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="today-card-emoji" style="${ev.poster_url?'display:none':''}">${ev.emoji}</div>
+      <div class="today-card-body">
+        <div class="today-card-name">${ev.name}</div>
+        <div class="today-card-time">⏰ ${ev.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── FEED ─────────────────────────────────────────────────
+function showFeedSkeleton(){
+  document.getElementById('feed').innerHTML=[1,2,3].map(()=>`
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-poster"></div>
+      <div class="skeleton-body">
+        <div class="skeleton skeleton-line" style="width:70%;height:14px;margin-bottom:10px"></div>
+        <div class="skeleton skeleton-line" style="width:45%;height:10px;margin-bottom:6px"></div>
+        <div class="skeleton skeleton-line" style="width:30%;height:10px"></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFeed(list){
+  const c=document.getElementById('feed');
+  if(!list.length){c.innerHTML='<div class="empty"><div class="empty-i">🎉</div><div class="empty-t">Тусовок пока нет.<br>Скоро появятся!</div></div>';return}
+  // Горячие события идут первыми
+  const sorted=[...list].sort((a,b)=>(b.hot||0)-(a.hot||0));
+  c.innerHTML=sorted.map((ev,i)=>{
+    const org=orgs.find(o=>o.tg_id==ev.org_id);
+    const isFav=favs.includes(ev.id);
+    const isGoing=going.includes(ev.id);
+    const goingCount=ev.going_count||0;
+    return`<div class="poster poster-appear" style="animation-delay:${i*0.06}s" onclick="openEv(${ev.id})">
+      ${ev.poster_url?`<img class="pimg" src="${ev.poster_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''
+      }<div class="pph" style="${ev.poster_url?'display:none':''}">${ev.emoji}</div>
+      <div class="pov">
+        <div>${ev.hot?'<span class="pbdg ph">🔥 Хит</span>':''}${ev.price?.toLowerCase()==='бесплатно'?'<span class="pbdg pfree">Бесплатно</span>':''}${ev.age_limit?`<span class="pbdg page">${ev.age_limit}</span>`:''}</div>
+        <div class="pname">${ev.name}</div>
+        ${org?`<div class="porg">🏢 ${org.name}</div>`:''}
+        <div class="prow"><div class="pplace">📍 ${ev.venue}</div><div class="pdate">${ev.date}</div></div>
+        <div class="prow"><div style="font-size:12px;color:#aaa">⏰ ${ev.time}</div><div class="pprice">${ev.price}</div></div>
+        <div class="pact">
+          <button class="bfav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button>
+          <button class="bshr" onclick="event.stopPropagation();qShr(${ev.id})">🔗</button>
+          <button class="bbuy" onclick="event.stopPropagation();buyTicketById(${ev.id})">🎟 Купить билет</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)window.open(ev.link,'_blank');else{curEv=id;openEv(id)}}
+function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link)window.open(ev.link,'_blank');else alert('Организатор пока не указал ссылку на билеты')}
+function qFav(id,btn){const i=favs.indexOf(id);if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs))}
+function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}
+
+function qShr(id){const ev=evs.find(e=>e.id===id);if(!ev)return;shareEvent(ev)}
+📍 ${ev.venue}
+💵 ${ev.price}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
+function shareEvent(ev){const text=buildShareText(ev);const tgUrl="https://t.me/share/url?url=https://t.me/clout_msk_bot&text="+encodeURIComponent(text);if(navigator.share){navigator.share({title:ev.name,text,url:"https://t.me/clout_msk_bot"})}else{window.open(tgUrl,"_blank")}}
+function qShr(id){const ev=evs.find(e=>e.id===id);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
+function qGoing(id,btn){
+  const i=going.indexOf(id);
+  if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.classList.remove('active')}
+  else{going.push(id);btn.textContent='✅ Иду';btn.classList.add('active')}
+  localStorage.setItem('cg',JSON.stringify(going));
+}
+
+// ── DETAIL ───────────────────────────────────────────────
+function openTK(){
+  const c=document.getElementById('tkl');
+  const tickets=JSON.parse(localStorage.getItem('ct')||'[]');
+  c.innerHTML=!tickets.length?'<div class="empty"><div class="empty-i">🎟</div><div class="empty-t">Билетов пока нет.<br>Покупка билетов скоро!</div></div>':
+  tickets.map(t=>`<div class="sc"><div class="scdate">${t.date}</div><div class="scname">${t.eventName||t.name}</div><div class="scmeta"><span>📍 ${t.venue||''}</span><span>${t.price||''}</span></div></div>`).join('');
+  showS('stk');
+}
+
+function openEv(id){
+  curEv=id;const ev=evs.find(e=>e.id===id);if(!ev)return;
+  // Считаем просмотр
+  G('/api/events/'+id+'/view');
+  const org=orgs.find(o=>o.tg_id==ev.org_id);
+  const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
+  if(ev.poster_url){img.src=ev.poster_url;img.style.display='block';em.style.display='none'}
+  else{img.style.display='none';em.style.display='block';em.textContent=ev.emoji}
+  const orgEl=document.getElementById('d-org');
+  if(org){orgEl.textContent='🏢 '+org.name;orgEl.style.display='block';curOrgId=ev.org_id}
+  else{orgEl.style.display='none'}
+  document.getElementById('d-name').textContent=ev.name;
+  document.getElementById('d-desc').textContent=ev.description||'';
+  const goingCount=ev.going_count||0;
+  const goingEl=document.getElementById('d-going');
+  goingEl.textContent=goingCount>0?`🙋 ${goingCount} человек планируют прийти`:'';
+  document.getElementById('d-rows').innerHTML=`
+    <div class="drow"><div class="dricon">📅</div><div><div class="drlbl">Дата</div><div class="drval">${ev.date}</div></div></div>
+    <div class="drow"><div class="dricon">⏰</div><div><div class="drlbl">Время</div><div class="drval">${ev.time}</div></div></div>
+    <div class="drow"><div class="dricon">📍</div><div><div class="drlbl">Место</div><div class="drval">${ev.venue}</div></div></div>
+    <div class="drow"><div class="dricon">💵</div><div><div class="drlbl">Вход</div><div class="drval">${ev.price}</div></div></div>
+    ${ev.age_limit?`<div class="drow" style="border-color:rgba(255,100,0,.3)"><div class="dricon">🔞</div><div><div class="drlbl">Возраст</div><div class="drval" style="color:#f97316">${ev.age_limit}</div></div></div>`:''}`;
+  const btnGoing=document.getElementById('btn-going');
+  const isGoing=going.includes(id);
+  btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
+  btnGoing.className='bbiggoing'+(isGoing?' active':'');
+  const btnBuy=document.getElementById('btn-buy');
+  if(ev.link){btnBuy.style.display='flex'}
+  else{btnBuy.style.display='none'}
+function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;shareEvent(ev)}
+  nav('d');
+}
+function togFav(){const i=favs.indexOf(curEv);if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍"}
+function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
+function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link)window.open(ev.link,'_blank')}
+function togGoingDetail(){
+  const i=going.indexOf(curEv);
+  const btn=document.getElementById('btn-going');
+  if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.className='bbiggoing'}
+  else{going.push(curEv);btn.textContent='✅ Я иду';btn.className='bbiggoing active'}
+  localStorage.setItem('cg',JSON.stringify(going));
+}
+function openOrgPage(){
+  if(!curOrgId)return;
+  const org=orgs.find(o=>o.tg_id==curOrgId);
+  if(!org)return;
+  const logoEl=document.getElementById('org-logo');
+  logoEl.innerHTML='🏢';
+  document.getElementById('org-name').textContent=org.name;
+  document.getElementById('org-desc').textContent=org.description||'Организатор мероприятий';
+  const isFollowing=follows.includes(curOrgId);
+  const btn=document.getElementById('btn-follow');
+  btn.textContent=isFollowing?'✓ Подписан':'+ Подписаться';
+  btn.className='btn-follow'+(isFollowing?' following':'');
+  document.getElementById('org-followers').textContent='';
+  const orgEvs=evs.filter(e=>e.org_id==curOrgId);
+  document.getElementById('org-events').innerHTML=!orgEvs.length?
+    '<div class="empty"><div class="empty-i">🎉</div><div class="empty-t">Событий пока нет</div></div>':
+    orgEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div><div class="scmeta"><span>📍 ${ev.venue}</span><span>${ev.price}</span></div></div>`).join('');
+  nav('org');
+}
+function togFollow(){
+  const org=orgs.find(o=>o.tg_id==curOrgId);
+  if(org?.contact){window.open(org.contact,'_blank')}
+  else{alert('Организатор не указал Telegram канал')}
+}
+
+function openOrgPage(){
+  if(!curOrgId)return;
+  const org=orgs.find(o=>o.tg_id==curOrgId);
+  if(!org)return;
+  document.getElementById('org-logo').innerHTML='🏢';
+  document.getElementById('org-name').textContent=org.name;
+  document.getElementById('org-desc').textContent=org.description||'Организатор мероприятий';
+  const btn=document.getElementById('btn-follow');
+  if(org.contact){btn.textContent='✈️ Telegram канал';btn.style.display='flex'}
+  else{btn.style.display='none'}
+  document.getElementById('org-followers').textContent='';
+  const orgEvs=evs.filter(e=>e.org_id==curOrgId);
+  document.getElementById('org-events').innerHTML=!orgEvs.length?
+    '<div class="empty"><div class="empty-i">🎉</div><div class="empty-t">Событий пока нет</div></div>':
+    orgEvs.map(ev=>`
+      <div class="sc" onclick="openEv(${ev.id})">
+        <div class="scdate">${ev.date} · ${ev.time}</div>
+        <div class="scname">${ev.emoji} ${ev.name}</div>
+        <div class="scmeta"><span>📍 ${ev.venue}</span><span>${ev.price}</span></div>
+        ${ev.views?`<div style="font-size:10px;color:#554466;margin-top:4px">👁 ${ev.views} просмотров · 🙋 ${ev.going_count||0} идут</div>`:''}
+      </div>`).join('');
+  nav('org');
+}
+
+// ── CALENDAR ─────────────────────────────────────────────
+function renderCal(){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const mns=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  document.getElementById('cal-m').textContent=mns[m]+' '+y;
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),off=first===0?6:first-1;
+  const evd=new Set(evs.filter(e=>{const p=e.date.split('.');return parseInt(p[1])===m+1&&parseInt(p[2])===y}).map(e=>parseInt(e.date.split('.')[0])));
+  let h=['П','В','С','Ч','П','С','В'].map(d=>`<div class="cdn">${d}</div>`).join('');
+  for(let i=0;i<off;i++)h+='<div class="cd emp"></div>';
+  for(let d=1;d<=days;d++){const it=d===now.getDate(),he=evd.has(d),is=d===selCalDay&&!it;h+=`<div class="cd ${it?'tod':''} ${he&&!it&&!is?'hev':''} ${is?'sel':''}" onclick="selD(${d})">${d}</div>`}
+  document.getElementById('cal-g').innerHTML=h;
+  selD(selCalDay||now.getDate());
+}
+function selD(d){
+  selCalDay=d;
+  document.querySelectorAll('.cd:not(.emp):not(.tod)').forEach(c=>c.classList.toggle('sel',parseInt(c.textContent)===d));
+  const now=new Date(),m=now.getMonth()+1,y=now.getFullYear();
+  const mns=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  const mnsu=['ЯНВ','ФЕВ','МАР','АПР','МАЯ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
+  document.getElementById('cal-t').textContent=d===now.getDate()?'Сегодня':`${d} ${mns[m-1]}`;
+  const list=evs.filter(e=>{const p=e.date.split('.');return parseInt(p[0])===d&&parseInt(p[1])===m&&parseInt(p[2])===y});
+  const c=document.getElementById('cal-e');
+  if(!list.length){c.innerHTML='<div style="text-align:center;padding:28px 14px"><div style="font-size:36px;margin-bottom:8px">🥱</div><div style="font-size:14px;font-weight:700;color:#554466">Пока отходняк</div></div>';return}
+  c.innerHTML=list.map(ev=>`<div class="cei" onclick="openEv(${ev.id})"><div class="cdb"><div class="cdday">${ev.date.split('.')[0]}</div><div class="cdmon">${mnsu[m-1]}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.emoji} ${ev.name}</div><div style="font-size:11px;color:#664488;margin-top:3px">📍 ${ev.venue}</div><div style="display:flex;gap:10px;margin-top:2px"><span style="font-size:11px;color:#886699">⏰ ${ev.time}</span><span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${ev.price}</span></div></div><div style="font-size:18px;color:#443355;flex-shrink:0">›</div></div>`).join('');
+}
+
+// ── SEARCH ───────────────────────────────────────────────
+function doSearch(q){
+  const c=document.getElementById('sr');if(!q.trim()){c.innerHTML='';return}
+  const ql=q.toLowerCase();
+  const found=evs.filter(e=>{const org=orgs.find(o=>o.tg_id==e.org_id);return e.name.toLowerCase().includes(ql)||e.venue.toLowerCase().includes(ql)||(org&&org.name.toLowerCase().includes(ql))});
+  if(!found.length){c.innerHTML='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Ничего не найдено</div></div>';return}
+  c.innerHTML=found.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${org.name}</div>`:''}<div class="scmeta"><span>📍 ${ev.venue}</span><span>${ev.price}</span></div></div>`}).join('');
+}
+
+// ── ONBOARDING ───────────────────────────────────────────
+function showOb(){
+  document.getElementById('vob').style.display='block';
+  const name=tgU?.first_name||'';
+  if(tgU?.photo_url)document.getElementById('ob-ava').innerHTML=`<img src="${tgU.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  document.getElementById('ob-name').value=name;
+}
+async function finishOnboard(){
+  const name=document.getElementById('ob-name').value.trim();
+  if(!name){alert('⚠️ Введи имя!');return}
+  const btn=document.getElementById('ob-btn');btn.textContent='Сохраняем...';btn.disabled=true;
+  const pf={name,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||''};
+  localStorage.setItem('cpf',JSON.stringify(pf));
+  btn.textContent='🚀 Войти в CLOUTE';btn.disabled=false;
+  document.getElementById('vob').style.display='none';
+}
+
+// ── CABINET ──────────────────────────────────────────────
+function renderCab(){
+  showS('sm');
+  const pf=JSON.parse(localStorage.getItem('cpf')||'{}');
+  const name=pf.name||tgU?.first_name||'Пользователь';
+  const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
+  const ava=document.getElementById('cava');
+  if(photo)ava.innerHTML=`<img src="${photo}">`;
+  else ava.textContent=role==='admin'?'👑':role==='org'?'🏢':'👤';
+  document.getElementById('cname').textContent=role==='org'?(orgs.find(o=>o.tg_id==uid)?.name||name):name;
+  document.getElementById('cuname').textContent=tgU?.username?'@'+tgU.username:'';
+  if(role==='admin'){
+    document.getElementById('crole').textContent='Администратор платформы';
+    document.getElementById('cstats').innerHTML=`<div><div class="csnum">${evs.length}</div><div class="cslbl">событий</div></div><div><div class="csnum">${orgs.length}</div><div class="cslbl">оргов</div></div>`;
+    document.getElementById('cmenu').innerHTML=`
+      <div class="ci" onclick="openAS()"><div class="ciico">📊</div><div><div class="citit">Статистика</div><div class="cisub">Пользователи, события</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openAO()"><div class="ciico">🏢</div><div><div class="citit">Организаторы</div><div class="cisub">${orgs.length} подключено</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openAE()"><div class="ciico">🎉</div><div><div class="citit">Все события</div><div class="cisub">${evs.length} событий</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openPromo()" style="border-color:rgba(255,0,153,.3);background:rgba(255,0,153,.05)"><div class="ciico" style="background:linear-gradient(135deg,var(--p),var(--pk))">🔥</div><div><div class="citit">Продвижение</div><div class="cisub">Управление топом ленты</div></div><div class="carr">›</div></div>`;
+  } else if(role==='org'){
+    document.getElementById('crole').textContent='Организатор мероприятий';
+    const myEvs=evs.filter(e=>e.org_id==uid&&uid>0);
+    const draftsCount=getDrafts().length;
+    document.getElementById('cstats').innerHTML=`<div><div class="csnum">${myEvs.length}</div><div class="cslbl">событий</div></div><div><div class="csnum">${draftsCount}</div><div class="cslbl">черновиков</div></div>`;
+    document.getElementById('cmenu').innerHTML=`
+      <div class="ci" style="border-color:rgba(139,0,255,.4)" onclick="openOAdd()"><div class="ciico" style="background:linear-gradient(135deg,var(--p),var(--pk))">➕</div><div><div class="citit">Добавить мероприятие</div><div class="cisub">Создать событие</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openOE()"><div class="ciico">🎉</div><div><div class="citit">Мои мероприятия</div><div class="cisub">${myEvs.length} событий</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openDrafts()"><div class="ciico">📝</div><div><div class="citit">Черновики</div><div class="cisub" id="drafts-count">0 черновиков</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openOS()"><div class="ciico">📊</div><div><div class="citit">Статистика</div><div class="cisub">Просмотры событий</div></div><div class="carr">›</div></div>`;
+  } else {
+    document.getElementById('crole').textContent='Участник сообщества';
+    document.getElementById('cstats').innerHTML=`<div><div class="csnum">${favs.length}</div><div class="cslbl">избранных</div></div>`;
+    document.getElementById('cmenu').innerHTML=`
+      <div class="ci" style="background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.2)" onclick="openPF()"><div class="ciico" style="background:rgba(0,212,255,.1)">👤</div><div><div class="citit">Мой профиль</div><div class="cisub">${pf.name||'Нажми чтобы изменить'}</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openTK()"><div class="ciico">🎟</div><div><div class="citit">Мои билеты</div><div class="cisub">Купленные события</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openFV()"><div class="ciico">❤️</div><div><div class="citit">Избранное</div><div class="cisub">${favs.length} сохранено</div></div><div class="carr">›</div></div>
+      <div style="margin-top:8px;background:linear-gradient(135deg,rgba(139,0,255,.08),rgba(255,0,153,.06));border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="openOrgApply()">
+        <div style="font-size:22px;width:40px;height:40px;background:linear-gradient(135deg,var(--p),var(--pk));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏢</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#c084fc">Стать организатором</div>
+          <div style="font-size:11px;color:#664488;margin-top:2px">Размести своё мероприятие</div>
+        </div>
+        <div style="color:#664488;font-size:16px">›</div>
+      </div>`;
+  }
+}
+
+// ── ADMIN ────────────────────────────────────────────────
+async function openAS(){
+  await renderASStats();
+  showS('sas');
+  // Автообновление каждые 30 сек
+  if(statsTimer){clearInterval(statsTimer);statsTimer=null}
+  statsTimer=setInterval(async()=>{
+    if(document.getElementById('sas').classList.contains('active')){
+      await renderASStats();
+    } else {
+      clearInterval(statsTimer);statsTimer=null;
+    }
+  },30000);
+}
+
+async function renderASStats(){
+  const[s,ed]=await Promise.all([G('/api/stats'),G('/api/events')]);
+  if(s){
+    document.getElementById('as-e').textContent=s.events;
+    document.getElementById('as-o').textContent=s.orgs;
+    document.getElementById('as-u').textContent=s.users;
+  }
+  if(ed){
+    const totalViews=ed.reduce((a,e)=>a+(e.views||0),0);
+    document.getElementById('as-v').textContent=totalViews;
+    const sorted=[...ed].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
+    const c=document.getElementById('as-top');
+    if(!sorted.length){c.innerHTML='<div class="empty"><div class="empty-t">Событий пока нет</div></div>';return}
+    c.innerHTML=sorted.map((ev,i)=>{
+      const o=orgs.find(x=>x.tg_id==ev.org_id);
+      const maxViews=sorted[0].views||1;
+      const pct=Math.round((ev.views||0)/maxViews*100);
+      return`<div style="background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:24px;height:24px;border-radius:50%;background:${i===0?'linear-gradient(135deg,#ffd700,#ffa500)':i===1?'linear-gradient(135deg,#c0c0c0,#a0a0a0)':i===2?'linear-gradient(135deg,#cd7f32,#a0522d)':'rgba(139,0,255,.2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:${i<3?'#000':'#c084fc'};flex-shrink:0">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.emoji} ${ev.name}</div>
+            <div style="font-size:11px;color:#664488;margin-top:1px">${o?o.name:''} · ${ev.date}</div>
+          </div>
+          <div style="font-size:16px;font-weight:900;color:#c084fc;flex-shrink:0">👁 ${ev.views||0}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:20px;height:4px;overflow:hidden">
+          <div style="height:100%;border-radius:20px;background:linear-gradient(90deg,var(--p),var(--pk));width:${pct}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+    // Подпись с временем обновления
+    const time=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    const label=document.getElementById('as-update-time');
+    if(label)label.textContent='Обновлено в '+time;
+  }
+}
+async function openAO(){const d=await G('/api/orgs');if(d)orgs=d;renderOL();showS('sao')}
+function renderOL(){
+  const c=document.getElementById('ol');
+  if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i">🏢</div><div class="empty-t">Организаторов пока нет</div></div>';return}
+  c.innerHTML=orgs.map(o=>`<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0077aa,var(--cy));display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div><div><div style="font-size:14px;font-weight:700;color:#fff">${o.name}</div><div style="font-size:12px;color:#67e8f9;margin-top:2px">ID: ${o.tg_id}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})">Удалить</button></div></div>`).join('');
+}
+async function saveOrg(){
+  const un=document.getElementById('fo-un').value.trim().replace('@','');
+  const nm=document.getElementById('fo-nm').value.trim();
+  if(!un){alert('Введи username!');return}
+  const btn=document.getElementById('fo-btn');btn.textContent='Добавляем...';btn.disabled=true;
+  const r=await P('/api/orgs',{username:un,name:nm||un});
+  btn.textContent='Добавить';btn.disabled=false;
+  if(r?.error){alert('❌ '+r.error);return}
+  document.getElementById('fo-un').value='';document.getElementById('fo-nm').value='';
+  document.getElementById('fo').classList.remove('open');
+  const d=await G('/api/orgs');if(d)orgs=d;renderOL();
+  alert('✅ Организатор добавлен!');
+}
+async function rmOrg(tid){
+  if(!confirm('Удалить организатора?'))return;
+  await D('/api/orgs/'+tid);const d=await G('/api/orgs');if(d)orgs=d;renderOL();
+}
+async function openAE(){const d=await G('/api/events');if(d)evs=d;document.getElementById('sev-t').textContent='🎉 Все события';renderEL(evs);showS('sev')}
+async function openPromo(){
+  const d=await G('/api/events');
+  const all=d||evs;
+  const c=document.getElementById('prom-list');
+  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-t">Событий пока нет</div></div>';showS('sprom');return}
+  c.innerHTML=all.map(ev=>{
+    const org=orgs.find(o=>o.tg_id==ev.org_id);
+    const isHot=ev.hot==1;
+    return`<div style="background:var(--cd);border:1px solid ${isHot?'rgba(255,0,153,.4)':'rgba(139,0,255,.15)'};border-radius:14px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px;flex-shrink:0">${ev.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
+          <div style="font-size:11px;color:#664488;margin-top:2px">${org?org.name+' · ':''} ${ev.date}</div>
+          ${isHot?'<div style="font-size:10px;color:#f9a8d4;margin-top:2px">🔥 Сейчас в топе</div>':''}
+        </div>
+        <button onclick="toggleHot(${ev.id},${isHot?0:1},this)"
+          style="flex-shrink:0;padding:8px 14px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;${isHot?'background:rgba(255,0,80,.15);color:#ff4466':'background:linear-gradient(90deg,var(--p),var(--pk));color:#fff'}">
+          ${isHot?'⬇️ Убрать':'🔥 В топ'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  showS('sprom');
+}
+
+async function toggleHot(evId, hot, btn){
+  btn.textContent='...';btn.disabled=true;
+  const r=await P('/api/events/'+evId+'/hot',{hot});
+  if(r?.error){alert('❌ '+r.error);btn.disabled=false;return}
+  await loadAll();
+  openPromo();
+}
+
+// ── ORG ──────────────────────────────────────────────────
+// ── ЧЕРНОВИКИ ────────────────────────────────────────────
+function getDrafts(){return JSON.parse(localStorage.getItem('cd_'+uid)||'[]')}
+function saveDrafts(d){localStorage.setItem('cd_'+uid,JSON.stringify(d))}
+
+function saveDraft(){
+  const nm=document.getElementById('fe-nm').value.trim();
+  if(!nm){alert('⚠️ Введи хотя бы название!');return}
+  const draft={
+    id: Date.now(),
+    name: nm,
+    date: document.getElementById('fe-dt').value.trim(),
+    time_start: document.getElementById('fe-ts').value.trim(),
+    time_end: document.getElementById('fe-te').value.trim(),
+    venue: document.getElementById('fe-vn').value.trim(),
+    price: document.getElementById('fe-pr').value.trim(),
+    link: document.getElementById('fe-lk').value.trim(),
+    desc: document.getElementById('fe-dc').value.trim(),
+    emoji: document.getElementById('fe-em').value,
+    age_limit: document.getElementById('fe-age').value,
+    poster_url: document.getElementById('fe-pu').value.trim(),
+    saved_at: new Date().toLocaleString('ru-RU')
+  };
+  const drafts=getDrafts();
+  drafts.unshift(draft);
+  // Максимум 10 черновиков
+  if(drafts.length>10)drafts.pop();
+  saveDrafts(drafts);
+  tog('fev');
+  updateDraftsCount();
+  alert('💾 Черновик сохранён!');
+}
+
+function updateDraftsCount(){
+  const el=document.getElementById('drafts-count');
+  if(el){const n=getDrafts().length;el.textContent=n+' черновик'+(n===1?'':'ов')}
+}
+
+function openDrafts(){
+  const drafts=getDrafts();
+  const c=document.getElementById('drl');
+  if(!drafts.length){
+    c.innerHTML='<div class="empty"><div class="empty-i">📝</div><div class="empty-t">Черновиков пока нет.<br>Начни заполнять событие и нажми "Черновик"</div></div>';
+  } else {
+    c.innerHTML=drafts.map(d=>`
+      <div style="background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:14px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:#fff">${d.emoji} ${d.name}</div>
+            <div style="font-size:11px;color:#664488;margin-top:3px">${d.date?'📅 '+d.date:''} ${d.venue?'· 📍 '+d.venue:''}</div>
+            <div style="font-size:10px;color:#443355;margin-top:3px">Сохранён: ${d.saved_at}</div>
+          </div>
+          <button onclick="deleteDraft(${d.id})" class="bdel" style="margin-left:8px;flex-shrink:0">🗑</button>
+        </div>
+        <button onclick="loadDraft(${d.id})" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
+          ✏️ Продолжить редактирование
+        </button>
+      </div>`).join('');
+  }
+  showS('sdr');
+}
+
+function loadDraft(id){
+  const draft=getDrafts().find(d=>d.id===id);
+  if(!draft)return;
+  // Открываем форму и заполняем данными черновика
+  document.getElementById('sev-t').textContent='➕ Новое мероприятие';
+  document.getElementById('evl').innerHTML='';
+  showS('sev');
+  setTimeout(()=>{
+    document.getElementById('fev').classList.add('open');
+    document.getElementById('fe-nm').value=draft.name||'';
+    document.getElementById('fe-dt').value=draft.date||'';
+    document.getElementById('fe-ts').value=draft.time_start||'';
+    document.getElementById('fe-te').value=draft.time_end||'';
+    document.getElementById('fe-vn').value=draft.venue||'';
+    document.getElementById('fe-pr').value=draft.price||'';
+    document.getElementById('fe-lk').value=draft.link||'';
+    document.getElementById('fe-dc').value=draft.desc||'';
+    document.getElementById('fe-pu').value=draft.poster_url||'';
+    const sel=document.getElementById('fe-em');
+    for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===draft.emoji){sel.selectedIndex=i;break}}
+    const ageSel=document.getElementById('fe-age');
+    for(let i=0;i<ageSel.options.length;i++){if(ageSel.options[i].value===draft.age_limit){ageSel.selectedIndex=i;break}}
+    // Удаляем черновик после загрузки
+    deleteDraft(id, true);
+  }, 150);
+}
+
+function deleteDraft(id, silent=false){
+  const drafts=getDrafts().filter(d=>d.id!==id);
+  saveDrafts(drafts);
+  updateDraftsCount();
+  if(!silent)openDrafts();
+}
+
+function openOAdd(){document.getElementById('sev-t').textContent='➕ Новое мероприятие';document.getElementById('evl').innerHTML='';showS('sev');setTimeout(()=>document.getElementById('fev').classList.add('open'),100)}
+async function openOE(){const d=await G('/api/events');if(d)evs=d;const my=evs.filter(e=>e.org_id==uid&&uid>0);document.getElementById('sev-t').textContent='🎉 Мои мероприятия';renderEL(my);showS('sev')}
+async function openOS(){
+  if(statsTimer){clearInterval(statsTimer);statsTimer=null}
+  await renderOSStats();
+  showS('sos');
+  // Автообновление каждые 10 сек пока открыта статистика
+  statsTimer=setInterval(async()=>{
+    if(document.getElementById('sos').classList.contains('active')){
+      await renderOSStats();
+    } else {
+      clearInterval(statsTimer);statsTimer=null;
+    }
+  },10000);
+}
+
+async function renderOSStats(){
+  const fresh=await G('/api/events');
+  let allOrgEvs=[];
+  if(fresh){
+    fresh.forEach(e=>{const i=evs.findIndex(x=>x.id===e.id);if(i>=0)evs[i]=e;});
+    allOrgEvs=fresh.filter(e=>e.org_id==uid&&uid>0);
+  } else {
+    allOrgEvs=evs.filter(e=>e.org_id==uid&&uid>0);
+  }
+
+  const now=new Date();now.setHours(0,0,0,0);
+  const activeEvs=allOrgEvs.filter(e=>{const p=e.date.split('.');if(p.length<3)return true;return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]))>=now});
+  const pastEvs=allOrgEvs.filter(e=>{const p=e.date.split('.');if(p.length<3)return false;return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]))<now});
+
+  const c=document.getElementById('sos-body');
+  if(!allOrgEvs.length){c.innerHTML='<div class="empty"><div class="empty-i">📊</div><div class="empty-t">Сначала добавь мероприятие</div></div>';return}
+
+  const totalViews=allOrgEvs.reduce((a,e)=>a+(e.views||0),0);
+
+  const evCard=(ev,isPast)=>`
+    <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.venue}</div></div>
+        ${isPast?'<span style="font-size:10px;background:rgba(255,255,255,.08);color:#664488;padding:3px 8px;border-radius:20px;flex-shrink:0">Прошло</span>':''}
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:rgba(139,0,255,.08);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#c084fc">${ev.views||0}</div>
+          <div style="font-size:10px;color:#664488">👁 Просмотров</div>
+        </div>
+        <div style="flex:1;background:rgba(0,212,255,.08);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:14px;font-weight:900;color:#67e8f9">${ev.price}</div>
+          <div style="font-size:10px;color:#664488">💵 Цена</div>
+        </div>
+      </div>
+    </div>`;
+
+  c.innerHTML=`
+    <div class="sgrid" style="padding:0;margin-bottom:14px">
+      <div class="scard"><div class="snum">${activeEvs.length}</div><div class="slbl">Активных</div></div>
+      <div class="scard c"><div class="snum">${totalViews}</div><div class="slbl">👁 Просмотров</div></div>
+    </div>
+    <div style="font-size:11px;color:#443355;text-align:right;margin-bottom:12px" id="sos-time"></div>
+    ${activeEvs.length?`
+      <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🟢 Активные</div>
+      ${activeEvs.map(ev=>evCard(ev,false)).join('')}`:''}
+    ${pastEvs.length?`
+      <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 10px">📦 Архив</div>
+      ${pastEvs.map(ev=>evCard(ev,true)).join('')}`:''}`;
+
+  const t=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const tEl=document.getElementById('sos-time');
+  if(tEl)tEl.textContent='Обновлено в '+t;
+}
+
+// ── USER ─────────────────────────────────────────────────
+function openOrgApply(){
+  const url = 'https://t.me/clout_msk_bot?start=org';
+  if(window.Telegram?.WebApp?.openTelegramLink){
+    window.Telegram.WebApp.openTelegramLink(url);
+  } else if(window.Telegram?.WebApp?.openLink){
+    window.Telegram.WebApp.openLink(url);
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function openGoing(){
+  const goEvs=evs.filter(e=>going.includes(e.id));
+  const c=document.getElementById('gol');
+  c.innerHTML=!goEvs.length?'<div class="empty"><div class="empty-i">🙋</div><div class="empty-t">Ты пока никуда не собираешься.<br>Найди тусовку!</div></div>':
+  goEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div><div class="scmeta"><span>📍 ${ev.venue}</span><span>${ev.price}</span></div></div>`).join('');
+  showS('sgo');
+}
+function openFV(){
+  const fEvs=evs.filter(e=>favs.includes(e.id));
+  const c=document.getElementById('fvl');
+  c.innerHTML=!fEvs.length?'<div class="empty"><div class="empty-i">❤️</div><div class="empty-t">Нет сохранённых тусовок</div></div>':
+  fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div><div class="scmeta"><span>📍 ${ev.venue}</span><span>${ev.price}</span></div></div>`).join('');
+  showS('sfv');
+}
+function openPF(){
+  const pf=JSON.parse(localStorage.getItem('cpf')||'{}');
+  document.getElementById('pf-name').value=pf.name||tgU?.first_name||'';
+  document.getElementById('pf-tg').innerHTML=`${tgU?.username?`<div>✈️ @${tgU.username}</div>`:''}<div style="font-size:11px;color:#554466">ID: ${uid||'—'}</div>`;
+  const ava=document.getElementById('pf-ava');
+  const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
+  if(photo)ava.innerHTML=`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  else ava.innerHTML='<span>👤</span>';
+  _avaFile=null;showS('spf');
+}
+function prevAva(input){const file=input.files[0];if(!file)return;_avaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('pf-ava').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(file)}
+async function savePf(){
+  const name=document.getElementById('pf-name').value.trim();
+  if(!name){alert('⚠️ Введи имя!');return}
+  const btn=document.querySelector('#spf button[onclick="savePf()"]');btn.textContent='Сохраняем...';btn.disabled=true;
+  let customPhoto=null;
+  if(_avaFile){try{const fd=new FormData();fd.append('image',_avaFile);const r=await fetch('https://api.imgbb.com/1/upload?key=37c43b29e20091e53ca74640de81676f',{method:'POST',body:fd});const d=await r.json();if(d.success)customPhoto=d.data.url}catch(e){}_avaFile=null}
+  const old=JSON.parse(localStorage.getItem('cpf')||'{}');
+  localStorage.setItem('cpf',JSON.stringify({...old,name,customPhoto:customPhoto||old.customPhoto,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||old.photoUrl||''}));
+  btn.textContent='💾 Сохранить профиль';btn.disabled=false;
+  alert('✅ Профиль сохранён!');showS('sm');renderCab();
+}
+
+// ── EVENTS CRUD ──────────────────────────────────────────
+function renderEL(list){
+  const c=document.getElementById('evl');
+  if(!list.length){c.innerHTML='<div class="empty"><div class="empty-t">Событий нет</div></div>';return}
+  c.innerHTML=list.map(ev=>`
+    <div class="li" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="flex:1;min-width:0"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue}</div></div>
+        <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
+          <button style="background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
+          <button class="bdel" onclick="delEv(${ev.id})">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
+function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
+function prevPost(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('pprev-img').src=e.target.result;document.getElementById('pprev').style.display='block'};r.readAsDataURL(file)}
+function prevEpost(input){const file=input.files[0];if(!file)return;_editAvaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('eprev-img').src=e.target.result;document.getElementById('eprev').style.display='block'};r.readAsDataURL(file)}
+async function uploadImg(file){const fd=new FormData();fd.append('image',file);try{const r=await fetch('https://api.imgbb.com/1/upload?key=37c43b29e20091e53ca74640de81676f',{method:'POST',body:fd});const d=await r.json();if(d.success)return d.data.url}catch(e){}return null}
+
+async function saveEv(){
+  const nm=document.getElementById('fe-nm').value.trim(),dt=document.getElementById('fe-dt').value.trim();
+  const ts=document.getElementById('fe-ts').value.trim(),te=document.getElementById('fe-te').value.trim();
+  const vn=document.getElementById('fe-vn').value.trim();
+  if(!nm){alert('⚠️ Введи название!');return}
+  if(!dt||dt.length<10){alert('⚠️ Введи дату ДД.ММ.ГГГГ!');return}
+  if(!ts||ts.length<5){alert('⚠️ Введи время начала!');return}
+  if(!vn){alert('⚠️ Введи место!');return}
+  const btn=document.getElementById('fev-btn');btn.textContent='Сохраняем...';btn.disabled=true;
+  const timeStr=te&&te.length===5?`${ts} — ${te}`:ts;
+  let pu=document.getElementById('fe-pu').value.trim();
+  const fi=document.querySelector('#fev input[type="file"]');
+  if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up}
+  const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:document.getElementById('fe-pr').value.trim()||'Уточняется',link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu});
+  btn.textContent='Сохранить';btn.disabled=false;
+  if(r?.error){alert('❌ '+r.error);return}
+  ['fe-nm','fe-dt','fe-ts','fe-te','fe-vn','fe-pr','fe-lk','fe-dc','fe-pu'].forEach(i=>document.getElementById(i).value='');
+  if(fi)fi.value='';document.getElementById('pprev').style.display='none';
+  document.getElementById('fev').classList.remove('open');
+  await loadAll();if(role==='org')openOE();else openAE();
+}
+
+function openEditEv(id){
+  const ev=evs.find(e=>e.id===id);if(!ev)return;
+  editEvId=id;_editAvaFile=null;
+  document.getElementById('ee-nm').value=ev.name||'';
+  document.getElementById('ee-dt').value=ev.date||'';
+  const tp=(ev.time||'').split(' — ');
+  document.getElementById('ee-ts').value=tp[0]||'';
+  document.getElementById('ee-te').value=tp[1]||'';
+  document.getElementById('ee-vn').value=ev.venue||'';
+  document.getElementById('ee-pr').value=ev.price||'';
+  document.getElementById('ee-lk').value=ev.link||'';
+  document.getElementById('ee-dc').value=ev.description||'';
+  document.getElementById('ee-pu').value=ev.poster_url||'';
+  const sel=document.getElementById('ee-em');
+  for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===ev.emoji){sel.selectedIndex=i;break}}
+  const ageSel=document.getElementById('ee-age');
+  for(let i=0;i<ageSel.options.length;i++){if(ageSel.options[i].value===ev.age_limit){ageSel.selectedIndex=i;break}}
+  const prev=document.getElementById('eprev');
+  if(ev.poster_url){document.getElementById('eprev-img').src=ev.poster_url;prev.style.display='block'}
+  else prev.style.display='none';
+  showS('see');
+}
+
+async function saveEditEv(){
+  const nm=document.getElementById('ee-nm').value.trim(),dt=document.getElementById('ee-dt').value.trim();
+  const ts=document.getElementById('ee-ts').value.trim(),te=document.getElementById('ee-te').value.trim();
+  const vn=document.getElementById('ee-vn').value.trim();
+  if(!nm){alert('⚠️ Введи название!');return}
+  if(!dt||dt.length<10){alert('⚠️ Введи дату!');return}
+  if(!ts||ts.length<5){alert('⚠️ Введи время начала!');return}
+  if(!vn){alert('⚠️ Введи место!');return}
+  const btn=document.getElementById('ee-btn');btn.textContent='Сохраняем...';btn.disabled=true;
+  const timeStr=te&&te.length===5?`${ts} — ${te}`:ts;
+  let pu=document.getElementById('ee-pu').value.trim();
+  if(_editAvaFile){const up=await uploadImg(_editAvaFile);if(up)pu=up;_editAvaFile=null}
+  const r=await fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:document.getElementById('ee-pr').value.trim()||'Уточняется',link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,userId:uid})});
+  const data=await r.json();
+  btn.textContent='💾 Сохранить изменения';btn.disabled=false;
+  if(data?.error){alert('❌ '+data.error);return}
+  alert('✅ Мероприятие обновлено!');
+  await loadAll();if(role==='org')openOE();else openAE();
+}
+
+async function delEv(id){
+  if(!confirm('Удалить событие?'))return;
+  await D('/api/events/'+id);
+  const d=await G('/api/events');if(d)evs=d;
+  renderFeed(evs);renderCal();
+  document.getElementById('cnt-ev').textContent=evs.length;
+  if(role==='org')openOE();else openAE();
+}
+</script>
+</body>
+</html>
