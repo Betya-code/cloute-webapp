@@ -1513,16 +1513,22 @@ async function savePf(){
 function renderEL(list){
   const c=document.getElementById('evl');
   if(!list.length){c.innerHTML='<div class="empty"><div class="empty-t">Событий нет</div></div>';return}
-  c.innerHTML=list.map(ev=>`
-    <div class="li" style="flex-direction:column;align-items:stretch;gap:8px">
+  const now=new Date();now.setHours(0,0,0,0);
+  const isPastEv=ev=>{const p=(ev.date||'').split('.');if(p.length<3)return false;return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]))<now;};
+  const active=list.filter(e=>!isPastEv(e));
+  const past=list.filter(isPastEv);
+  const card=(ev,isPast)=>`
+    <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="flex:1;min-width:0"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue}</div></div>
+        <div style="flex:1;min-width:0"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue} · 👁 ${ev.views||0}</div></div>
         <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
           <button style="background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
           <button class="bdel" onclick="delEv(${ev.id})">🗑</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  const sec=(title,arr,isPast)=>arr.length?`<div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin:4px 0 10px">${title}</div>${arr.map(e=>card(e,isPast)).join('')}`:'';
+  c.innerHTML=sec('🟢 Активные',active,false)+sec('📦 Прошедшие',past,true);
 }
 function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
