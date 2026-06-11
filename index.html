@@ -559,6 +559,7 @@ button:active{transform:scale(.96);opacity:.85}
         <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:10px">Заявка отправлена!</div>
         <div style="font-size:13px;color:#886699;line-height:1.7">Я рассмотрю её в ближайшее время<br>и напишу тебе в бот</div>
       </div>
+      <div id="soa-status" style="display:none"></div>
     </div>
   </div>
 
@@ -1405,15 +1406,51 @@ async function renderOSStats(){
 }
 
 // ── USER ─────────────────────────────────────────────────
-function openOrgApply(){
-  // Сбрасываем форму
-  document.getElementById('soa-form').style.display='block';
+function escH(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function showOAForm(){
+  document.getElementById('soa-status').style.display='none';
   document.getElementById('soa-success').style.display='none';
+  document.getElementById('soa-form').style.display='block';
   document.getElementById('oa-name').value='';
   document.getElementById('oa-desc').value='';
   document.getElementById('oa-social').value='';
   document.getElementById('oa-contact').value='';
+}
+
+function renderAppStatus(app){
+  const st=document.getElementById('soa-status');
+  const map={
+    pending:{ico:'⏳',title:'На рассмотрении',color:'#c084fc',bg:'rgba(139,0,255,.12)',bd:'rgba(139,0,255,.35)',sub:'Я рассмотрю заявку и напишу тебе в бот.'},
+    approved:{ico:'✅',title:'Одобрена',color:'#34d399',bg:'rgba(16,185,129,.12)',bd:'rgba(16,185,129,.35)',sub:'Ты теперь организатор! Перезайди в приложение.'},
+    rejected:{ico:'❌',title:'Отклонена',color:'#fb7185',bg:'rgba(244,63,94,.1)',bd:'rgba(244,63,94,.3)',sub:'К сожалению, сейчас мы не можем тебя добавить.'}
+  };
+  const m=map[app.status]||map.pending;
+  const det=[['🏢',app.org_name],['📝',app.description],['📱',app.social],['📞',app.contact]]
+    .filter(d=>d[1]).map(d=>`<div style="font-size:13px;color:#cbb6e6;margin-top:6px">${d[0]} ${escH(d[1])}</div>`).join('');
+  st.innerHTML=`
+    <div style="text-align:center;padding:14px 0 4px"><div style="font-size:52px">${m.ico}</div></div>
+    <div style="background:${m.bg};border:1px solid ${m.bd};border-radius:16px;padding:16px;margin-top:8px">
+      <div style="font-family:'Unbounded',sans-serif;font-size:15px;font-weight:800;color:${m.color};margin-bottom:8px">Заявка: ${m.title}</div>
+      <div style="font-size:12px;color:#886699;line-height:1.6;margin-bottom:10px">${m.sub}</div>
+      ${det?`<div style="border-top:1px solid rgba(139,0,255,.15);padding-top:10px">${det}</div>`:''}
+    </div>`;
+  st.style.display='block';
+  document.getElementById('soa-form').style.display='none';
+  document.getElementById('soa-success').style.display='none';
+}
+
+async function openOrgApply(){
+  document.getElementById('soa-form').style.display='none';
+  document.getElementById('soa-success').style.display='none';
+  const st=document.getElementById('soa-status');
+  st.style.display='block';
+  st.innerHTML='<div style="text-align:center;padding:34px 0;color:#886699">Загрузка…</div>';
   showS('soa');
+  const r=await G('/api/my-application');
+  const app=r?.application;
+  if(!app||(app.status==='rejected'&&app.can_reapply)){showOAForm();return}
+  renderAppStatus(app);
 }
 
 async function submitOrgApp(){
