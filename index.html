@@ -1536,7 +1536,7 @@ async function savePf(){
   if(!name){alert('⚠️ Введи имя!');return}
   const btn=document.querySelector('#spf button[onclick="savePf()"]');btn.textContent='Сохраняем...';btn.disabled=true;
   let customPhoto=null;
-  if(_avaFile){try{const fd=new FormData();fd.append('image',_avaFile);const r=await fetch('https://api.imgbb.com/1/upload?key=37c43b29e20091e53ca74640de81676f',{method:'POST',body:fd});const d=await r.json();if(d.success)customPhoto=d.data.url}catch(e){}_avaFile=null}
+  if(_avaFile){customPhoto=await uploadImg(_avaFile);_avaFile=null}
   const old=JSON.parse(localStorage.getItem('cpf')||'{}');
   localStorage.setItem('cpf',JSON.stringify({...old,name,customPhoto:customPhoto||old.customPhoto,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||old.photoUrl||''}));
   btn.textContent='💾 Сохранить профиль';btn.disabled=false;
@@ -1607,7 +1607,8 @@ function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
 function prevPost(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('pprev-img').src=e.target.result;document.getElementById('pprev').style.display='block'};r.readAsDataURL(file)}
 function prevEpost(input){const file=input.files[0];if(!file)return;_editAvaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('eprev-img').src=e.target.result;document.getElementById('eprev').style.display='block'};r.readAsDataURL(file)}
-async function uploadImg(file){const fd=new FormData();fd.append('image',file);try{const r=await fetch('https://api.imgbb.com/1/upload?key=37c43b29e20091e53ca74640de81676f',{method:'POST',body:fd});const d=await r.json();if(d.success)return d.data.url}catch(e){}return null}
+function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(file)})}
+async function uploadImg(file){try{const b64=await fileToB64(file);const r=await P('/api/upload',{image:b64});return r&&r.url?r.url:null}catch(e){return null}}
 
 async function saveEv(){
   const nm=document.getElementById('fe-nm').value.trim(),dt=document.getElementById('fe-dt').value.trim();
