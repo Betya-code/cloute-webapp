@@ -612,6 +612,13 @@ button:active{transform:scale(.96);opacity:.85}
     </div>
   </div>
 
+  <div id="sst" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">📊 Статистика события</div></div>
+    <div class="sbody" id="sst-body">
+      <div style="text-align:center;padding:30px;color:#664488">Загружаем...</div>
+    </div>
+  </div>
+
   <!-- FAVS -->
   <div id="sfv" class="sv">
     <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">❤️ Избранное</div></div>
@@ -652,7 +659,7 @@ button:active{transform:scale(.96);opacity:.85}
 <script>
 const API='https://cloute.ru';
 let tgU=null,role='user',uid=0,curEv=null,curOrgId=null;
-let evs=[],orgs=[];
+let evs=[],orgs=[],allEvs=[];
 let favs=JSON.parse(localStorage.getItem('cf')||'[]');
 let going=JSON.parse(localStorage.getItem('cg')||'[]');
 let _avaFile=null,editEvId=null,_editAvaFile=null;
@@ -753,14 +760,14 @@ window.addEventListener('DOMContentLoaded',async()=>{
   // Автообновление каждые 30 сек
   setInterval(async()=>{
     const ed=await G('/api/events');
-    if(ed){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(evs)){evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();document.getElementById('cnt-ev').textContent=evs.length;}}
+    if(ed){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(allEvs)){allEvs=ed;evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();document.getElementById('cnt-ev').textContent=evs.length;}}
   },30000);
 });
 
 async function loadAll(){
   const[ed,od]=await Promise.all([G('/api/events'),G('/api/orgs')]);
   loadFailed=!ed;
-  if(ed)evs=filterPast(ed);if(od)orgs=od;
+  if(ed){allEvs=ed;evs=filterPast(ed);}if(od)orgs=od;
   document.getElementById('cnt-ev').textContent=evs.length;
   document.getElementById('cnt-or').textContent=orgs.length;
   if(role==='admin')document.getElementById('cnt-or-wrap').style.display='block';
@@ -1195,7 +1202,7 @@ async function rmOrg(tid){
   if(!confirm('Удалить организатора?'))return;
   await D('/api/orgs/'+tid);const d=await G('/api/orgs');if(d)orgs=d;renderOL();
 }
-async function openAE(){const d=await G('/api/events');if(d)evs=d;document.getElementById('sev-t').textContent='🎉 Все события';renderEL(evs);showS('sev')}
+async function openAE(){const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='🎉 Все события';renderEL(allEvs);showS('sev')}
 async function openPromo(){
   const d=await G('/api/events');
   const all=d||evs;
@@ -1335,7 +1342,7 @@ function deleteDraft(id, silent=false){
 }
 
 function openOAdd(){document.getElementById('sev-t').textContent='➕ Новое мероприятие';document.getElementById('evl').innerHTML='';showS('sev');setTimeout(()=>document.getElementById('fev').classList.add('open'),100)}
-async function openOE(){const d=await G('/api/events');if(d)evs=d;const my=evs.filter(e=>e.org_id==uid&&uid>0);document.getElementById('sev-t').textContent='🎉 Мои мероприятия';renderEL(my);showS('sev')}
+async function openOE(){const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}const my=allEvs.filter(e=>e.org_id==uid&&uid>0);document.getElementById('sev-t').textContent='🎉 Мои мероприятия';renderEL(my);showS('sev')}
 async function openOS(){
   if(statsTimer){clearInterval(statsTimer);statsTimer=null}
   await renderOSStats();
@@ -1354,10 +1361,10 @@ async function renderOSStats(){
   const fresh=await G('/api/events');
   let allOrgEvs=[];
   if(fresh){
-    fresh.forEach(e=>{const i=evs.findIndex(x=>x.id===e.id);if(i>=0)evs[i]=e;});
+    allEvs=fresh;evs=filterPast(fresh);
     allOrgEvs=fresh.filter(e=>e.org_id==uid&&uid>0);
   } else {
-    allOrgEvs=evs.filter(e=>e.org_id==uid&&uid>0);
+    allOrgEvs=allEvs.filter(e=>e.org_id==uid&&uid>0);
   }
 
   const now=new Date();now.setHours(0,0,0,0);
@@ -1520,8 +1527,9 @@ function renderEL(list){
   const card=(ev,isPast)=>`
     <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="flex:1;min-width:0"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue} · 👁 ${ev.views||0}</div></div>
+        <div style="flex:1;min-width:0;cursor:pointer" onclick="openEvStats(${ev.id})"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue} · 👁 ${ev.views||0}</div></div>
         <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
+          <button style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#67e8f9;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEvStats(${ev.id})">📊</button>
           <button style="background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
           <button class="bdel" onclick="delEv(${ev.id})">🗑</button>
         </div>
@@ -1529,6 +1537,44 @@ function renderEL(list){
     </div>`;
   const sec=(title,arr,isPast)=>arr.length?`<div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin:4px 0 10px">${title}</div>${arr.map(e=>card(e,isPast)).join('')}`:'';
   c.innerHTML=sec('🟢 Активные',active,false)+sec('📦 Прошедшие',past,true);
+}
+
+function priceNum(p){return parseInt(String(p==null?'':p).replace(/\D/g,''),10)||0}
+function fmtMoney(n){return new Intl.NumberFormat('ru-RU').format(n)+' ₽'}
+
+async function openEvStats(id){
+  const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);
+  const body=document.getElementById('sst-body');
+  body.innerHTML='<div style="text-align:center;padding:34px 0;color:#886699">Загрузка…</div>';
+  showS('sst');
+  const s=await G('/api/events/'+id+'/attendance');
+  if(!s||s.error){body.innerHTML='<div class="empty"><div class="empty-i">😕</div><div class="empty-t">'+escH(s?.error||'Не удалось загрузить статистику')+'</div></div>';return}
+  const cats=s.categories||[];
+  const revenue=cats.reduce((a,c)=>a+priceNum(c.price)*(c.sold||0),0);
+  const views=ev?(ev.views||0):0;
+  const sold=s.total_sold||0, attended=s.total_attended||0;
+  const conv=views>0?Math.round(sold/views*100):0;
+  const head=ev?`<div style="margin-bottom:14px"><div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:800">${ev.emoji||''} ${escH(ev.name||'')}</div><div style="font-size:12px;color:#664488;margin-top:4px">${escH(ev.date||'')} · ${escH(ev.venue||'')}</div></div>`:'';
+  const big=(val,lbl,col,bg)=>`<div style="flex:1;background:${bg};border-radius:12px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:${col}">${val}</div><div style="font-size:10px;color:#664488;margin-top:2px">${lbl}</div></div>`;
+  const catRows=cats.length?cats.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(139,0,255,.12)">
+      <div style="min-width:0"><div style="font-size:13px;font-weight:600">${escH(c.name||'Без названия')}</div><div style="font-size:11px;color:#664488">${fmtMoney(priceNum(c.price))} · продано ${c.sold||0}</div></div>
+      <div style="text-align:right;flex-shrink:0;margin-left:10px"><div style="font-size:14px;font-weight:800;color:#34d399">${fmtMoney(priceNum(c.price)*(c.sold||0))}</div><div style="font-size:11px;color:#664488">пришло ${c.attended||0}</div></div>
+    </div>`).join(''):'<div style="text-align:center;padding:16px;color:#664488;font-size:12px">Билетных категорий нет</div>';
+  body.innerHTML=`
+    ${head}
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      ${big(views,'👁 Просмотров','#67e8f9','rgba(0,212,255,.08)')}
+      ${big(sold,'🎟 Продано','#c084fc','rgba(139,0,255,.08)')}
+      ${big(attended,'✅ Пришло','#34d399','rgba(16,185,129,.08)')}
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.08em">💵 Выручка с билетов</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#34d399;margin-top:4px">${fmtMoney(revenue)}</div>
+      <div style="font-size:11px;color:#664488;margin-top:4px">Конверсия просмотр→покупка: ${conv}%</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">По категориям билетов</div>
+    ${catRows}`;
 }
 function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
@@ -1560,7 +1606,7 @@ async function saveEv(){
 }
 
 function openEditEv(id){
-  const ev=evs.find(e=>e.id===id);if(!ev)return;
+  const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);if(!ev)return;
   editEvId=id;_editAvaFile=null;
   document.getElementById('ee-nm').value=ev.name||'';
   document.getElementById('ee-dt').value=ev.date||'';
@@ -1605,7 +1651,7 @@ async function saveEditEv(){
 async function delEv(id){
   if(!confirm('Удалить событие?'))return;
   await D('/api/events/'+id);
-  const d=await G('/api/events');if(d)evs=d;
+  const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}
   renderFeed(evs);renderCal();
   document.getElementById('cnt-ev').textContent=evs.length;
   if(role==='org')openOE();else openAE();
