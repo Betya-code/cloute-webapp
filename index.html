@@ -757,6 +757,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }
   showFeedSkeleton();
   await loadAll();
+  // Синхронизируем «Я иду» с сервером (актуально на любом устройстве)
+  if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}}
   // Автообновление каждые 30 сек
   setInterval(async()=>{
     const ed=await G('/api/events');
@@ -926,10 +928,19 @@ function openTK(){
   showS('stk');
 }
 
+function countView(ev){
+  if(!ev)return;
+  // Не накручиваем: организатор своего события и админ не считаются
+  if(role==='admin'||(uid&&ev.org_id==uid))return;
+  // 1 просмотр с устройства на событие
+  const seen=JSON.parse(localStorage.getItem('cvw')||'[]');
+  if(seen.includes(ev.id))return;
+  seen.push(ev.id);localStorage.setItem('cvw',JSON.stringify(seen));
+  G('/api/events/'+ev.id+'/view');
+}
 function openEv(id){
   curEv=id;const ev=evs.find(e=>e.id===id);if(!ev)return;
-  // Считаем просмотр
-  G('/api/events/'+id+'/view');
+  countView(ev);
   const org=orgs.find(o=>o.tg_id==ev.org_id);
   const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
   if(ev.poster_url){img.src=ev.poster_url;img.style.display='block';em.style.display='none'}
@@ -962,13 +973,29 @@ function togFav(){hap('light');const i=favs.indexOf(curEv);if(i>=0)favs.splice(i
 function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');window.open(ev.link,'_blank')}}
 function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');window.open('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'),'_blank')}
-function togGoingDetail(){
+async function apiGoing(id,going){
+  const r=await P('/api/events/'+id+'/going',{going});
+  if(r&&typeof r.going_count==='number'){
+    const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);
+    if(e1)e1.going_count=r.going_count;if(e2)e2.going_count=r.going_count;
+    return r.going_count;
+  }
+  return null;
+}
+async function togGoingDetail(){
   hap('medium');
-  const i=going.indexOf(curEv);
+  const id=curEv;
+  const i=going.indexOf(id);
+  const goingNow=i<0;
   const btn=document.getElementById('btn-going');
   if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.className='bbiggoing'}
-  else{going.push(curEv);btn.textContent='✅ Я иду';btn.className='bbiggoing active'}
+  else{going.push(id);btn.textContent='✅ Я иду';btn.className='bbiggoing active'}
   localStorage.setItem('cg',JSON.stringify(going));
+  const cnt=await apiGoing(id,goingNow);
+  if(cnt!=null){
+    const goingEl=document.getElementById('d-going');
+    goingEl.textContent=cnt>0?`🙋 ${cnt} ${plural(cnt,['человек планирует','человека планируют','человек планируют'])} прийти`:'';
+  }
 }
 function togFollow(){
   const org=orgs.find(o=>o.tg_id==curOrgId);
