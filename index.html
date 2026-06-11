@@ -758,7 +758,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   showFeedSkeleton();
   await loadAll();
   // Синхронизируем «Я иду» с сервером (актуально на любом устройстве)
-  if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}}
+  if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}
+    const f=await G('/api/my-favs');if(f&&Array.isArray(f.favs)){favs=f.favs;localStorage.setItem('cf',JSON.stringify(favs));}}
   // Автообновление каждые 30 сек
   setInterval(async()=>{
     const ed=await G('/api/events');
@@ -908,7 +909,8 @@ function renderFeed(list){
 }
 
 function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)window.open(ev.link,'_blank')}
-function qFav(id,btn){hap('light');const i=favs.indexOf(id);if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs))}
+async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
+function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
 function shareEvent(ev){const text=buildShareText(ev);if(navigator.share){navigator.share({title:ev.name,text,url:"https://t.me/clout_msk_bot"})}else{navigator.clipboard?.writeText(text);alert("Скопировано!")}}
 function qShr(id){hap('light');const ev=evs.find(e=>e.id===id);if(!ev)return;shareEvent(ev)}
@@ -969,7 +971,7 @@ function openEv(id){
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
   nav('d');
 }
-function togFav(){hap('light');const i=favs.indexOf(curEv);if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍"}
+function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');window.open(ev.link,'_blank')}}
 function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');window.open('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'),'_blank')}
