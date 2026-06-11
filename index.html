@@ -344,7 +344,7 @@ button:active{transform:scale(.96);opacity:.85}
     <img id="d-img" src="" style="display:none">
     <div id="d-emoji" class="demoji">🎉</div>
     <div class="dho"></div>
-    <button class="bback" onclick="nav('h')">← Назад</button>
+    <button class="bback" onclick="navBack()">← Назад</button>
     <div class="dtop">
       <button class="bcircle" id="btn-fav" onclick="togFav()">🤍</button>
       <button class="bcircle" onclick="shareEv()">🔗</button>
@@ -367,7 +367,7 @@ button:active{transform:scale(.96);opacity:.85}
 <!-- ORG PAGE -->
 <div id="vorg" class="view" style="padding-bottom:80px">
   <div style="position:relative">
-    <button class="bback" style="position:absolute;top:14px;left:14px;z-index:10" onclick="nav('h')">← Назад</button>
+    <button class="bback" style="position:absolute;top:14px;left:14px;z-index:10" onclick="navBack()">← Назад</button>
   </div>
   <div class="org-banner">
     <div style="height:20px"></div>
@@ -784,20 +784,25 @@ function filterPast(list){
 }
 
 // ── NAV ──────────────────────────────────────────────────
-let _prevPage='h';
-function nav(p){
+let _navHist=[];
+function nav(p,back){
   hap('sel');
-  const goingBack=(p==='h'&&_prevPage!=='h')||(p==='d'&&_prevPage==='org');
+  const curEl=document.querySelector('.view.active');
+  const cur=curEl?curEl.id.slice(1):null;
+  if(!back&&cur&&cur!==p){
+    if(p==='d'||p==='org')_navHist.push(cur); // запоминаем, откуда открыли деталь/орга
+    else _navHist=[];                          // переход по нижнему меню сбрасывает историю
+  }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active','slide-back'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   const view=document.getElementById('v'+p);
   view.classList.add('active');
-  if(goingBack)view.classList.add('slide-back');
+  if(back)view.classList.add('slide-back');
   const ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('active');
-  _prevPage=p;
   window.scrollTo(0,0);
   if(p==='c'){const t=new Date();calY=t.getFullYear();calM=t.getMonth();selCalDay=null;renderCal();}if(p==='k')renderCab();if(p==='s')renderSearchSuggest();
 }
+function navBack(){const prev=_navHist.pop()||'h';nav(prev,true);}
 function showS(id){document.querySelectorAll('.sv').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
 function tog(id){document.getElementById(id).classList.toggle('open')}
 
