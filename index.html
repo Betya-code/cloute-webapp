@@ -649,7 +649,7 @@ button:active{transform:scale(.96);opacity:.85}
 </div>
 
 <script>
-const API='https://cloute-bot-production.up.railway.app';
+const API='https://cloute.ru';
 let tgU=null,role='user',uid=0,curEv=null,curOrgId=null;
 let evs=[],orgs=[];
 let favs=JSON.parse(localStorage.getItem('cf')||'[]');
@@ -731,8 +731,14 @@ async function D(p){
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
   const token=new URLSearchParams(window.location.search).get('token');
-  if(token){const a=await G('/api/auth/'+token);if(a?.role){role=a.role;uid=a.user_id;localStorage.setItem('cr',a.role);localStorage.setItem('cu',a.user_id)}}
-  else{role=localStorage.getItem('cr')||'user';uid=parseInt(localStorage.getItem('cu')||'0')}
+  // Сначала — роль по подписи Telegram (надёжно при любом способе открытия)
+  if(window.Telegram?.WebApp?.initData){
+    const me=await G('/api/me');
+    if(me&&me.user_id){role=me.role;uid=me.user_id;localStorage.setItem('cr',me.role);localStorage.setItem('cu',me.user_id)}
+  }
+  // Запасной путь — токен из ссылки (если открыли без Telegram-подписи)
+  if((!uid||role==='user')&&token){const a=await G('/api/auth/'+token);if(a?.role&&a.user_id){role=a.role;uid=a.user_id;localStorage.setItem('cr',a.role);localStorage.setItem('cu',a.user_id)}}
+  if(!uid){role=localStorage.getItem('cr')||'user';uid=parseInt(localStorage.getItem('cu')||'0')}
   const b=document.getElementById('rbadge');
   if(role==='admin'){b.textContent='👑 Админ';b.className='rbadge ra'}
   else if(role==='org'){b.textContent='🏢 Организатор';b.className='rbadge ro'}
