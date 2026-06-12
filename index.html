@@ -724,15 +724,23 @@ async function G(p){
     return await r.json();
   }catch(e){console.error('GET error:',p,e);return null}
 }
-async function P(p,d){
+async function P(p,d,timeoutMs=15000){
   try{
-    return await(await fetch(API+p,{method:'POST',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({...d,userId:uid})})).json()
-  }catch(e){return null}
+    const r=await Promise.race([
+      fetch(API+p,{method:'POST',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({...d,userId:uid})}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),timeoutMs))
+    ]);
+    return await r.json();
+  }catch(e){console.error('POST error:',p,e);return null}
 }
 async function D(p){
   try{
-    return await(await fetch(API+p+'?userId='+uid,{method:'DELETE',headers:_hdr()})).json()
-  }catch(e){return null}
+    const r=await Promise.race([
+      fetch(API+p+'?userId='+uid,{method:'DELETE',headers:_hdr()}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),12000))
+    ]);
+    return await r.json();
+  }catch(e){console.error('DELETE error:',p,e);return null}
 }
 
 // ── INIT ──────────────────────────────────────────────────
@@ -853,11 +861,11 @@ function renderTodayRow(){
   document.getElementById('today-count').textContent=todEvs.length+' '+plural(todEvs.length,['событие','события','событий']);
   document.getElementById('today-scroll').innerHTML=todEvs.map(ev=>`
     <div class="today-card" onclick="openEv(${ev.id})">
-      ${ev.poster_url?`<img class="today-card-img" src="${ev.poster_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-      <div class="today-card-emoji" style="${ev.poster_url?'display:none':''}">${ev.emoji}</div>
+      ${ev.poster_url?`<img class="today-card-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+      <div class="today-card-emoji" style="${ev.poster_url?'display:none':''}">${escH(ev.emoji)}</div>
       <div class="today-card-body">
-        <div class="today-card-name">${ev.name}</div>
-        <div class="today-card-time">⏰ ${ev.time}</div>
+        <div class="today-card-name">${escH(ev.name)}</div>
+        <div class="today-card-time">⏰ ${escH(ev.time)}</div>
       </div>
     </div>`).join('');
 }
@@ -890,14 +898,14 @@ function renderFeed(list){
     const isGoing=going.includes(ev.id);
     const goingCount=ev.going_count||0;
     return`<div class="poster poster-appear" style="animation-delay:${i*0.06}s" onclick="openEv(${ev.id})">
-      ${ev.poster_url?`<img class="pimg" src="${ev.poster_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''
-      }<div class="pph" style="${ev.poster_url?'display:none':''}">${ev.emoji}</div>
+      ${ev.poster_url?`<img class="pimg" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''
+      }<div class="pph" style="${ev.poster_url?'display:none':''}">${escH(ev.emoji)}</div>
       <div class="pov">
-        <div>${ev.hot?'<span class="pbdg ph">🔥 Хит</span>':''}${isFree(ev)?'<span class="pbdg pfree">Бесплатно</span>':''}${ev.age_limit?`<span class="pbdg page">${ev.age_limit}</span>`:''}</div>
-        <div class="pname">${ev.name}</div>
-        ${org?`<div class="porg">🏢 ${org.name}</div>`:''}
-        <div class="prow"><div class="pplace">📍 ${ev.venue}</div><div class="pdate">${fmtDate(ev.date)}</div></div>
-        <div class="prow"><div style="font-size:12px;color:#aaa">⏰ ${ev.time}</div><div class="pprice">${isFree(ev)?'':fmtPriceShort(ev)}</div></div>
+        <div>${ev.hot?'<span class="pbdg ph">🔥 Хит</span>':''}${isFree(ev)?'<span class="pbdg pfree">Бесплатно</span>':''}${ev.age_limit?`<span class="pbdg page">${escH(ev.age_limit)}</span>`:''}</div>
+        <div class="pname">${escH(ev.name)}</div>
+        ${org?`<div class="porg">🏢 ${escH(org.name)}</div>`:''}
+        <div class="prow"><div class="pplace">📍 ${escH(ev.venue)}</div><div class="pdate">${fmtDate(ev.date)}</div></div>
+        <div class="prow"><div style="font-size:12px;color:#aaa">⏰ ${escH(ev.time)}</div><div class="pprice">${isFree(ev)?'':fmtPriceShort(ev)}</div></div>
         <div class="pact">
           <button class="bfav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button>
           <button class="bshr" onclick="event.stopPropagation();qShr(${ev.id})">🔗</button>
@@ -946,7 +954,7 @@ function openTK(){
   const c=document.getElementById('tkl');
   const tickets=JSON.parse(localStorage.getItem('ct')||'[]');
   c.innerHTML=!tickets.length?'<div class="empty"><div class="empty-i">🎟</div><div class="empty-t">Билетов пока нет.<br>Покупка билетов скоро!</div></div>':
-  tickets.map(t=>`<div class="sc"><div class="scdate">${t.date}</div><div class="scname">${t.eventName||t.name}</div><div class="scmeta"><span>📍 ${t.venue||''}</span><span>${t.price||''}</span></div></div>`).join('');
+  tickets.map(t=>`<div class="sc"><div class="scdate">${escH(t.date)}</div><div class="scname">${escH(t.eventName||t.name)}</div><div class="scmeta"><span>📍 ${escH(t.venue||'')}</span><span>${escH(t.price||'')}</span></div></div>`).join('');
   showS('stk');
 }
 
@@ -976,11 +984,11 @@ function openEv(id){
   const goingEl=document.getElementById('d-going');
   goingEl.textContent=goingCount>0?`🙋 ${goingCount} ${plural(goingCount,['человек планирует','человека планируют','человек планируют'])} прийти`:'';
   document.getElementById('d-rows').innerHTML=`
-    <div class="drow"><div class="dricon">📅</div><div><div class="drlbl">Дата</div><div class="drval">${fmtDate(ev.date)} <span style="color:#664488;font-weight:400;font-size:12px">· ${ev.date}</span></div></div></div>
-    <div class="drow"><div class="dricon">⏰</div><div><div class="drlbl">Время</div><div class="drval">${ev.time}</div></div></div>
-    <div class="drow"><div class="dricon">📍</div><div><div class="drlbl">Место</div><div class="drval">${ev.venue}</div></div></div>
+    <div class="drow"><div class="dricon">📅</div><div><div class="drlbl">Дата</div><div class="drval">${fmtDate(ev.date)} <span style="color:#664488;font-weight:400;font-size:12px">· ${escH(ev.date)}</span></div></div></div>
+    <div class="drow"><div class="dricon">⏰</div><div><div class="drlbl">Время</div><div class="drval">${escH(ev.time)}</div></div></div>
+    <div class="drow"><div class="dricon">📍</div><div><div class="drlbl">Место</div><div class="drval">${escH(ev.venue)}</div></div></div>
     <div class="drow"><div class="dricon">💵</div><div><div class="drlbl">Вход</div><div class="drval">${fmtPrice(ev.price)}</div></div></div>
-    ${ev.age_limit?`<div class="drow" style="border-color:rgba(255,100,0,.3)"><div class="dricon">🔞</div><div><div class="drlbl">Возраст</div><div class="drval" style="color:#f97316">${ev.age_limit}</div></div></div>`:''}`;
+    ${ev.age_limit?`<div class="drow" style="border-color:rgba(255,100,0,.3)"><div class="dricon">🔞</div><div><div class="drlbl">Возраст</div><div class="drval" style="color:#f97316">${escH(ev.age_limit)}</div></div></div>`:''}`;
   const btnGoing=document.getElementById('btn-going');
   const isGoing=going.includes(id);
   btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
@@ -1041,9 +1049,9 @@ function openOrgPage(){
     '<div class="empty"><div class="empty-i">🎉</div><div class="empty-t">Событий пока нет</div></div>':
     orgEvs.map(ev=>`
       <div class="sc" onclick="openEv(${ev.id})">
-        <div class="scdate">${ev.date} · ${ev.time}</div>
-        <div class="scname">${ev.emoji} ${ev.name}</div>
-        <div class="scmeta"><span>📍 ${ev.venue}</span><span>${fmtPriceShort(ev)}</span></div>
+        <div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div>
+        <div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>
+        <div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div>
         ${ev.views?`<div style="font-size:10px;color:#554466;margin-top:4px">👁 ${ev.views} просмотров · 🙋 ${ev.going_count||0} идут</div>`:''}
       </div>`).join('');
   nav('org');
@@ -1084,7 +1092,7 @@ function selD(d){
   const list=evs.filter(e=>{const p=e.date.split('.');return parseInt(p[0])===d&&parseInt(p[1])===m&&parseInt(p[2])===y});
   const c=document.getElementById('cal-e');
   if(!list.length){c.innerHTML='<div style="text-align:center;padding:28px 14px"><div style="font-size:36px;margin-bottom:8px">🥱</div><div style="font-size:14px;font-weight:700;color:#554466">Пока отходняк</div></div>';return}
-  c.innerHTML=list.map(ev=>`<div class="cei" onclick="openEv(${ev.id})"><div class="cdb"><div class="cdday">${ev.date.split('.')[0]}</div><div class="cdmon">${mnsu[m-1]}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.emoji} ${ev.name}</div><div style="font-size:11px;color:#664488;margin-top:3px">📍 ${ev.venue}</div><div style="display:flex;gap:10px;margin-top:2px"><span style="font-size:11px;color:#886699">⏰ ${ev.time}</span><span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${fmtPriceShort(ev)}</span></div></div><div style="font-size:18px;color:#443355;flex-shrink:0">›</div></div>`).join('');
+  c.innerHTML=list.map(ev=>`<div class="cei" onclick="openEv(${ev.id})"><div class="cdb"><div class="cdday">${escH(ev.date.split('.')[0])}</div><div class="cdmon">${mnsu[m-1]}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ev.emoji)} ${escH(ev.name)}</div><div style="font-size:11px;color:#664488;margin-top:3px">📍 ${escH(ev.venue)}</div><div style="display:flex;gap:10px;margin-top:2px"><span style="font-size:11px;color:#886699">⏰ ${escH(ev.time)}</span><span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${fmtPriceShort(ev)}</span></div></div><div style="font-size:18px;color:#443355;flex-shrink:0">›</div></div>`).join('');
 }
 
 // ── SEARCH ───────────────────────────────────────────────
@@ -1093,7 +1101,7 @@ function doSearch(q){
   const ql=q.toLowerCase();
   const found=evs.filter(e=>{const org=orgs.find(o=>o.tg_id==e.org_id);return e.name.toLowerCase().includes(ql)||e.venue.toLowerCase().includes(ql)||(org&&org.name.toLowerCase().includes(ql))});
   if(!found.length){c.innerHTML='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Ничего не найдено</div></div>';return}
-  c.innerHTML=found.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${org.name}</div>`:''}<div class="scmeta"><span>📍 ${ev.venue}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
+  c.innerHTML=found.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${escH(org.name)}</div>`:''}<div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
 }
 function saveSearch(q){q=(q||'').trim();if(!q)return;searchHist=searchHist.filter(x=>x.toLowerCase()!==q.toLowerCase());searchHist.unshift(q);searchHist=searchHist.slice(0,8);localStorage.setItem('csh',JSON.stringify(searchHist));}
 function applySearchChip(q){const inp=document.querySelector('#vs .si');inp.value=q;doSearch(q);}
@@ -1102,12 +1110,12 @@ function renderSearchSuggest(){
   const c=document.getElementById('sr');let h='';
   if(searchHist.length){
     h+='<div style="display:flex;justify-content:space-between;align-items:center"><div class="ssug-h">Недавние</div><div class="ssug-h" style="cursor:pointer;color:#8855aa" onclick="clearSearchHist()">очистить</div></div>';
-    h+='<div class="ssug-row">'+searchHist.map(q=>`<div class="ssug-chip" onclick="applySearchChip(${JSON.stringify(q)})">🕑 ${q}</div>`).join('')+'</div>';
+    h+='<div class="ssug-row">'+searchHist.map(q=>`<div class="ssug-chip" onclick="applySearchChip(${JSON.stringify(q)})">🕑 ${escH(q)}</div>`).join('')+'</div>';
   }
   const pop=[...evs].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
   if(pop.length){
     h+='<div class="ssug-h">Популярное</div>';
-    h+=pop.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${org.name}</div>`:''}<div class="scmeta"><span>📍 ${ev.venue}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
+    h+=pop.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${escH(org.name)}</div>`:''}<div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
   }
   c.innerHTML=h||'<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Найди свою тусовку</div></div>';
 }
@@ -1212,8 +1220,8 @@ async function renderASStats(){
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:24px;height:24px;border-radius:50%;background:${i===0?'linear-gradient(135deg,#ffd700,#ffa500)':i===1?'linear-gradient(135deg,#c0c0c0,#a0a0a0)':i===2?'linear-gradient(135deg,#cd7f32,#a0522d)':'rgba(139,0,255,.2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:${i<3?'#000':'#c084fc'};flex-shrink:0">${i+1}</div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.emoji} ${ev.name}</div>
-            <div style="font-size:11px;color:#664488;margin-top:1px">${o?o.name:''} · ${ev.date}</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ev.emoji)} ${escH(ev.name)}</div>
+            <div style="font-size:11px;color:#664488;margin-top:1px">${o?escH(o.name):''} · ${escH(ev.date)}</div>
           </div>
           <div style="font-size:16px;font-weight:900;color:#c084fc;flex-shrink:0">👁 ${ev.views||0}</div>
         </div>
@@ -1232,7 +1240,7 @@ async function openAO(){const d=await G('/api/orgs');if(d)orgs=d;renderOL();show
 function renderOL(){
   const c=document.getElementById('ol');
   if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i">🏢</div><div class="empty-t">Организаторов пока нет</div></div>';return}
-  c.innerHTML=orgs.map(o=>`<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0077aa,var(--cy));display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div><div><div style="font-size:14px;font-weight:700;color:#fff">${o.name}</div><div style="font-size:12px;color:#67e8f9;margin-top:2px">ID: ${o.tg_id}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})">Удалить</button></div></div>`).join('');
+  c.innerHTML=orgs.map(o=>`<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0077aa,var(--cy));display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div><div><div style="font-size:14px;font-weight:700;color:#fff">${escH(o.name)}</div><div style="font-size:12px;color:#67e8f9;margin-top:2px">ID: ${o.tg_id}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})">Удалить</button></div></div>`).join('');
 }
 async function saveOrg(){
   const un=document.getElementById('fo-un').value.trim().replace('@','');
@@ -1265,12 +1273,12 @@ async function openPromo(){
         <!-- Миниатюра афиши -->
         <div style="width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1a0033,#0d0020);display:flex;align-items:center;justify-content:center">
           ${ev.poster_url
-            ? `<img src="${ev.poster_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=font-size:24px>${ev.emoji}</span>'">`
-            : `<span style="font-size:24px">${ev.emoji}</span>`}
+            ? `<img src="${escH(ev.poster_url)}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=font-size:24px>${escH(ev.emoji)}</span>'">`
+            : `<span style="font-size:24px">${escH(ev.emoji)}</span>`}
         </div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.name}</div>
-          <div style="font-size:11px;color:#664488;margin-top:2px">${org?org.name+' · ':''} ${ev.date}</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ev.name)}</div>
+          <div style="font-size:11px;color:#664488;margin-top:2px">${org?escH(org.name)+' · ':''} ${escH(ev.date)}</div>
           ${isHot?'<div style="font-size:10px;color:#f9a8d4;margin-top:3px">🔥 Сейчас в топе</div>':''}
         </div>
         <button onclick="toggleHot(${ev.id},${isHot?0:1},this)"
@@ -1342,9 +1350,9 @@ function openDrafts(){
       <div style="background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:14px;padding:14px;margin-bottom:10px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
           <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:700;color:#fff">${d.emoji} ${d.name}</div>
-            <div style="font-size:11px;color:#664488;margin-top:3px">${d.date?'📅 '+d.date:''} ${d.venue?'· 📍 '+d.venue:''}</div>
-            <div style="font-size:10px;color:#443355;margin-top:3px">Сохранён: ${d.saved_at}</div>
+            <div style="font-size:14px;font-weight:700;color:#fff">${escH(d.emoji)} ${escH(d.name)}</div>
+            <div style="font-size:11px;color:#664488;margin-top:3px">${d.date?'📅 '+escH(d.date):''} ${d.venue?'· 📍 '+escH(d.venue):''}</div>
+            <div style="font-size:10px;color:#443355;margin-top:3px">Сохранён: ${escH(d.saved_at)}</div>
           </div>
           <button onclick="deleteDraft(${d.id})" class="bdel" style="margin-left:8px;flex-shrink:0">🗑</button>
         </div>
@@ -1428,7 +1436,7 @@ async function renderOSStats(){
   const evCard=(ev,isPast)=>`
     <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.venue}</div></div>
+        <div><div class="liname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="limeta">${escH(ev.date)} · ${escH(ev.venue)}</div></div>
         ${isPast?'<span style="font-size:10px;background:rgba(255,255,255,.08);color:#664488;padding:3px 8px;border-radius:20px;flex-shrink:0">Прошло</span>':''}
       </div>
       <div style="display:flex;gap:8px">
@@ -1532,14 +1540,14 @@ function openGoing(){
   const goEvs=evs.filter(e=>going.includes(e.id));
   const c=document.getElementById('gol');
   c.innerHTML=!goEvs.length?'<div class="empty"><div class="empty-i">🙋</div><div class="empty-t">Ты пока никуда не собираешься.<br>Найди тусовку!</div></div>':
-  goEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div><div class="scmeta"><span>📍 ${ev.venue}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
+  goEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
   showS('sgo');
 }
 function openFV(){
   const fEvs=evs.filter(e=>favs.includes(e.id));
   const c=document.getElementById('fvl');
   c.innerHTML=!fEvs.length?'<div class="empty"><div class="empty-i">❤️</div><div class="empty-t">Нет сохранённых тусовок</div></div>':
-  fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${ev.date} · ${ev.time}</div><div class="scname">${ev.emoji} ${ev.name}</div><div class="scmeta"><span>📍 ${ev.venue}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
+  fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
   showS('sfv');
 }
 function openPF(){
@@ -1576,7 +1584,7 @@ function renderEL(list){
   const card=(ev,isPast)=>`
     <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="flex:1;min-width:0;cursor:pointer" onclick="openEvStats(${ev.id})"><div class="liname">${ev.emoji} ${ev.name}</div><div class="limeta">${ev.date} · ${ev.time} · ${ev.venue} · 👁 ${ev.views||0}</div></div>
+        <div style="flex:1;min-width:0;cursor:pointer" onclick="openEvStats(${ev.id})"><div class="liname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="limeta">${escH(ev.date)} · ${escH(ev.time)} · ${escH(ev.venue)} · 👁 ${ev.views||0}</div></div>
         <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
           <button style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#67e8f9;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEvStats(${ev.id})">📊</button>
           <button style="background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
@@ -1630,7 +1638,7 @@ function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+
 function prevPost(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('pprev-img').src=e.target.result;document.getElementById('pprev').style.display='block'};r.readAsDataURL(file)}
 function prevEpost(input){const file=input.files[0];if(!file)return;_editAvaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('eprev-img').src=e.target.result;document.getElementById('eprev').style.display='block'};r.readAsDataURL(file)}
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(file)})}
-async function uploadImg(file){try{const b64=await fileToB64(file);const r=await P('/api/upload',{image:b64});return r&&r.url?r.url:null}catch(e){return null}}
+async function uploadImg(file){try{const b64=await fileToB64(file);const r=await P('/api/upload',{image:b64},30000);return r&&r.url?r.url:null}catch(e){return null}}
 
 async function saveEv(){
   const nm=document.getElementById('fe-nm').value.trim(),dt=document.getElementById('fe-dt').value.trim();
@@ -1690,8 +1698,14 @@ async function saveEditEv(){
   const timeStr=te&&te.length===5?`${ts} — ${te}`:ts;
   let pu=document.getElementById('ee-pu').value.trim();
   if(_editAvaFile){const up=await uploadImg(_editAvaFile);if(up){pu=up}else{alert('❌ Не удалось загрузить новое фото. Проверь интернет и попробуй ещё раз.');btn.textContent='💾 Сохранить изменения';btn.disabled=false;return}_editAvaFile=null}
-  const r=await fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,userId:uid})});
-  const data=await r.json();
+  let data;
+  try{
+    const r=await Promise.race([
+      fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,userId:uid})}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))
+    ]);
+    data=await r.json();
+  }catch(e){btn.textContent='💾 Сохранить изменения';btn.disabled=false;alert('❌ Не удалось сохранить. Проверь интернет и попробуй ещё раз.');return}
   btn.textContent='💾 Сохранить изменения';btn.disabled=false;
   if(data?.error){alert('❌ '+data.error);return}
   alert('✅ Мероприятие обновлено!');
