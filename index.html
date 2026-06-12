@@ -908,7 +908,27 @@ function renderFeed(list){
   }).join('');
 }
 
-function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)window.open(ev.link,'_blank')}
+// Нормализация ссылок орга: добавляем схему, понимаем @ник и t.me
+function normUrl(u){
+  u=(u||'').trim();
+  if(!u)return'';
+  if(/^https?:\/\//i.test(u))return u;
+  if(u[0]==='@')return'https://t.me/'+u.replace(/^@+/,'');
+  if(/^t\.me\//i.test(u))return'https://'+u;
+  if(!u.includes('.')&&!u.includes('/')&&!u.includes(' '))return'https://t.me/'+u;
+  return'https://'+u;
+}
+// Открытие внешних ссылок корректно ВНУТРИ Telegram
+function openExt(u){
+  u=normUrl(u);if(!u)return;
+  const tg=window.Telegram?.WebApp;
+  try{
+    if(tg&&/^https?:\/\/t\.me\//i.test(u)&&tg.openTelegramLink){tg.openTelegramLink(u);return;}
+    if(tg&&tg.openLink){tg.openLink(u);return;}
+  }catch(e){}
+  window.open(u,'_blank');
+}
+function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)openExt(ev.link)}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
@@ -973,8 +993,8 @@ function openEv(id){
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
-function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');window.open(ev.link,'_blank')}}
-function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');window.open('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'),'_blank')}
+function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ev.link)}}
+function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');openExt('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'))}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
   if(r&&typeof r.going_count==='number'){
@@ -1001,7 +1021,7 @@ async function togGoingDetail(){
 }
 function togFollow(){
   const org=orgs.find(o=>o.tg_id==curOrgId);
-  if(org?.contact){window.open(org.contact,'_blank')}
+  if(org?.contact){openExt(org.contact)}
   else{alert('Организатор не указал Telegram канал')}
 }
 
