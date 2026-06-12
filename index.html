@@ -1624,7 +1624,7 @@ async function saveEv(){
   const timeStr=te&&te.length===5?`${ts} — ${te}`:ts;
   let pu=document.getElementById('fe-pu').value.trim();
   const fi=document.querySelector('#fev input[type="file"]');
-  if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up}
+  if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up;else{alert('❌ Не удалось загрузить фото. Проверь интернет и попробуй ещё раз.');btn.textContent='Сохранить';btn.disabled=false;return}}
   const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu});
   btn.textContent='Сохранить';btn.disabled=false;
   if(r?.error){alert('❌ '+r.error);return}
@@ -1669,7 +1669,7 @@ async function saveEditEv(){
   const btn=document.getElementById('ee-btn');btn.textContent='Сохраняем...';btn.disabled=true;
   const timeStr=te&&te.length===5?`${ts} — ${te}`:ts;
   let pu=document.getElementById('ee-pu').value.trim();
-  if(_editAvaFile){const up=await uploadImg(_editAvaFile);if(up)pu=up;_editAvaFile=null}
+  if(_editAvaFile){const up=await uploadImg(_editAvaFile);if(up){pu=up}else{alert('❌ Не удалось загрузить новое фото. Проверь интернет и попробуй ещё раз.');btn.textContent='💾 Сохранить изменения';btn.disabled=false;return}_editAvaFile=null}
   const r=await fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,userId:uid})});
   const data=await r.json();
   btn.textContent='💾 Сохранить изменения';btn.disabled=false;
