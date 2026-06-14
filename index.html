@@ -309,7 +309,20 @@ button:active{transform:scale(.96);opacity:.85}
     <div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Имя *</div>
     <input id="ob-name" style="width:100%;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none" placeholder="Как тебя зовут?">
   </div>
+  <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;cursor:pointer">
+    <input type="checkbox" id="ob-consent" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#8b00ff">
+    <span style="font-size:12px;color:#886699;line-height:1.5">Я соглашаюсь на обработку моих персональных данных и принимаю <span style="color:#c084fc;text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacy()">Политику конфиденциальности</span></span>
+  </label>
   <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4)">🚀 Войти в CLOUTE</button>
+</div>
+</div>
+
+<!-- Политика конфиденциальности (оверлей) -->
+<div id="vprivacy" style="display:none;position:fixed;inset:0;z-index:1100;background:var(--dk);overflow-y:auto">
+<div style="padding:20px 18px 60px;max-width:560px;margin:0 auto">
+  <button onclick="closePrivacy()" style="background:rgba(255,255,255,.06);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px">← Назад</button>
+  <div style="font-family:'Unbounded',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px">Политика конфиденциальности</div>
+  <div id="pp-body" style="font-size:13px;color:#cbb6e6;line-height:1.7"></div>
 </div>
 </div>
 
@@ -1127,14 +1140,36 @@ function showOb(){
   if(tgU?.photo_url)document.getElementById('ob-ava').innerHTML=`<img src="${tgU.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   document.getElementById('ob-name').value=name;
 }
+const PD_POLICY_VERSION='1';
 async function finishOnboard(){
   const name=document.getElementById('ob-name').value.trim();
   if(!name){alert('⚠️ Введи имя!');return}
+  if(!document.getElementById('ob-consent').checked){alert('⚠️ Чтобы продолжить, нужно согласие на обработку персональных данных.');return}
   const btn=document.getElementById('ob-btn');btn.textContent='Сохраняем...';btn.disabled=true;
   const pf={name,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||''};
   localStorage.setItem('cpf',JSON.stringify(pf));
+  try{localStorage.setItem('consent_pd',JSON.stringify({v:PD_POLICY_VERSION,ts:new Date().toISOString()}))}catch(e){}
+  P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
   btn.textContent='🚀 Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
+}
+function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
+function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
+function renderPrivacy(){
+  const el=document.getElementById('pp-body');if(!el||el.dataset.done)return;
+  const h=(t)=>`<div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">${t}</div>`;
+  el.innerHTML=`
+    <div style="font-size:11px;color:#664488;margin:6px 0 14px">Предварительная версия. Финальный текст готовит юрист.</div>
+    <p>Настоящая Политика описывает, как в приложении CLOUTE (Telegram Mini App, бот @clout_msk_bot) обрабатываются персональные данные пользователей.</p>
+    ${h('1. Оператор')}<p>Оператор: [ИП ___, ОГРНИП ___]. Контакт для вопросов по персональным данным: [email].</p>
+    ${h('2. Какие данные мы обрабатываем')}<p>Имя, имя пользователя и идентификатор Telegram, фотография профиля (если загружается), адрес электронной почты и дата рождения (если указываются), а также сведения о ваших действиях в приложении (избранные события, отметки «иду»).</p>
+    ${h('3. Цели обработки')}<p>Регистрация и работа вашего профиля, показ и подбор мероприятий, обратная связь, информирование, обеспечение работы и безопасности сервиса.</p>
+    ${h('4. Правовое основание')}<p>Ваше согласие, а также случаи, предусмотренные Федеральным законом № 152-ФЗ «О персональных данных».</p>
+    ${h('5. Где хранятся данные')}<p>Персональные данные хранятся на серверах, расположенных на территории Российской Федерации, в соответствии с требованием о локализации (ч. 5 ст. 18 152-ФЗ).</p>
+    ${h('6. Передача третьим лицам')}<p>Мы не продаём ваши данные. Сервис работает через мессенджер Telegram, который выступает каналом связи. Данные о покупке билетов обрабатываются на стороне билетного сервиса-партнёра в рамках оформления покупки.</p>
+    ${h('7. Ваши права')}<p>Вы вправе запросить доступ к своим данным, их уточнение, удаление, а также отозвать согласие, написав на указанный контакт оператора.</p>
+    ${h('8. Срок и изменения')}<p>Данные обрабатываются до отзыва согласия или достижения целей обработки. Политика может обновляться; актуальная версия доступна в приложении.</p>`;
+  el.dataset.done='1';
 }
 
 // ── CABINET ──────────────────────────────────────────────
@@ -1182,6 +1217,7 @@ function renderCab(){
         <div style="color:#664488;font-size:16px">›</div>
       </div>`;
   }
+  document.getElementById('cmenu').innerHTML+=`<div style="text-align:center;margin-top:16px"><span style="font-size:12px;color:#664488;text-decoration:underline;cursor:pointer" onclick="showPrivacy()">Политика конфиденциальности</span></div>`;
 }
 
 // ── ADMIN ────────────────────────────────────────────────
