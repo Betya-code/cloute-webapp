@@ -852,7 +852,7 @@ function filterCat(el,cat){
 function togFreeFilter(el){hap('sel');filterFree=!filterFree;el.classList.toggle('active',filterFree);applyFilters()}
 function togWkndFilter(el){hap('sel');filterWeekend=!filterWeekend;el.classList.toggle('active',filterWeekend);applyFilters()}
 function applyFilters(){
-  const now=new Date();
+  const now=new Date();now.setHours(0,0,0,0);
   const tod=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
   let list=evs;
   if(currentFilter==='today')list=list.filter(e=>e.date===tod);
@@ -1331,9 +1331,9 @@ async function toggleHot(evId, hot, btn){
   btn.textContent='...';btn.disabled=true;
   const r=await P('/api/events/'+evId+'/hot',{hot});
   if(r?.error){alert('❌ '+r.error);btn.disabled=false;return}
-  // Обновляем локально без перезагрузки всей ленты
-  const ev=evs.find(e=>e.id===evId);
-  if(ev)ev.hot=hot;
+  // Обновляем локально без перезагрузки всей ленты (и в evs, и в allEvs — для прошедших)
+  const ev=evs.find(e=>e.id===evId);if(ev)ev.hot=hot;
+  const ev2=allEvs.find(e=>e.id===evId);if(ev2)ev2.hot=hot;
   renderFeed(evs);
   openPromo();
 }
