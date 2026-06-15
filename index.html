@@ -922,6 +922,7 @@ function renderFeed(list){
         <div class="pact">
           <button class="bfav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button>
           <button class="bshr" onclick="event.stopPropagation();qShr(${ev.id})">🔗</button>
+          ${org&&isTgLink(org.contact)?`<button class="bshr" onclick="event.stopPropagation();openOrgChannel(${ev.id})" title="Telegram-канал организатора">✈️</button>`:''}
           ${ev.link?`<button class="bbuy" onclick="event.stopPropagation();buyTicketById(${ev.id})">🎟 Купить билет</button>`:''}
         </div>
       </div>
@@ -949,6 +950,8 @@ function openExt(u){
   }catch(e){}
   window.open(u,'_blank');
 }
+function isTgLink(s){s=(s||'').trim();return /^@[\w\d_]{3,}$/.test(s)||/^(https?:\/\/)?t\.me\//i.test(s);}
+function openOrgChannel(evId){const ev=evs.find(e=>e.id===evId)||allEvs.find(e=>e.id===evId);if(!ev)return;const org=orgs.find(o=>o.tg_id==ev.org_id);if(org?.contact)openExt(org.contact)}
 function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)openExt(ev.link)}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
