@@ -561,7 +561,7 @@ button:active{transform:scale(.96);opacity:.85}
       <div id="soa-form">
         <input class="fi" id="oa-name" placeholder="🏢 Название организации *">
         <textarea class="fi" id="oa-desc" rows="2" placeholder="📝 Что организуете? (вечеринки, концерты...) *"></textarea>
-        <input class="fi" id="oa-social" placeholder="📱 Instagram, VK, Telegram или сайт *">
+        <input class="fi" id="oa-social" placeholder="🔗 Ссылка на канал/соцсеть (VK, Telegram, сайт) *">
         <input class="fi" id="oa-contact" placeholder="📞 Контакт для связи (телефон или @username) *">
         <button id="oa-btn" onclick="submitOrgApp()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">
           📋 Отправить заявку
@@ -1560,7 +1560,9 @@ async function submitOrgApp(){
   const contact=document.getElementById('oa-contact').value.trim();
   if(!name){alert('⚠️ Введи название!');return}
   if(!desc){alert('⚠️ Опиши что организуешь!');return}
-  if(!social){alert('⚠️ Укажи соцсеть или сайт!');return}
+  if(!social){alert('⚠️ Укажи ссылку на канал/соцсеть!');return}
+  const looksLink=s=>/^https?:\/\//i.test(s)||/^@[\w.]+$/.test(s)||/^t\.me\//i.test(s)||/[\w-]+\.[a-zа-я]{2,}/i.test(s);
+  if(!looksLink(social)){alert('⚠️ Укажи именно ссылку на канал/соцсеть (например vk.com/club, @канал или https://...). По ней проверяют, что ты настоящий организатор.');return}
   if(!contact){alert('⚠️ Укажи контакт для связи!');return}
   const btn=document.getElementById('oa-btn');
   btn.textContent='Отправляем...';btn.disabled=true;
