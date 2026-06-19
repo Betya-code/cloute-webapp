@@ -952,7 +952,19 @@ function openExt(u){
 }
 function isTgLink(s){s=(s||'').trim();return /^@[\w\d_]{3,}$/.test(s)||/^(https?:\/\/)?t\.me\//i.test(s);}
 function openOrgChannel(evId){const ev=evs.find(e=>e.id===evId)||allEvs.find(e=>e.id===evId);if(!ev)return;const org=orgs.find(o=>o.tg_id==ev.org_id);if(org?.contact)openExt(org.contact)}
-function buyTicketById(id){const ev=evs.find(e=>e.id===id);if(ev?.link)openExt(ev.link)}
+// Если в поле «Ссылка на билеты» вставлен код кнопки Ticketscloud — собираем из него ссылку виджета.
+function ticketUrl(link){
+  link=(link||'').trim();if(!link)return'';
+  const em=link.match(/data-tc-event=["']([^"']+)["']/i);
+  const tm=link.match(/data-tc-token=["']([^"']+)["']/i);
+  if(em&&tm){
+    let u='https://ticketscloud.com/v1/widgets/common?event='+encodeURIComponent(em[1])+'&token='+encodeURIComponent(tm[1]);
+    try{const p=JSON.parse(atob(tm[1].split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p&&p.p)u+='&partner='+encodeURIComponent(p.p);}catch(e){}
+    return u;
+  }
+  return link;
+}
+function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(ev?.link)openExt(ticketUrl(ev.link))}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
@@ -1017,7 +1029,7 @@ function openEv(id){
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
-function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ev.link)}}
+function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
 function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');openExt('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'))}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
