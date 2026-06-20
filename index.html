@@ -960,6 +960,8 @@ function ticketUrl(link){
   if(em&&tm){
     let u='https://ticketscloud.com/v1/widgets/common?event='+encodeURIComponent(em[1])+'&token='+encodeURIComponent(tm[1]);
     try{const p=JSON.parse(atob(tm[1].split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p&&p.p)u+='&partner='+encodeURIComponent(p.p);}catch(e){}
+    // Помечаем покупку Telegram-ID — чтобы потом показать билет в «Моих билетах»
+    if(typeof uid!=='undefined'&&uid)u+='&customData='+encodeURIComponent('tg:'+uid);
     return u;
   }
   return link;
