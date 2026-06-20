@@ -964,7 +964,17 @@ function ticketUrl(link){
   }
   return link;
 }
-function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(ev?.link)openExt(ticketUrl(ev.link))}
+// Достаём event+token из кода кнопки Ticketscloud (если в «Ссылке на билеты» вставлен он)
+function tcWidgetData(link){
+  link=(link||'').trim();
+  const e=link.match(/data-tc-event=["']([^"']+)["']/i);
+  const t=link.match(/data-tc-token=["']([^"']+)["']/i);
+  return (e&&t)?{event:e[1],token:t[1]}:null;
+}
+// Активирует виджет TC на кнопке (скрипт сам ведёт оплату пошагово)
+function tcInit(){try{if(window.ticketsCloudWidget&&window.ticketsCloudWidget.init)window.ticketsCloudWidget.init()}catch(e){}}
+// В ленте: TC-событие открываем в детали (там виджет встроен правильно); обычную ссылку — открываем сразу
+function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev?.link)return;if(tcWidgetData(ev.link))openEv(id);else openExt(ticketUrl(ev.link))}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
@@ -1032,8 +1042,21 @@ function openEv(id){
   btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
   btnGoing.className='bbiggoing'+(isGoing?' active':'');
   const btnBuy=document.getElementById('btn-buy');
-  if(ev.link){btnBuy.style.display='flex'}
-  else{btnBuy.style.display='none'}
+  const tcw=tcWidgetData(ev.link);
+  if(ev.link){
+    btnBuy.style.display='flex';
+    if(tcw){
+      // Официальный виджет TC: клик перехватит их скрипт и проведёт оплату пошагово
+      btnBuy.setAttribute('data-tc-event',tcw.event);
+      btnBuy.setAttribute('data-tc-token',tcw.token);
+      btnBuy.onclick=null;
+      tcInit();
+    }else{
+      // Обычная ссылка на билеты
+      btnBuy.removeAttribute('data-tc-event');btnBuy.removeAttribute('data-tc-token');
+      btnBuy.onclick=buyTicket;
+    }
+  }else{btnBuy.style.display='none'}
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
   nav('d');
 }
@@ -1784,6 +1807,7 @@ async function delEv(id){
   if(role==='org')openOE();else openAE();
 }
 </script>
-<!-- deploy test 1 -->
+<!-- Виджет продажи билетов Ticketscloud (ведёт оплату пошагово прямо в приложении) -->
+<script src="https://ticketscloud.com/static/scripts/widget/tcwidget.js"></script>
 </body>
 </html>
