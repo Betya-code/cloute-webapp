@@ -980,9 +980,19 @@ function qGoing(id,btn){
 // ── DETAIL ───────────────────────────────────────────────
 function openTK(){
   const c=document.getElementById('tkl');
-  const tickets=JSON.parse(localStorage.getItem('ct')||'[]');
-  c.innerHTML=!tickets.length?'<div class="empty"><div class="empty-i">🎟</div><div class="empty-t">Билетов пока нет.<br>Покупка билетов скоро!</div></div>':
-  tickets.map(t=>`<div class="sc"><div class="scdate">${escH(t.date)}</div><div class="scname">${escH(t.eventName||t.name)}</div><div class="scmeta"><span>📍 ${escH(t.venue||'')}</span><span>${escH(t.price||'')}</span></div></div>`).join('');
+  const row=(emoji,title,text)=>`<div style="display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(139,0,255,.12)"><div style="font-size:20px;flex-shrink:0">${emoji}</div><div><div style="font-size:13px;font-weight:700;color:#e8d4ff">${title}</div><div style="font-size:12px;color:#886699;margin-top:3px;line-height:1.5">${text}</div></div></div>`;
+  c.innerHTML=`
+    <div style="text-align:center;padding:22px 8px 4px">
+      <div style="font-size:54px;margin-bottom:8px">🎟</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:800">Билеты — на твоей почте</div>
+      <div style="font-size:13px;color:#886699;line-height:1.6;max-width:330px;margin:8px auto 0">Покупка билетов в CLOUTE проходит через <b style="color:#c084fc">Ticketscloud</b> — нашего билетного партнёра. Билет приходит на email, указанный при оплате.</div>
+    </div>
+    <div style="background:var(--cd);border:1px solid rgba(139,0,255,.18);border-radius:16px;padding:4px 16px;margin-top:18px">
+      ${row('📧','Проверь почту','Билет придёт в письме от Ticketscloud. Загляни и в папку «Спам».')}
+      ${row('🔗','Ссылка в билете','В письме есть ссылка — открыть билет, переслать его себе заново или оформить возврат.')}
+      ${row('🎫','На входе','Покажешь QR-код или штрих-код из билета — и тебя пропустят.')}
+    </div>
+    <div style="font-size:11px;color:#554466;text-align:center;margin-top:16px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.</div>`;
   showS('stk');
 }
 
