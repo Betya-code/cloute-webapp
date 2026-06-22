@@ -309,6 +309,11 @@ button:active{transform:scale(.96);opacity:.85}
     <div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Имя *</div>
     <input id="ob-name" style="width:100%;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none" placeholder="Как тебя зовут?">
   </div>
+  <div style="margin-bottom:24px">
+    <div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Email</div>
+    <input id="ob-email" type="email" inputmode="email" style="width:100%;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#fff;padding:13px 16px;border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none" placeholder="Почта — чтобы видеть свои билеты">
+    <div style="font-size:11px;color:#664488;margin-top:6px;line-height:1.4">Укажи ту же почту, которой будешь платить за билеты — тогда они появятся в «Мои билеты».</div>
+  </div>
   <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;cursor:pointer">
     <input type="checkbox" id="ob-consent" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#8b00ff">
     <span style="font-size:12px;color:#886699;line-height:1.5">Я даю своё согласие на обработку своих персональных данных в соответствии с <span style="color:#c084fc;text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacy()">Политикой конфиденциальности</span></span>
@@ -441,6 +446,7 @@ button:active{transform:scale(.96);opacity:.85}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <div><div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Имя</div><input id="pf-name" class="fi" placeholder="Твоё имя" style="margin-bottom:0"></div>
+        <div><div style="font-size:11px;font-weight:600;color:#886699;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Email</div><input id="pf-email" type="email" inputmode="email" class="fi" placeholder="Почта для билетов" style="margin-bottom:0"><div style="font-size:11px;color:#664488;margin-top:6px;line-height:1.4">Та же почта, которой платишь за билеты — тогда они появятся в «🎟 Мои билеты».</div></div>
         <div style="background:rgba(139,0,255,.05);border:1px solid rgba(139,0,255,.15);border-radius:12px;padding:14px">
           <div style="font-size:11px;color:#664488;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Telegram</div>
           <div id="pf-tg" style="font-size:13px;color:#c084fc"></div>
@@ -1220,11 +1226,14 @@ const PD_POLICY_VERSION='1';
 async function finishOnboard(){
   const name=document.getElementById('ob-name').value.trim();
   if(!name){alert('⚠️ Введи имя!');return}
+  const email=document.getElementById('ob-email').value.trim();
+  if(email&&!/.+@.+\..+/.test(email)){alert('⚠️ Проверь email — кажется, в нём опечатка.');return}
   if(!document.getElementById('ob-consent').checked){alert('⚠️ Чтобы продолжить, нужно согласие на обработку персональных данных.');return}
   const btn=document.getElementById('ob-btn');btn.textContent='Сохраняем...';btn.disabled=true;
-  const pf={name,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||''};
+  const pf={name,email,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||''};
   localStorage.setItem('cpf',JSON.stringify(pf));
   try{localStorage.setItem('consent_pd',JSON.stringify({v:PD_POLICY_VERSION,ts:new Date().toISOString()}))}catch(e){}
+  if(uid&&email)P('/api/profile/'+uid,{email}); // сохраняем почту на сервер (для «Мои билеты»)
   P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
   btn.textContent='🚀 Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
@@ -1777,25 +1786,31 @@ function openFV(){
   fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
   showS('sfv');
 }
-function openPF(){
+async function openPF(){
   const pf=JSON.parse(localStorage.getItem('cpf')||'{}');
   document.getElementById('pf-name').value=pf.name||tgU?.first_name||'';
+  document.getElementById('pf-email').value=pf.email||'';
   document.getElementById('pf-tg').innerHTML=`${tgU?.username?`<div>✈️ @${tgU.username}</div>`:''}<div style="font-size:11px;color:#554466">ID: ${uid||'—'}</div>`;
   const ava=document.getElementById('pf-ava');
   const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
   if(photo)ava.innerHTML=`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   else ava.innerHTML='<span>👤</span>';
   _avaFile=null;showS('spf');
+  // подтягиваем актуальную почту с сервера
+  if(uid){const sp=await G('/api/profile/'+uid);if(sp&&sp.email){document.getElementById('pf-email').value=sp.email;const o=JSON.parse(localStorage.getItem('cpf')||'{}');localStorage.setItem('cpf',JSON.stringify({...o,email:sp.email}))}}
 }
 function prevAva(input){const file=input.files[0];if(!file)return;_avaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('pf-ava').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(file)}
 async function savePf(){
   const name=document.getElementById('pf-name').value.trim();
   if(!name){alert('⚠️ Введи имя!');return}
+  const email=document.getElementById('pf-email').value.trim();
+  if(email&&!/.+@.+\..+/.test(email)){alert('⚠️ Проверь email — кажется, в нём опечатка.');return}
   const btn=document.querySelector('#spf button[onclick="savePf()"]');btn.textContent='Сохраняем...';btn.disabled=true;
   let customPhoto=null;
   if(_avaFile){customPhoto=await uploadImg(_avaFile);_avaFile=null}
   const old=JSON.parse(localStorage.getItem('cpf')||'{}');
-  localStorage.setItem('cpf',JSON.stringify({...old,name,customPhoto:customPhoto||old.customPhoto,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||old.photoUrl||''}));
+  localStorage.setItem('cpf',JSON.stringify({...old,name,email,customPhoto:customPhoto||old.customPhoto,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||old.photoUrl||''}));
+  if(uid)await P('/api/profile/'+uid,{email}); // почта на сервер — для связки билетов
   btn.textContent='💾 Сохранить профиль';btn.disabled=false;
   alert('✅ Профиль сохранён!');showS('sm');renderCab();
 }
