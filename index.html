@@ -824,8 +824,6 @@ async function loadAll(){
   loadFailed=!ed;
   if(ed){allEvs=ed;evs=filterPast(ed);}if(od)orgs=od;
   (document.getElementById('cnt-ev')||{}).textContent=evs.length;
-  document.getElementById('cnt-or').textContent=orgs.length;
-  if(role==='admin')document.getElementById('cnt-or-wrap').style.display='block';
   applyFilters();renderCal();
   renderTodayRow();
 }
