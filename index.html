@@ -364,9 +364,6 @@ button:active{transform:scale(.96);opacity:.85}
       <div class="cat-chip" id="chip-wknd" onclick="togWkndFilter(this)">🌅 Выходные</div>
     </div>
   </div>
-  <div class="hero"><h2>Тусовки Москвы 🔥</h2><p>Все вечеринки города в одном месте</p>
-    <div class="hstats"><div><div class="hnum" id="cnt-ev">0</div><div class="hlbl">событий</div></div><div id="cnt-or-wrap" style="display:none"><div class="hnum" id="cnt-or">0</div><div class="hlbl">организаторов</div></div></div>
-  </div>
   <!-- Сегодня -->
   <div class="today-section" id="today-section" style="display:none">
     <div class="section-hdr"><div class="section-title">Сегодня 🔥</div><div class="section-sub" id="today-count"></div></div>
@@ -818,7 +815,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   // Автообновление каждые 30 сек
   setInterval(async()=>{
     const ed=await G('/api/events');
-    if(ed){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(allEvs)){allEvs=ed;evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();document.getElementById('cnt-ev').textContent=evs.length;}}
+    if(ed){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(allEvs)){allEvs=ed;evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();(document.getElementById('cnt-ev')||{}).textContent=evs.length;}}
   },30000);
 });
 
@@ -826,7 +823,7 @@ async function loadAll(){
   const[ed,od]=await Promise.all([G('/api/events'),G('/api/orgs')]);
   loadFailed=!ed;
   if(ed){allEvs=ed;evs=filterPast(ed);}if(od)orgs=od;
-  document.getElementById('cnt-ev').textContent=evs.length;
+  (document.getElementById('cnt-ev')||{}).textContent=evs.length;
   document.getElementById('cnt-or').textContent=orgs.length;
   if(role==='admin')document.getElementById('cnt-or-wrap').style.display='block';
   applyFilters();renderCal();
@@ -932,6 +929,8 @@ function showFeedSkeleton(){
 
 const _ICN={pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
 function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0">${_ICN[n]||''}</svg>`}
+const _PH=['radial-gradient(120% 120% at 30% 20%,#ff2da6,#8b00ff 60%,#1b0033)','radial-gradient(120% 120% at 72% 22%,#00d4ff,#8b00ff 70%,#10001c)','radial-gradient(120% 120% at 62% 18%,#ff0099,#ff7a00 78%,#2b0010)','radial-gradient(120% 120% at 40% 28%,#a855f7,#00d4ff 82%,#0a0016)','radial-gradient(125% 95% at 75% 15%,#ff2da6,#8b00ff 48%,#1b0033)'];
+function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
 function renderFeed(list){
   const c=document.getElementById('feed');
   if(!list.length){
@@ -944,11 +943,11 @@ function renderFeed(list){
   c.innerHTML=hlCard(head)+(rest.length?`<div class="feed-label">Ближайшие</div>`:'')+rest.map(ecCard).join('');
 }
 function hlCard(ev){
-  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':''}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge">🔥 Хедлайнер</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span><span style="font-size:12px;color:#fff;background:rgba(10,0,22,.55);padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:4px;flex-shrink:0">${ic('users',13,'#fff')} ${ev.going_count||0}</span></div></div></div>`;
+  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge">🔥 Хедлайнер</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span><span style="font-size:12px;color:#fff;background:rgba(10,0,22,.55);padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:4px;flex-shrink:0">${ic('users',13,'#fff')} ${ev.going_count||0}</span></div></div></div>`;
 }
 function ecCard(ev){
   const isFav=favs.includes(ev.id);
-  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':''}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#9b80c4;display:flex;align-items:center;gap:4px">${ic('users',13,'#9b80c4')} ${ev.going_count||0}</span><span class="ec-price"${isFree(ev)?' style="background:rgba(0,212,255,.12);color:#7fe4ff"':''}>${isFree(ev)?'Free':escH(fmtPriceShort(ev))}</span></div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button></div>`;
+  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#9b80c4;display:flex;align-items:center;gap:4px">${ic('users',13,'#9b80c4')} ${ev.going_count||0}</span><span class="ec-price"${isFree(ev)?' style="background:rgba(0,212,255,.12);color:#7fe4ff"':''}>${isFree(ev)?'Free':escH(fmtPriceShort(ev))}</span></div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button></div>`;
 }
 
 // Нормализация ссылок орга: добавляем схему, понимаем @ник и t.me
@@ -2014,7 +2013,7 @@ async function delEv(id){
   await D('/api/events/'+id);
   const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}
   renderFeed(evs);renderCal();
-  document.getElementById('cnt-ev').textContent=evs.length;
+  (document.getElementById('cnt-ev')||{}).textContent=evs.length;
   if(role==='org')openOE();else openAE();
 }
 </script>
