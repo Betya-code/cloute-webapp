@@ -160,9 +160,11 @@ button:active{transform:scale(.96);opacity:.85}
 .drval{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px}
 .ddesc{font-size:14px;color:#886699;line-height:1.7;margin-bottom:16px}
 .dbtns{display:flex;gap:10px;margin-bottom:16px}
-.bbiggoing{flex:1;background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:14px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;text-align:center}
-.bbiggoing.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
-.bbigbuy{flex:2;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4);text-align:center}
+.bbiggoing{flex:1;background:rgba(139,0,255,.10);border:1.5px solid rgba(139,0,255,.32);color:#c084fc;padding:15px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;text-align:center;transition:transform .12s ease,background .2s}
+.bbiggoing:active{transform:scale(.97)}
+.bbiggoing.active{background:rgba(139,0,255,.22);border-color:rgba(255,0,153,.45);color:#fff}
+.bbigbuy{flex:2;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:15px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 20px -2px rgba(255,0,153,.42);text-align:center;letter-spacing:.02em;transition:transform .12s ease,box-shadow .2s}
+.bbigbuy:active{transform:scale(.97);box-shadow:0 3px 12px -2px rgba(255,0,153,.4)}
 .dgoing-count{text-align:center;font-size:12px;color:#664488;margin-bottom:16px}
 .droute{width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cy);padding:12px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin:0 0 16px}
 .droute:active{background:rgba(0,212,255,.2)}
