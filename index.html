@@ -992,6 +992,7 @@ function openTK(){
   const c=document.getElementById('tkl');
   const row=(emoji,title,text)=>`<div style="display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid rgba(139,0,255,.12)"><div style="font-size:20px;flex-shrink:0">${emoji}</div><div><div style="font-size:13px;font-weight:700;color:#e8d4ff">${title}</div><div style="font-size:12px;color:#886699;margin-top:3px;line-height:1.5">${text}</div></div></div>`;
   c.innerHTML=`
+    <div id="tk-real"></div>
     <div style="text-align:center;padding:22px 8px 4px">
       <div style="font-size:54px;margin-bottom:8px">🎟</div>
       <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:800">Билеты — на твоей почте</div>
@@ -1002,8 +1003,35 @@ function openTK(){
       ${row('🔗','Ссылка в билете','В письме есть ссылка — открыть билет, переслать его себе заново или оформить возврат.')}
       ${row('🎫','На входе','Покажешь QR-код или штрих-код из билета — и тебя пропустят.')}
     </div>
-    <div style="font-size:11px;color:#554466;text-align:center;margin-top:16px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.</div>`;
+    <div style="font-size:11px;color:#554466;text-align:center;margin-top:16px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.<br>Чтобы билеты появлялись здесь — укажи в профиле тот же email, которым платишь.</div>`;
   showS('stk');
+  loadMyTickets();
+}
+async function loadMyTickets(){
+  const box=document.getElementById('tk-real');if(!box)return;
+  const d=await G('/api/my-tickets');
+  if(!d||!Array.isArray(d.tickets)||!d.tickets.length)return;
+  const card=(t)=>`
+    <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:16px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px;flex-shrink:0">${escH(t.emoji||'🎟')}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:#e8d4ff">${escH(t.event)}</div>
+          <div style="font-size:12px;color:#886699;margin-top:2px">${escH([t.date,t.venue].filter(Boolean).join(' · '))}</div>
+        </div>
+        <div style="font-size:11px;color:#7CFC9B;background:rgba(60,255,130,.1);padding:3px 9px;border-radius:10px;white-space:nowrap">оплачено</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,0,255,.12)">
+        <div style="font-size:12px;color:#cbb6e6">🎫 ${escH(t.count)} билет(ов)</div>
+        ${t.amount?`<div style="font-size:12px;color:#886699">${escH(t.amount)} ₽</div>`:''}
+      </div>
+      ${t.barcodes&&t.barcodes.length?`<div style="font-size:11px;color:#664488;margin-top:8px;font-family:monospace;word-break:break-all">Код: ${t.barcodes.map(escH).join(', ')}</div>`:''}
+    </div>`;
+  box.innerHTML=`
+    <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:800;margin:6px 0 12px">🎫 Твои билеты</div>
+    ${d.tickets.map(card).join('')}
+    <div style="font-size:11px;color:#554466;text-align:center;margin:2px 0 18px;line-height:1.5">Официальный билет с QR — в письме на <b style="color:#886699">${escH(d.email)}</b>. Его показывай на входе.</div>
+    <div style="height:1px;background:rgba(139,0,255,.12);margin:0 0 6px"></div>`;
 }
 
 function countView(ev){
