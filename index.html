@@ -226,8 +226,8 @@ button:active{transform:scale(.96);opacity:.85}
 .cd.tod::after{display:none}
 .cd.sel{background:rgba(139,0,255,.25);border:1px solid var(--p);color:#fff}
 .cd.emp{pointer-events:none;color:transparent}
-.cew{background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:16px;overflow:hidden;min-height:80px}
-.cetit{padding:12px 14px 8px;font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(139,0,255,.08)}
+.cew{min-height:40px}
+.cetit{padding:2px 4px 11px;font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em}
 .cei{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.06)}
 .cei:last-child{border-bottom:none}
 .cdb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
@@ -1245,7 +1245,7 @@ function selD(d){
   const list=evs.filter(e=>{const p=e.date.split('.');return parseInt(p[0])===d&&parseInt(p[1])===m&&parseInt(p[2])===y});
   const c=document.getElementById('cal-e');
   if(!list.length){c.innerHTML='<div style="text-align:center;padding:28px 14px"><div style="font-size:36px;margin-bottom:8px">🥱</div><div style="font-size:14px;font-weight:700;color:#554466">Пока отходняк</div></div>';return}
-  c.innerHTML=list.map(ev=>`<div class="cei" onclick="openEv(${ev.id})"><div class="cdb"><div class="cdday">${escH(ev.date.split('.')[0])}</div><div class="cdmon">${mnsu[m-1]}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ev.emoji)} ${escH(ev.name)}</div><div style="font-size:11px;color:#664488;margin-top:3px">📍 ${escH(ev.venue)}</div><div style="display:flex;gap:10px;margin-top:2px"><span style="font-size:11px;color:#886699">⏰ ${escH(ev.time)}</span><span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${fmtPriceShort(ev)}</span></div></div><div style="font-size:18px;color:#443355;flex-shrink:0">›</div></div>`).join('');
+  c.innerHTML=list.map(ecCard).join('');
 }
 
 // ── SEARCH ───────────────────────────────────────────────
@@ -1254,7 +1254,7 @@ function doSearch(q){
   const ql=q.toLowerCase();
   const found=evs.filter(e=>{const org=orgs.find(o=>o.tg_id==e.org_id);return e.name.toLowerCase().includes(ql)||e.venue.toLowerCase().includes(ql)||(org&&org.name.toLowerCase().includes(ql))});
   if(!found.length){c.innerHTML='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Ничего не найдено</div></div>';return}
-  c.innerHTML=found.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${escH(org.name)}</div>`:''}<div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
+  c.innerHTML=found.map(ecCard).join('');
 }
 function saveSearch(q){q=(q||'').trim();if(!q)return;searchHist=searchHist.filter(x=>x.toLowerCase()!==q.toLowerCase());searchHist.unshift(q);searchHist=searchHist.slice(0,8);localStorage.setItem('csh',JSON.stringify(searchHist));}
 function applySearchChip(q){const inp=document.querySelector('#vs .si');inp.value=q;doSearch(q);}
@@ -1268,7 +1268,7 @@ function renderSearchSuggest(){
   const pop=[...evs].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
   if(pop.length){
     h+='<div class="ssug-h">Популярное</div>';
-    h+=pop.map(ev=>{const org=orgs.find(o=>o.tg_id==ev.org_id);return`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${fmtDate(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>${org?`<div style="font-size:11px;color:#c084fc;margin-bottom:3px">🏢 ${escH(org.name)}</div>`:''}<div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`}).join('');
+    h+=pop.map(ecCard).join('');
   }
   c.innerHTML=h||'<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Найди свою тусовку</div></div>';
 }
