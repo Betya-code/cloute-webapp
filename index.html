@@ -80,7 +80,7 @@ button:active{transform:scale(.96);opacity:.85}
 .today-card:active{transform:scale(.97)}
 .hdr{padding:14px 16px 12px;position:sticky;top:0;background:rgba(8,0,16,.97);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(139,0,255,.15)}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.logo{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#ffffff,#c084fc,#ff5fb0,#00d4ff,#ffffff);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:logoFlow 5s linear infinite}
+.logo{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#c084fc,#ff0099,#8b00ff,#c084fc);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:logoFlow 5s linear infinite}
 @keyframes logoFlow{from{background-position:0% 50%}to{background-position:250% 50%}}
 .flame{display:inline-block;transform-origin:bottom center;animation:flameFlick .9s ease-in-out infinite alternate}
 @keyframes flameFlick{0%{transform:scale(1) rotate(-4deg);filter:brightness(1) drop-shadow(0 0 2px rgba(255,120,0,.6))}100%{transform:scale(1.16) rotate(3deg);filter:brightness(1.35) drop-shadow(0 0 5px rgba(255,90,0,.9))}}
@@ -926,15 +926,9 @@ function renderTodayRow(){
 
 // ── FEED ─────────────────────────────────────────────────
 function showFeedSkeleton(){
-  document.getElementById('feed').innerHTML=[1,2,3].map(()=>`
-    <div class="skeleton-card">
-      <div class="skeleton skeleton-poster"></div>
-      <div class="skeleton-body">
-        <div class="skeleton skeleton-line" style="width:70%;height:14px;margin-bottom:10px"></div>
-        <div class="skeleton skeleton-line" style="width:45%;height:10px;margin-bottom:6px"></div>
-        <div class="skeleton skeleton-line" style="width:30%;height:10px"></div>
-      </div>
-    </div>`).join('');
+  const hl=`<div class="skeleton" style="height:172px;border-radius:22px;margin-bottom:18px"></div>`;
+  const card=`<div class="ec" style="cursor:default"><div class="skeleton" style="width:68px;height:68px;border-radius:14px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="width:65%;height:14px;border-radius:6px;margin-bottom:9px"></div><div class="skeleton" style="width:45%;height:10px;border-radius:6px;margin-bottom:9px"></div><div class="skeleton" style="width:30%;height:10px;border-radius:6px"></div></div></div>`;
+  document.getElementById('feed').innerHTML=hl+[1,2,3].map(()=>card).join('');
 }
 
 const _ICN={tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
