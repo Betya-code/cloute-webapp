@@ -946,11 +946,16 @@ function renderFeed(list){
     return;
   }
   const sorted=[...list].sort((a,b)=>(b.hot||0)-(a.hot||0));
-  const head=sorted[0], rest=sorted.slice(1);
-  c.innerHTML=hlCard(head)+(rest.length?`<div class="feed-label">Ближайшие</div>`:'')+rest.map(ecCard).join('');
+  const hot=sorted.find(e=>e.hot);
+  if(hot){
+    const rest=sorted.filter(e=>e.id!==hot.id);
+    c.innerHTML=hlCard(hot)+(rest.length?`<div class="feed-label">Ближайшие</div>`:'')+rest.map(ecCard).join('');
+  }else{
+    c.innerHTML=sorted.map(ecCard).join('');
+  }
 }
 function hlCard(ev){
-  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge">🔥 Хедлайнер</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span><span style="font-size:12px;color:#fff;background:rgba(10,0,22,.55);padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:4px;flex-shrink:0">${cntHTML(ev,'#fff')}</span></div></div></div>`;
+  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge">🔥 Хит</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span><span style="font-size:12px;color:#fff;background:rgba(10,0,22,.55);padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:4px;flex-shrink:0">${cntHTML(ev,'#fff')}</span></div></div></div>`;
 }
 function ecCard(ev){
   const isFav=favs.includes(ev.id);
