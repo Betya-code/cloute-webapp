@@ -161,7 +161,7 @@ button:active{transform:scale(.96);opacity:.85}
 .dh{position:relative;width:100%;background:linear-gradient(135deg,#1a0033,#0d0020);overflow:hidden}
 .dh img{width:100%;object-fit:cover;max-height:70vh;display:block}
 .demoji{font-size:100px;padding:60px 0;text-align:center}
-.dho{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,#080010,transparent)}
+.dho{position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(0deg,#080010 6%,transparent)}
 .bback{position:absolute;top:14px;left:14px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;backdrop-filter:blur(10px)}
 .dtop{position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:8px}
 .bcircle{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
@@ -170,7 +170,7 @@ button:active{transform:scale(.96);opacity:.85}
 .dtitle{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px}
 .dinfo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
 .drow{display:flex;align-items:center;gap:12px;background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.12);border-radius:12px;padding:11px 14px}
-.dricon{font-size:16px}
+.dricon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .drlbl{font-size:9px;color:#664488;text-transform:uppercase;letter-spacing:.06em}
 .drval{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px}
 .ddesc{font-size:14px;color:#886699;line-height:1.7;margin-bottom:16px}
@@ -182,7 +182,15 @@ button:active{transform:scale(.96);opacity:.85}
 .bbigbuy:active{transform:scale(.97);box-shadow:0 3px 12px -2px rgba(255,0,153,.4)}
 /* Прозрачный TC-оверлей поверх нашей кнопки «Купить»: ловит реальный клик и открывает оплату TC, наш вид сохраняется. !important — чтобы стиль виджета TC не сдвинул оверлей. */
 #tc-buy{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;z-index:3!important;border:none!important;background:transparent!important;margin:0!important;padding:0!important;border-radius:16px;cursor:pointer}
-.dgoing-count{text-align:center;font-size:12px;color:#664488;margin-bottom:16px}
+.dgoing-count{font-size:12px;color:#9b80c4;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
+.dh-info{position:absolute;left:16px;right:16px;bottom:14px;z-index:5}
+.dh-info .dtitle{margin-bottom:0;font-size:24px}
+.dorow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+#d-img{width:100%;max-height:320px;object-fit:cover;display:block}
+.dbadge{display:inline-block;padding:4px 9px;border-radius:13px;font-size:11px;font-weight:700;margin-right:6px;margin-bottom:8px}
+.dbh{background:rgba(255,0,153,.85);color:#fff}
+.dbf{background:rgba(0,212,255,.18);color:#7fe4ff}
+.dba{background:rgba(255,100,0,.22);color:#ffae73}
 .droute{width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cy);padding:12px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin:0 0 16px}
 .droute:active{background:rgba(0,212,255,.2)}
 
@@ -374,7 +382,7 @@ button:active{transform:scale(.96);opacity:.85}
 
 <!-- DETAIL -->
 <div id="vd" class="view" style="padding-bottom:0">
-  <div class="dh">
+  <div class="dh" id="dh">
     <img id="d-img" src="" style="display:none">
     <div id="d-emoji" class="demoji">🎉</div>
     <div class="dho"></div>
@@ -383,14 +391,13 @@ button:active{transform:scale(.96);opacity:.85}
       <button class="bcircle" id="btn-fav" onclick="togFav()">🤍</button>
       <button class="bcircle" onclick="shareEv()">🔗</button>
     </div>
+    <div class="dh-info"><div id="d-badges"></div><div class="dtitle" id="d-name"></div></div>
   </div>
   <div class="dbody">
-    <div class="dorglbl" id="d-org" onclick="openOrgPage()"></div>
-    <div class="dtitle" id="d-name"></div>
+    <div class="dorow"><div class="dorglbl" id="d-org" onclick="openOrgPage()"></div><div class="dgoing-count" id="d-going"></div></div>
     <div class="dinfo" id="d-rows"></div>
     <button class="droute" id="btn-route" onclick="openRoute()">🗺 Построить маршрут</button>
     <div class="ddesc" id="d-desc"></div>
-    <div class="dgoing-count" id="d-going"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">🙋 Пойду</button>
       <div id="buy-wrap" style="flex:2;position:relative;display:flex">
@@ -925,10 +932,11 @@ function showFeedSkeleton(){
     </div>`).join('');
 }
 
-const _ICN={pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
+const _ICN={tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
 function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0">${_ICN[n]||''}</svg>`}
 const _PH=['radial-gradient(120% 120% at 30% 20%,#ff2da6,#8b00ff 60%,#1b0033)','radial-gradient(120% 120% at 72% 22%,#00d4ff,#8b00ff 70%,#10001c)','radial-gradient(120% 120% at 62% 18%,#ff0099,#ff7a00 78%,#2b0010)','radial-gradient(120% 120% at 40% 28%,#a855f7,#00d4ff 82%,#0a0016)','radial-gradient(125% 95% at 75% 15%,#ff2da6,#8b00ff 48%,#1b0033)'];
 function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
+function drow(icon,col,bg,lbl,val){return `<div class="drow"><div class="dricon" style="background:${bg};color:${col}">${ic(icon,18,col)}</div><div><div class="drlbl">${lbl}</div><div class="drval">${val}</div></div></div>`;}
 function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;return `${ic('users',13,col)} ${ev.going_count||0} идут`;}
 function renderFeed(list){
   const c=document.getElementById('feed');
@@ -1092,20 +1100,24 @@ function openEv(id){
   const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
   if(ev.poster_url){img.src=ev.poster_url;img.style.display='block';em.style.display='none'}
   else{img.style.display='none';em.style.display='block';em.textContent=ev.emoji}
+  document.getElementById('dh').style.background=ev.poster_url?'':phGrad(ev.id);
   const orgEl=document.getElementById('d-org');
   if(org){orgEl.textContent='🏢 '+org.name;orgEl.style.display='block';curOrgId=ev.org_id}
   else{orgEl.style.display='none'}
   document.getElementById('d-name').textContent=ev.name;
+  let dbadges='';
+  if(ev.hot)dbadges+='<span class="dbadge dbh">🔥 Хит</span>';
+  if(isFree(ev))dbadges+='<span class="dbadge dbf">Бесплатно</span>';
+  if(ev.age_limit)dbadges+=`<span class="dbadge dba">${escH(ev.age_limit)}</span>`;
+  document.getElementById('d-badges').innerHTML=dbadges;
   document.getElementById('d-desc').textContent=ev.description||'';
-  const goingCount=ev.going_count||0;
-  const goingEl=document.getElementById('d-going');
-  goingEl.textContent=goingCount>0?`🙋 ${goingCount} ${plural(goingCount,['человек планирует','человека планируют','человек планируют'])} прийти`:'';
-  document.getElementById('d-rows').innerHTML=`
-    <div class="drow"><div class="dricon">📅</div><div><div class="drlbl">Дата</div><div class="drval">${fmtDate(ev.date)} <span style="color:#664488;font-weight:400;font-size:12px">· ${escH(ev.date)}</span></div></div></div>
-    <div class="drow"><div class="dricon">⏰</div><div><div class="drlbl">Время</div><div class="drval">${escH(ev.time)}</div></div></div>
-    <div class="drow"><div class="dricon">📍</div><div><div class="drlbl">Место</div><div class="drval">${escH(ev.venue)}</div></div></div>
-    <div class="drow"><div class="dricon">💵</div><div><div class="drlbl">Вход</div><div class="drval">${fmtPrice(ev.price)}</div></div></div>
-    ${ev.age_limit?`<div class="drow" style="border-color:rgba(255,100,0,.3)"><div class="dricon">🔞</div><div><div class="drlbl">Возраст</div><div class="drval" style="color:#f97316">${escH(ev.age_limit)}</div></div></div>`:''}`;
+  document.getElementById('d-going').innerHTML=cntHTML(ev,'#9b80c4');
+  document.getElementById('d-rows').innerHTML=
+    drow('cal','#c89bff','rgba(139,0,255,.16)','Дата',fmtDate(ev.date)+` <span style="color:#664488;font-weight:400;font-size:12px">· ${escH(ev.date)}</span>`)+
+    drow('clock','#ff86c7','rgba(255,0,153,.14)','Время',escH(ev.time))+
+    drow('pin','#7fe4ff','rgba(0,212,255,.14)','Место',escH(ev.tc_address||ev.venue))+
+    drow('tag','#7CFC9B','rgba(0,255,136,.12)','Вход',escH(fmtPrice(ev.price)))+
+    (ev.age_limit?drow('alert','#f97316','rgba(255,100,0,.14)','Возраст',escH(ev.age_limit)):'');
   const btnGoing=document.getElementById('btn-going');
   const isGoing=going.includes(id);
   btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
