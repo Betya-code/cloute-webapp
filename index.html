@@ -165,6 +165,8 @@ button:active{transform:scale(.96);opacity:.85}
 .bbiggoing.active{background:rgba(139,0,255,.22);border-color:rgba(255,0,153,.45);color:#fff}
 .bbigbuy{flex:2;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:15px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 20px -2px rgba(255,0,153,.42);text-align:center;letter-spacing:.02em;transition:transform .12s ease,box-shadow .2s}
 .bbigbuy:active{transform:scale(.97);box-shadow:0 3px 12px -2px rgba(255,0,153,.4)}
+/* Прозрачный TC-оверлей поверх нашей кнопки «Купить»: ловит реальный клик и открывает оплату TC, наш вид сохраняется. !important — чтобы стиль виджета TC не сдвинул оверлей. */
+#tc-buy{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;z-index:3!important;border:none!important;background:transparent!important;margin:0!important;padding:0!important;border-radius:16px;cursor:pointer}
 .dgoing-count{text-align:center;font-size:12px;color:#664488;margin-bottom:16px}
 .droute{width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cy);padding:12px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin:0 0 16px}
 .droute:active{background:rgba(0,212,255,.2)}
@@ -379,7 +381,10 @@ button:active{transform:scale(.96);opacity:.85}
     <div class="dgoing-count" id="d-going"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">🙋 Пойду</button>
-      <button class="bbigbuy" id="btn-buy" onclick="buyTicket()">🎟 Купить билет</button>
+      <div id="buy-wrap" style="flex:2;position:relative;display:flex">
+        <button class="bbigbuy" id="btn-buy" onclick="buyTicket()" style="flex:1">🎟 Купить билет</button>
+        <button id="tc-buy" type="button" aria-label="Купить билет" style="display:none"></button>
+      </div>
     </div>
   </div>
 </div>
@@ -1106,21 +1111,26 @@ function openEv(id){
   btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
   btnGoing.className='bbiggoing'+(isGoing?' active':'');
   const btnBuy=document.getElementById('btn-buy');
+  const buyWrap=document.getElementById('buy-wrap');
+  const tcBuy=document.getElementById('tc-buy');
   const tcw=tcWidgetData(ev.link);
+  // сбрасываем TC-оверлей
+  tcBuy.removeAttribute('data-tc-event');tcBuy.removeAttribute('data-tc-token');tcBuy.style.display='none';
   if(ev.link){
-    btnBuy.style.display='flex';
+    buyWrap.style.display='flex';
     if(tcw){
-      // Официальный виджет TC: клик перехватит их скрипт и проведёт оплату пошагово
-      btnBuy.setAttribute('data-tc-event',tcw.event);
-      btnBuy.setAttribute('data-tc-token',tcw.token);
+      // Виджет TC вешаем на ПРОЗРАЧНЫЙ оверлей поверх нашей кнопки: пользователь видит
+      // нашу фиолетовую кнопку, а реальный клик ловит оверлей и открывает оплату TC.
+      tcBuy.setAttribute('data-tc-event',tcw.event);
+      tcBuy.setAttribute('data-tc-token',tcw.token);
+      tcBuy.style.display='block';
       btnBuy.onclick=null;
       tcInit();
     }else{
-      // Обычная ссылка на билеты
-      btnBuy.removeAttribute('data-tc-event');btnBuy.removeAttribute('data-tc-token');
+      // Обычная ссылка на билеты — оверлей не нужен, работает наша кнопка
       btnBuy.onclick=buyTicket;
     }
-  }else{btnBuy.style.display='none'}
+  }else{buyWrap.style.display='none'}
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
   nav('d');
 }
