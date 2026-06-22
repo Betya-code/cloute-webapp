@@ -1775,7 +1775,7 @@ async function renderOSStats(){
 }
 
 // ── USER ─────────────────────────────────────────────────
-function escH(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function escH(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/`/g,'&#96;')}
 
 function showOAForm(){
   document.getElementById('soa-status').style.display='none';
