@@ -298,9 +298,9 @@ button:active{transform:scale(.96);opacity:.85}
 .tgl.on::after{left:23px}
 
 /* EMPTY */
-.empty{text-align:center;padding:40px 20px;color:#664488}
-.empty-i{font-size:40px;margin-bottom:10px}
-.empty-t{font-size:13px;line-height:1.6}
+.empty{text-align:center;padding:60px 24px;color:#664488}
+.empty-i{font-size:44px;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 40% 30%,rgba(139,0,255,.28),rgba(255,0,153,.12) 68%,transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-t{font-size:14px;line-height:1.6;color:#9b80c4}
 .bretry{margin-top:16px;background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.4);color:#c084fc;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .bretry:active{background:rgba(139,0,255,.3)}
 .ptr{text-align:center;color:#664488;font-size:12px;height:0;overflow:hidden;transition:height .2s}
@@ -366,10 +366,8 @@ button:active{transform:scale(.96);opacity:.85}
       <div class="tab active" onclick="ftab(this,'all')">Все</div>
       <div class="tab" onclick="ftab(this,'today')">Сегодня</div>
       <div class="tab" onclick="ftab(this,'week')">На неделе</div>
-    </div>
-    <div class="tabs" style="margin-top:8px">
-      <div class="cat-chip" id="chip-free" onclick="togFreeFilter(this)">🆓 Бесплатно</div>
-      <div class="cat-chip" id="chip-wknd" onclick="togWkndFilter(this)">🌅 Выходные</div>
+      <div class="cat-chip" id="chip-free" onclick="togFreeFilter(this)">Бесплатно</div>
+      <div class="cat-chip" id="chip-wknd" onclick="togWkndFilter(this)">Выходные</div>
     </div>
   </div>
   <!-- Сегодня -->
