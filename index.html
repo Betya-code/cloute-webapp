@@ -1127,7 +1127,7 @@ function openEv(id){
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
-function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');openExt('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', '+(ev.city||'Москва')))}
+function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||(!ev.venue&&!ev.tc_address))return;hap('light');const base=(ev.tc_address&&ev.tc_address.trim())?ev.tc_address:ev.venue;openExt('https://yandex.ru/maps/?text='+encodeURIComponent(base+', '+(ev.city||'Москва')))}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
   if(r&&typeof r.going_count==='number'){
