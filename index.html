@@ -784,6 +784,12 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }
   showFeedSkeleton();
   await loadAll();
+  // Открыть конкретное событие по deep-link из шеринга (?startev=N или Telegram start_param evN)
+  try{
+    const sp=(new URLSearchParams(location.search).get('startev'))||(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
+    const mm=String(sp).match(/(\d+)/);
+    if(mm){const eid=parseInt(mm[1]);if(evs.find(e=>e.id===eid)||allEvs.find(e=>e.id===eid))openEv(eid);}
+  }catch(e){}
   // Синхронизируем «Я иду» с сервером (актуально на любом устройстве)
   if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}
     const f=await G('/api/my-favs');if(f&&Array.isArray(f.favs)){favs=f.favs;localStorage.setItem('cf',JSON.stringify(favs));}}
@@ -983,9 +989,18 @@ function tcInit(){try{if(window.ticketsCloudWidget&&window.ticketsCloudWidget.in
 function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev?.link)return;if(tcWidgetData(ev.link))openEv(id);else openExt(ticketUrl(ev.link))}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
-function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Найди тусовку → @clout_msk_bot`;}
-function shareEvent(ev){const text=buildShareText(ev);if(navigator.share){navigator.share({title:ev.name,text,url:"https://t.me/clout_msk_bot"})}else{navigator.clipboard?.writeText(text);alert("Скопировано!")}}
-function qShr(id){hap('light');const ev=evs.find(e=>e.id===id);if(!ev)return;shareEvent(ev)}
+function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Лови движуху в CLOUTE 👇`;}
+function shareLink(id){return 'https://t.me/clout_msk_bot?start=ev'+id}
+function tgShare(ev){
+  if(!ev)return;hap('light');
+  const url=shareLink(ev.id),text=buildShareText(ev),tg=window.Telegram?.WebApp;
+  // Нативный шеринг Telegram: открывает «Поделиться с…», ссылка ведёт на это событие
+  if(tg&&tg.openTelegramLink){tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text));return}
+  if(navigator.share){navigator.share({title:ev.name,text,url});return}
+  navigator.clipboard?.writeText(text+'\n'+url);alert('Ссылка скопирована!');
+}
+function shareEvent(ev){tgShare(ev)}
+function qShr(id){tgShare(evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id))}
 function qGoing(id,btn){
   const i=going.indexOf(id);
   if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.classList.remove('active')}
@@ -1064,7 +1079,7 @@ function countView(ev){
   G('/api/events/'+ev.id+'/view');
 }
 function openEv(id){
-  curEv=id;const ev=evs.find(e=>e.id===id);if(!ev)return;
+  curEv=id;const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev)return;
   countView(ev);
   const org=orgs.find(o=>o.tg_id==ev.org_id);
   const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
@@ -1108,9 +1123,9 @@ function openEv(id){
   nav('d');
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
-function shareEv(){const ev=evs.find(e=>e.id===curEv);if(!ev)return;if(navigator.share)navigator.share({title:ev.name,text:buildShareText(ev),url:"https://t.me/clout_msk_bot"});else{navigator.clipboard?.writeText(buildShareText(ev));alert("Скопировано!")}}
+function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
-function openRoute(){const ev=evs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');openExt('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', Москва'))}
+function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev?.venue)return;hap('light');openExt('https://yandex.ru/maps/?text='+encodeURIComponent(ev.venue+', '+(ev.city||'Москва')))}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
   if(r&&typeof r.going_count==='number'){
@@ -1679,8 +1694,12 @@ async function renderOSStats(){
   if(!allOrgEvs.length){c.innerHTML='<div class="empty"><div class="empty-i">📊</div><div class="empty-t">Сначала добавь мероприятие</div></div>';return}
 
   const totalViews=allOrgEvs.reduce((a,e)=>a+(e.views||0),0);
+  // Продажи билетов (TC) по подписи орга
+  const sd=await G('/api/my-sales');
+  const smap={};let totSold=0,totRev=0;
+  if(sd&&Array.isArray(sd.events)){sd.events.forEach(s=>{smap[s.event_id]={tickets:s.tickets,revenue:s.revenue}});totSold=sd.total_tickets||0;totRev=sd.total_revenue||0;}
 
-  const evCard=(ev,isPast)=>`
+  const evCard=(ev,isPast)=>{const s=smap[ev.id];return `
     <div class="li" style="flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px;${isPast?'opacity:.6':''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div><div class="liname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="limeta">${escH(ev.date)} · ${escH(ev.venue)}</div></div>
@@ -1691,18 +1710,27 @@ async function renderOSStats(){
           <div style="font-size:22px;font-weight:900;color:#c084fc">${ev.views||0}</div>
           <div style="font-size:10px;color:#664488">👁 Просмотров</div>
         </div>
+        <div style="flex:1;background:rgba(60,255,140,.07);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#7CFC9B">${s?s.tickets:0}</div>
+          <div style="font-size:10px;color:#664488">🎫 Продано</div>
+        </div>
         <div style="flex:1;background:rgba(0,212,255,.08);border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:14px;font-weight:900;color:#67e8f9">${fmtPrice(ev.price)}</div>
-          <div style="font-size:10px;color:#664488">💵 Цена</div>
+          <div style="font-size:14px;font-weight:900;color:#67e8f9">${s?(s.revenue+' ₽'):fmtPrice(ev.price)}</div>
+          <div style="font-size:10px;color:#664488">${s?'💰 Выручка':'💵 Цена'}</div>
         </div>
       </div>
-    </div>`;
+    </div>`;};
 
   c.innerHTML=`
+    ${(totSold||totRev)?`<div class="sgrid" style="padding:0;margin-bottom:10px">
+      <div class="scard"><div class="snum">${totSold}</div><div class="slbl">🎫 Продано</div></div>
+      <div class="scard c"><div class="snum">${totRev}</div><div class="slbl">💰 Выручка ₽</div></div>
+    </div>`:''}
     <div class="sgrid" style="padding:0;margin-bottom:14px">
       <div class="scard"><div class="snum">${activeEvs.length}</div><div class="slbl">Активных</div></div>
       <div class="scard c"><div class="snum">${totalViews}</div><div class="slbl">👁 Просмотров</div></div>
     </div>
+    <div style="font-size:11px;color:#664488;margin-bottom:12px;line-height:1.4">💰 Выручка — номинал проданных билетов. Деньги держит Ticketscloud до завершения события.</div>
     <div style="font-size:11px;color:#443355;text-align:right;margin-bottom:12px" id="sos-time"></div>
     ${activeEvs.length?`
       <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🟢 Активные</div>
