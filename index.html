@@ -13,7 +13,7 @@ body{background:var(--dk);color:var(--tx);font-family:'Inter',sans-serif;min-hei
 body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(139,0,255,.12),transparent 60%);pointer-events:none;z-index:0}
 
 /* VIEWS & TRANSITIONS */
-.view{display:none;position:relative;z-index:1;min-height:100vh;padding-bottom:72px}
+.view{display:none;position:relative;z-index:1;min-height:100vh;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 .view.active{display:block;animation:fadeSlideIn .25s ease}
 .view.slide-back{animation:fadeSlideBack .25s ease}
 
@@ -322,12 +322,13 @@ button:active{transform:scale(.96);opacity:.85}
 .ssug-chip:active{background:rgba(139,0,255,.2)}
 
 /* BOTTOM NAV */
-.bn{position:fixed;bottom:0;left:0;right:0;background:rgba(16,6,28,.42);border-top:1px solid rgba(255,255,255,.12);display:flex;backdrop-filter:blur(34px) saturate(200%);-webkit-backdrop-filter:blur(34px) saturate(200%);z-index:200;padding-bottom:env(safe-area-inset-bottom);transition:transform .25s ease}
-body.subview .bn{transform:translateY(130%);pointer-events:none}
-.ni{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.bn{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom));left:14px;right:14px;border-radius:26px;background:rgba(18,8,30,.5);border:1px solid rgba(255,255,255,.13);display:flex;padding:5px;backdrop-filter:blur(34px) saturate(200%);-webkit-backdrop-filter:blur(34px) saturate(200%);z-index:200;box-shadow:0 10px 34px -8px rgba(0,0,0,.55);transition:transform .3s ease}
+body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
+.ni{flex:1;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:20px;transition:background .2s}
+.ni.active{background:rgba(255,255,255,.11)}
 .nicon{font-size:20px}
-.nlbl{font-size:9px;color:#443355;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.ni.active .nlbl{color:#c084fc}
+.nlbl{font-size:9px;color:#7d6fa3;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.ni.active .nlbl{color:#fff}
 .ni.active .nicon{filter:drop-shadow(0 0 6px rgba(139,0,255,.6))}
 </style>
 </head>
