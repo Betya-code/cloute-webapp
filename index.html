@@ -408,6 +408,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="dorow"><div class="dorglbl" id="d-org" onclick="openOrgPage()"></div><div class="dgoing-count" id="d-going"></div></div>
     <div class="dinfo" id="d-rows"></div>
     <button class="droute" id="btn-route" onclick="openRoute()">🗺 Построить маршрут</button>
+    <button class="droute" id="btn-tg" style="display:none;background:rgba(139,0,255,.1);border-color:rgba(139,0,255,.3);color:#c084fc" onclick="openTgChannel()">✈️ Telegram-канал события</button>
     <div class="ddesc" id="d-desc"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">🙋 Пойду</button>
@@ -1205,6 +1206,7 @@ function openEv(id){
     btnGoing.onclick=togGoingDetail;
   }
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
+  document.getElementById('btn-tg').style.display=ev.tg_link?'block':'none';
   nav('d');
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
@@ -1223,6 +1225,7 @@ async function getFreeTicket(id){
   alert(r.already?'У тебя уже есть билет на это событие — он в «Мои билеты».':'🎟 Билет получен! Он в разделе «Мои билеты».');
 }
 function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||(!ev.venue&&!ev.tc_address))return;hap('light');const base=(ev.tc_address&&ev.tc_address.trim())?ev.tc_address:ev.venue;openExt('https://yandex.ru/maps/?text='+encodeURIComponent(base+', '+(ev.city||'Москва')))}
+function openTgChannel(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(ev&&ev.tg_link){hap('light');openExt(normUrl(ev.tg_link))}}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
   if(r&&typeof r.going_count==='number'){
@@ -2052,10 +2055,10 @@ async function saveEv(){
   let pu=document.getElementById('fe-pu').value.trim();
   const fi=document.querySelector('#fev input[type="file"]');
   if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up;else{alert('❌ Не удалось загрузить фото. Проверь интернет и попробуй ещё раз.');btn.textContent='Сохранить';btn.disabled=false;return}}
-  const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu,...readReg('fe')});
+  const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu,tg:document.getElementById('fe-tg').value.trim(),...readReg('fe')});
   btn.textContent='Сохранить';btn.disabled=false;
   if(r?.error){alert('❌ '+r.error);return}
-  ['fe-nm','fe-dt','fe-ts','fe-te','fe-vn','fe-pr','fe-lk','fe-dc','fe-pu'].forEach(i=>document.getElementById(i).value='');
+  ['fe-nm','fe-dt','fe-ts','fe-te','fe-vn','fe-pr','fe-lk','fe-tg','fe-dc','fe-pu','fe-reglim'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('fe-free').checked=false;togFreeInput('fe');
   if(fi)fi.value='';document.getElementById('pprev').style.display='none';
   document.getElementById('fev').classList.remove('open');
@@ -2074,6 +2077,7 @@ function openEditEv(id){
   const _ef=isFree(ev);document.getElementById('ee-free').checked=_ef;document.getElementById('ee-pr').value=_ef?'':(ev.price||'').replace(/\D/g,'');togFreeInput('ee');
   document.getElementById('ee-reg').checked=!!ev.reg_open;document.getElementById('ee-reglim').value=ev.reg_limit?ev.reg_limit:'';togRegInput('ee');
   document.getElementById('ee-lk').value=ev.link||'';
+  document.getElementById('ee-tg').value=ev.tg_link||'';
   document.getElementById('ee-dc').value=ev.description||'';
   document.getElementById('ee-pu').value=ev.poster_url||'';
   const sel=document.getElementById('ee-em');
@@ -2101,7 +2105,7 @@ async function saveEditEv(){
   let data;
   try{
     const r=await Promise.race([
-      fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,...readReg('ee'),userId:uid})}),
+      fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,tg:document.getElementById('ee-tg').value.trim(),...readReg('ee'),userId:uid})}),
       new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))
     ]);
     data=await r.json();
