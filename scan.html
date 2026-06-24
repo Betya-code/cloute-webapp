@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CLOUTE — Сканер входа</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root{--p:#8b00ff;--pk:#ff0099}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#080010;color:#fff;min-height:100vh}
+  .wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
+  h1{font-size:20px;font-weight:800;text-align:center;margin:10px 0 2px;background:linear-gradient(90deg,#c084fc,#ff0099);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{text-align:center;color:#8779a6;font-size:12px;margin-bottom:22px}
+  label{display:block;font-size:12px;color:#8779a6;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em}
+  input{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(139,0,255,.3);color:#fff;padding:14px 16px;border-radius:12px;font-size:18px;letter-spacing:.12em;text-align:center;text-transform:uppercase;outline:none;font-weight:700}
+  button{width:100%;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;margin-top:14px;font-family:inherit}
+  .bp{background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;box-shadow:0 6px 20px -2px rgba(255,0,153,.4)}
+  .bg{background:rgba(139,0,255,.14);color:#c084fc;border:1px solid rgba(139,0,255,.3)}
+  .hd{display:flex;justify-content:space-between;align-items:center;background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+  .hd .ev{font-weight:700;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hd .cnt{font-size:12px;color:#c084fc;white-space:nowrap;margin-left:10px}
+  #reader{width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(139,0,255,.25)}
+  #result{position:fixed;left:0;right:0;bottom:0;padding:26px 18px calc(26px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;transform:translateY(110%);transition:transform .2s;text-align:center;z-index:10}
+  #result.show{transform:translateY(0)}
+  #result .ic{font-size:46px}
+  #result .ms{font-size:22px;font-weight:900;margin-top:4px}
+  #result .nm{font-size:15px;margin-top:4px;opacity:.92}
+  .ok{background:linear-gradient(180deg,#0c5c2e,#0a3d20)}
+  .warn{background:linear-gradient(180deg,#6b5200,#4a3800)}
+  .err{background:linear-gradient(180deg,#6b0a0a,#440606)}
+  .hint{font-size:12px;color:#6b5f85;text-align:center;margin-top:14px;line-height:1.6}
+  .link{color:#8b7cb8;text-decoration:underline;cursor:pointer}
+  .hidden{display:none}
+  .err-msg{color:#ff8a8a;font-size:13px;text-align:center;margin-top:10px;min-height:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CLOUTE — Сканер входа</h1>
+  <div class="sub">Контроль билетов на входе</div>
+
+  <!-- Экран ввода кода -->
+  <div id="screen-code">
+    <label>Код сканера от организатора</label>
+    <input id="code" maxlength="12" placeholder="НАПРИМЕР A1B2C3" autocomplete="off" autocapitalize="characters">
+    <button class="bp" onclick="startScan()">Начать сканирование</button>
+    <div class="err-msg" id="code-err"></div>
+    <div class="hint">Код выдаёт организатор в приложении CLOUTE.<br>Сканер работает в любом браузере — Telegram не нужен.</div>
+  </div>
+
+  <!-- Экран сканера -->
+  <div id="screen-scan" class="hidden">
+    <div class="hd">
+      <div class="ev" id="ev-name">—</div>
+      <div class="cnt" id="ev-cnt"></div>
+    </div>
+    <div id="reader"></div>
+    <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
+    <button class="bg" onclick="stopScan()">← Сменить событие</button>
+    <div class="err-msg" id="scan-err"></div>
+  </div>
+</div>
+
+<div id="result"></div>
+
+<script>
+const API = location.origin;
+let scanner = null, accessCode = '', lastCode = '', lastAt = 0, busy = false;
+
+// префилл кода из ссылки ?k=CODE
+const k = new URLSearchParams(location.search).get('k');
+if (k) document.getElementById('code').value = k.trim().toUpperCase();
+
+async function api(path, body){
+  const r = await fetch(API + path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  let d = {}; try { d = await r.json(); } catch(e) {}
+  return {ok:r.ok, status:r.status, data:d};
+}
+
+async function startScan(){
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const err = document.getElementById('code-err'); err.textContent='';
+  if(!code){ err.textContent='Введи код сканера'; return; }
+  const r = await api('/api/scan/info', {code});
+  if(!r.ok || r.data.error){ err.textContent = r.data.error || 'Неверный код'; return; }
+  accessCode = code;
+  document.getElementById('ev-name').textContent = r.data.event || 'Событие';
+  updateCounters(r.data.checked_in, r.data.total);
+  document.getElementById('screen-code').classList.add('hidden');
+  document.getElementById('screen-scan').classList.remove('hidden');
+  startCamera();
+}
+
+function updateCounters(ci, total){
+  const el = document.getElementById('ev-cnt');
+  if(typeof ci === 'number' && typeof total === 'number') el.textContent = `✅ ${ci} / ${total}`;
+}
+
+function startCamera(){
+  scanner = new Html5Qrcode('reader');
+  scanner.start({facingMode:'environment'}, {fps:10, qrbox:{width:240,height:240}}, onDecode, ()=>{})
+    .catch(e => { document.getElementById('scan-err').textContent='Нет доступа к камере. Разреши камеру в браузере или вводи код вручную.'; });
+}
+
+async function stopScan(){
+  if(scanner){ try{ await scanner.stop(); scanner.clear(); }catch(e){} scanner=null; }
+  document.getElementById('screen-scan').classList.add('hidden');
+  document.getElementById('screen-code').classList.remove('hidden');
+}
+
+function onDecode(text){
+  const now = Date.now();
+  // антидребезг: тот же код в течение 3.5с игнорируем, и не сканируем во время обработки
+  if(busy || (text === lastCode && now - lastAt < 3500)) return;
+  lastCode = text; lastAt = now;
+  checkTicket(text.trim());
+}
+
+async function manualEntry(){
+  const t = prompt('Код билета (из QR):');
+  if(t) checkTicket(t.trim());
+}
+
+async function checkTicket(ticket_code){
+  busy = true;
+  const r = await api('/api/scan', {code:accessCode, ticket_code});
+  busy = false;
+  const s = r.data.status;
+  if(s === 'ok'){ showResult('ok','✅','Проход разрешён', r.data.name); updateCounters(r.data.checked_in, r.data.total); beep(true); }
+  else if(s === 'used'){ showResult('warn','⚠️','Уже использован', (r.data.name||'') + (r.data.used_at? ' · '+fmtTime(r.data.used_at):'')); beep(false); }
+  else if(s === 'wrong_event'){ showResult('err','❌','Билет от другого события',''); beep(false); }
+  else if(s === 'not_found'){ showResult('err','❌','Билет не найден',''); beep(false); }
+  else if(s === 'bad_code'){ showResult('err','❌','Код сканера недействителен',''); }
+  else { showResult('err','❌','Ошибка проверки',''); }
+}
+
+let hideTimer = null;
+function showResult(cls, ic, msg, nm){
+  const el = document.getElementById('result');
+  el.className = cls + ' show';
+  el.innerHTML = `<div class="ic">${ic}</div><div class="ms">${esc(msg)}</div>${nm?`<div class="nm">${esc(nm)}</div>`:''}`;
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(()=>{ el.classList.remove('show'); }, 2200);
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmtTime(s){ const m=String(s).match(/(\d{2}:\d{2})/); return m?m[1]:''; }
+function beep(good){
+  try{
+    if(navigator.vibrate) navigator.vibrate(good?80:[60,40,60]);
+  }catch(e){}
+}
+</script>
+</body>
+</html>

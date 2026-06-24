@@ -2017,7 +2017,8 @@ async function openEvStats(id){
         <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.08em">🎉 Бесплатное мероприятие</div>
         <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#c084fc;margin-top:6px">${main}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#886699;margin-top:6px">${reg?'получили билет':'отметили «Иду»'} · конверсия ${convG}%</div>
-      </div>`;
+      </div>
+      ${reg?`<div style="margin-top:14px"><button onclick="openScannerCode(${id})" style="width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#67e8f9;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">🎟 Сканер входа (для охраны)</button><div id="scanbox" style="margin-top:10px"></div></div>`:''}`;
     return;
   }
   body.innerHTML=`
@@ -2034,6 +2035,36 @@ async function openEvStats(id){
     </div>
     <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">По категориям билетов</div>
     ${catRows}`;
+}
+async function openScannerCode(id){
+  const box=document.getElementById('scanbox');if(!box)return;
+  box.innerHTML='<div style="text-align:center;color:#886699;padding:10px">Загрузка…</div>';
+  const r=await G('/api/events/'+id+'/scanner-code');
+  if(!r||!r.code){box.innerHTML='<div style="text-align:center;color:#ff8a8a;padding:10px">Не удалось получить код</div>';return}
+  renderScannerCode(id,r.code);
+}
+function renderScannerCode(id,code){
+  const box=document.getElementById('scanbox');if(!box)return;
+  const link='https://cloute.ru/scan.html?k='+encodeURIComponent(code);
+  box.innerHTML=`
+    <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:14px;padding:14px">
+      <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.06em">Код для охраны</div>
+      <div style="font-family:monospace;font-size:26px;font-weight:800;letter-spacing:.15em;color:#67e8f9;margin:4px 0 12px">${escH(code)}</div>
+      <div style="font-size:12px;color:#886699;line-height:1.6;margin-bottom:10px">Дай охране код или ссылку. Открывают в любом браузере, вводят код и сканируют QR гостей. Telegram не нужен.</div>
+      <button onclick="copyScanLink('${escH(link)}')" style="width:100%;background:rgba(139,0,255,.14);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку для охраны</button>
+      <button onclick="regenScannerCode(${id})" style="width:100%;background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.3);color:#ff9a5c;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer">♻️ Перегенерировать (старый перестанет работать)</button>
+    </div>`;
+}
+function copyScanLink(link){
+  try{if(navigator.clipboard){navigator.clipboard.writeText(link);alert('Ссылка скопирована');return}}catch(e){}
+  prompt('Скопируй ссылку для охраны:',link);
+}
+async function regenScannerCode(id){
+  if(!confirm('Сделать новый код? Старый код и ссылка перестанут работать.'))return;
+  const box=document.getElementById('scanbox');if(box)box.innerHTML='<div style="text-align:center;color:#886699;padding:10px">Генерируем…</div>';
+  const r=await P('/api/events/'+id+'/scanner-code',{});
+  if(r&&r.code)renderScannerCode(id,r.code);
+  else if(box)box.innerHTML='<div style="text-align:center;color:#ff8a8a;padding:10px">Не удалось</div>';
 }
 function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
