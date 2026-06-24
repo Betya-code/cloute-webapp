@@ -43,7 +43,7 @@
   <!-- Экран ввода кода -->
   <div id="screen-code">
     <label>Код сканера от организатора</label>
-    <input id="code" maxlength="12" placeholder="НАПРИМЕР A1B2C3" autocomplete="off" autocapitalize="characters">
+    <input id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 цифр" autocomplete="off">
     <button class="bp" onclick="startScan()">Начать сканирование</button>
     <div class="err-msg" id="code-err"></div>
     <div class="hint">Код выдаёт организатор в приложении CLOUTE.<br>Сканер работает в любом браузере — Telegram не нужен.</div>

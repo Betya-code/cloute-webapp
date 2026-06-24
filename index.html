@@ -2036,6 +2036,8 @@ async function openEvStats(id){
     <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">По категориям билетов</div>
     ${catRows}`;
 }
+let _scanShare=null;
+function _evName(id){const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);return ev?ev.name:''}
 async function openScannerCode(id){
   const box=document.getElementById('scanbox');if(!box)return;
   box.innerHTML='<div style="text-align:center;color:#886699;padding:10px">Загрузка…</div>';
@@ -2046,18 +2048,29 @@ async function openScannerCode(id){
 function renderScannerCode(id,code){
   const box=document.getElementById('scanbox');if(!box)return;
   const link='https://cloute.ru/scan.html?k='+encodeURIComponent(code);
+  _scanShare={name:_evName(id),code:code,link:link};
   box.innerHTML=`
-    <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:14px;padding:14px">
+    <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:16px;padding:16px;text-align:center">
       <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.06em">Код для охраны</div>
-      <div style="font-family:monospace;font-size:26px;font-weight:800;letter-spacing:.15em;color:#67e8f9;margin:4px 0 12px">${escH(code)}</div>
-      <div style="font-size:12px;color:#886699;line-height:1.6;margin-bottom:10px">Дай охране код или ссылку. Открывают в любом браузере, вводят код и сканируют QR гостей. Telegram не нужен.</div>
-      <button onclick="copyScanLink('${escH(link)}')" style="width:100%;background:rgba(139,0,255,.14);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку для охраны</button>
-      <button onclick="regenScannerCode(${id})" style="width:100%;background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.3);color:#ff9a5c;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer">♻️ Перегенерировать (старый перестанет работать)</button>
+      <div style="font-family:'Unbounded',sans-serif;font-size:34px;font-weight:900;letter-spacing:.22em;color:#67e8f9;margin:6px 0 4px">${escH(code)}</div>
+      <div style="font-size:12px;color:#886699;line-height:1.6;margin:6px 4px 14px">Перешли охране — они откроют ссылку, введут код и будут сканировать QR гостей. Telegram у них не обязателен.</div>
+      <button onclick="shareScanToTg()" style="width:100%;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;margin-bottom:8px">✈️ Отправить охране в Telegram</button>
+      <button onclick="copyScanLink()" style="width:100%;background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку</button>
+      <button onclick="regenScannerCode(${id})" style="width:100%;background:transparent;border:none;color:#7a5a8a;padding:6px;font-size:12px;cursor:pointer">♻️ Сделать новый код (старый перестанет работать)</button>
     </div>`;
 }
-function copyScanLink(link){
-  try{if(navigator.clipboard){navigator.clipboard.writeText(link);alert('Ссылка скопирована');return}}catch(e){}
-  prompt('Скопируй ссылку для охраны:',link);
+function shareScanToTg(){
+  if(!_scanShare)return;hap('light');
+  const s=_scanShare;
+  const text='🎟 Сканер входа'+(s.name?' — «'+s.name+'»':'')+'\nКод: '+s.code+'\n\nОткрой ссылку, введи код и сканируй QR гостей на входе 👇';
+  const u='https://t.me/share/url?url='+encodeURIComponent(s.link)+'&text='+encodeURIComponent(text);
+  try{if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(u);return}}catch(e){}
+  openExt(u);
+}
+function copyScanLink(){
+  if(!_scanShare)return;
+  try{if(navigator.clipboard){navigator.clipboard.writeText(_scanShare.link);alert('Ссылка скопирована');return}}catch(e){}
+  prompt('Скопируй ссылку для охраны:',_scanShare.link);
 }
 async function regenScannerCode(id){
   if(!confirm('Сделать новый код? Старый код и ссылка перестанут работать.'))return;
