@@ -23,6 +23,7 @@
   .tabs{display:flex;gap:8px;margin-bottom:14px}
   .tab{flex:1;background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#8779a6;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;margin-top:0}
   .tab.tab-on{background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border-color:transparent}
+  .glabel{font-size:13px;font-weight:800;color:#c084fc;text-transform:uppercase;letter-spacing:.05em;margin:24px 0 10px;padding-top:18px;border-top:1px solid rgba(139,0,255,.15)}
   #reader{width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(139,0,255,.25)}
   #result{position:fixed;left:0;right:0;bottom:0;padding:26px 18px calc(26px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;transform:translateY(110%);transition:transform .2s;text-align:center;z-index:10}
   #result.show{transform:translateY(0)}
@@ -58,20 +59,13 @@
       <div class="ev" id="ev-name">—</div>
       <div class="cnt" id="ev-cnt"></div>
     </div>
-    <div class="tabs">
-      <button id="tab-cam" class="tab tab-on" onclick="showTab('cam')">📷 Сканер QR</button>
-      <button id="tab-list" class="tab" onclick="showTab('list')">📋 Список</button>
-    </div>
-    <div id="pane-cam">
-      <div id="reader"></div>
-      <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
-    </div>
-    <div id="pane-list" class="hidden">
-      <input id="g-search" placeholder="🔍 Поиск по имени или @нику" oninput="renderGuestList()" style="text-transform:none;text-align:left;letter-spacing:normal;font-size:15px;font-weight:400;margin-bottom:10px">
-      <div id="glist"></div>
-    </div>
-    <button class="bg" onclick="stopScan()" style="margin-top:14px">← Сменить событие</button>
+    <div id="reader"></div>
+    <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
     <div class="err-msg" id="scan-err"></div>
+    <div class="glabel">📋 Список гостей</div>
+    <input id="g-search" placeholder="🔍 Поиск по имени или @нику" oninput="renderGuestList()" style="text-transform:none;text-align:left;letter-spacing:normal;font-size:15px;font-weight:400;margin-bottom:10px">
+    <div id="glist"></div>
+    <button class="bg" onclick="stopScan()" style="margin-top:16px">← Сменить событие</button>
   </div>
 </div>
 
@@ -102,7 +96,9 @@ async function startScan(){
   updateCounters(r.data.checked_in, r.data.total);
   document.getElementById('screen-code').classList.add('hidden');
   document.getElementById('screen-scan').classList.remove('hidden');
-  showTab('cam');
+  startCamera();
+  loadGuestList();
+  startGuestPoll();
 }
 
 function updateCounters(ci, total){
@@ -117,20 +113,20 @@ function startCamera(){
 }
 
 async function stopScan(){
+  stopGuestPoll();
   if(scanner){ try{ await scanner.stop(); scanner.clear(); }catch(e){} scanner=null; }
   document.getElementById('screen-scan').classList.add('hidden');
   document.getElementById('screen-code').classList.remove('hidden');
 }
 
-let _guests=[];
-function showTab(which){
-  const cam=which==='cam';
-  document.getElementById('pane-cam').classList.toggle('hidden',!cam);
-  document.getElementById('pane-list').classList.toggle('hidden',cam);
-  document.getElementById('tab-cam').classList.toggle('tab-on',cam);
-  document.getElementById('tab-list').classList.toggle('tab-on',!cam);
-  if(cam){ if(!scanner) startCamera(); }
-  else { if(scanner){ const s=scanner; scanner=null; s.stop().then(()=>s.clear()).catch(()=>{}); } loadGuestList(); }
+let _guests=[], _guestPoll=null;
+function startGuestPoll(){ stopGuestPoll(); _guestPoll=setInterval(refreshGuests, 20000); }
+function stopGuestPoll(){ if(_guestPoll){ clearInterval(_guestPoll); _guestPoll=null; } }
+async function refreshGuests(){
+  const r=await api('/api/scan/guests',{code:accessCode});
+  if(r.ok && r.data && Array.isArray(r.data.guests)){
+    if(JSON.stringify(r.data.guests)!==JSON.stringify(_guests)){ _guests=r.data.guests; renderGuestList(); }
+  }
 }
 async function loadGuestList(){
   const list=document.getElementById('glist');
