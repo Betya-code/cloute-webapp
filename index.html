@@ -713,8 +713,8 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
 
   <div id="sscan" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">🎟 Сканер входа</div></div>
-    <div class="sbody"><div id="scanbody"></div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">🎟 Вход и гости</div></div>
+    <div class="sbody"><div id="scanbody"></div><div id="guestbox" style="margin-top:20px"></div></div>
   </div>
 </div>
 
@@ -1978,7 +1978,7 @@ function renderEL(list){
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="flex:1;min-width:0;cursor:pointer" onclick="openEvStats(${ev.id})"><div class="liname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="limeta">${escH(ev.date)} · ${escH(ev.time)} · ${escH(ev.venue)} · 👁 ${ev.views||0}</div></div>
         <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
-          ${ev.reg_open?`<button style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#7CFC9B;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openScanForEvent(${ev.id})">🎟</button>`:''}
+          <button style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#7CFC9B;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openScanForEvent(${ev.id})" title="Вход и гости">🎟</button>
           <button style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#67e8f9;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEvStats(${ev.id})">📊</button>
           <button style="background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
           <button class="bdel" onclick="delEv(${ev.id})">🗑</button>
@@ -2050,9 +2050,11 @@ function _evName(id){const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);
 async function openScanForEvent(id){
   showS('sscan');
   const box=document.getElementById('scanbody');if(box)box.innerHTML='<div style="text-align:center;color:#886699;padding:20px">Загрузка…</div>';
+  const gb=document.getElementById('guestbox');if(gb)gb.innerHTML='';
   const r=await G('/api/events/'+id+'/scanner-code');
   if(!r||!r.code){if(box)box.innerHTML='<div style="text-align:center;color:#ff8a8a;padding:20px">Не удалось получить код</div>';return}
   renderScannerCode(id,r.code);
+  loadGuests(id);
 }
 function renderScannerCode(id,code){
   const box=document.getElementById('scanbody');if(!box)return;
@@ -2088,6 +2090,56 @@ async function regenScannerCode(id){
   const r=await P('/api/events/'+id+'/scanner-code',{});
   if(r&&r.code)renderScannerCode(id,r.code);
   else if(box)box.innerHTML='<div style="text-align:center;color:#ff8a8a;padding:10px">Не удалось</div>';
+}
+let _guestEv=null;
+async function loadGuests(eventId){
+  _guestEv=eventId;
+  const box=document.getElementById('guestbox');if(!box)return;
+  const r=await G('/api/events/'+eventId+'/guests');
+  renderGuests(r&&Array.isArray(r.guests)?r.guests:[]);
+}
+function renderGuests(guests){
+  const box=document.getElementById('guestbox');if(!box)return;
+  const arr=guests.filter(g=>g.arrived).length;
+  const rows=guests.map(g=>{
+    const sub=[g.username?'@'+escH(g.username):'',escH(g.note||'')].filter(Boolean).join(' · ');
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(139,0,255,.1)">
+      <button onclick="toggleGuest(${g.id},${g.arrived?0:1})" style="flex-shrink:0;width:32px;height:32px;border-radius:9px;border:1px solid ${g.arrived?'rgba(0,255,136,.4)':'rgba(139,0,255,.3)'};background:${g.arrived?'rgba(0,255,136,.15)':'transparent'};color:${g.arrived?'#7CFC9B':'#664488'};font-size:15px;cursor:pointer">${g.arrived?'✓':''}</button>
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:#e8d4ff;${g.arrived?'opacity:.55':''}">${escH(g.name||('@'+(g.username||''))||'Гость')}</div>${sub?`<div style="font-size:11px;color:#886699">${sub}</div>`:''}</div>
+      <button onclick="delGuest(${g.id})" style="flex-shrink:0;background:none;border:none;color:#7a5a8a;font-size:14px;cursor:pointer">🗑</button>
+    </div>`;
+  }).join('');
+  box.innerHTML=`
+    <div style="font-size:13px;font-weight:800;color:#c084fc;text-transform:uppercase;letter-spacing:.05em">📋 Список гостей</div>
+    <div style="font-size:11px;color:#886699;margin:4px 0 12px">Пришло ${arr} из ${guests.length}. Охрана видит список в сканере по тому же коду.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      <input class="fi" id="g-name" placeholder="ФИО или имя" style="margin-bottom:0">
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="g-user" placeholder="@username (необяз.)" style="flex:1;margin-bottom:0">
+        <input class="fi" id="g-note" placeholder="Заметка (+1, VIP…)" style="flex:1;margin-bottom:0">
+      </div>
+      <button onclick="addGuest()" style="background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:12px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer">➕ Добавить в список</button>
+    </div>
+    ${guests.length?rows:'<div style="text-align:center;color:#664488;padding:14px;font-size:13px">Список пуст — добавь первого гостя</div>'}`;
+}
+async function addGuest(){
+  if(!_guestEv)return;
+  const name=document.getElementById('g-name').value.trim();
+  const user=document.getElementById('g-user').value.trim();
+  const note=document.getElementById('g-note').value.trim();
+  if(!name&&!user){alert('Впиши имя или @username');return}
+  const r=await P('/api/events/'+_guestEv+'/guests',{name,username:user,note});
+  if(r&&r.error){alert('❌ '+r.error);return}
+  loadGuests(_guestEv);
+}
+async function toggleGuest(id,arrived){
+  await P('/api/guests/'+id+'/arrived',{arrived});
+  loadGuests(_guestEv);
+}
+async function delGuest(id){
+  if(!confirm('Убрать из списка?'))return;
+  await D('/api/guests/'+id);
+  loadGuests(_guestEv);
 }
 function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
