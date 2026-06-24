@@ -563,6 +563,10 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
         <input class="fi" id="fe-vn" placeholder="📍 Место *">
         <input class="fi" id="fe-pr" inputmode="numeric" placeholder="💵 Цена в рублях (число)">
         <label class="freechk"><input type="checkbox" id="fe-free" onchange="togFreeInput('fe')"> 🆓 Бесплатный вход</label>
+        <div id="fe-regwrap" style="display:none">
+          <label class="freechk"><input type="checkbox" id="fe-reg" onchange="togRegInput('fe')"> 🎟 Регистрация по билетам (QR на входе)</label>
+          <input class="fi" id="fe-reglim" inputmode="numeric" placeholder="🔢 Лимит мест (пусто = без лимита)" style="display:none">
+        </div>
         <input class="fi" id="fe-lk" placeholder="🔗 Ссылка на билеты">
         <input class="fi" id="fe-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
         <textarea class="fi" id="fe-dc" rows="3" placeholder="📝 Описание"></textarea>
@@ -642,6 +646,10 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
       <input class="fi" id="ee-vn" placeholder="📍 Место *">
       <input class="fi" id="ee-pr" inputmode="numeric" placeholder="💵 Цена в рублях (число)">
       <label class="freechk"><input type="checkbox" id="ee-free" onchange="togFreeInput('ee')"> 🆓 Бесплатный вход</label>
+      <div id="ee-regwrap" style="display:none">
+        <label class="freechk"><input type="checkbox" id="ee-reg" onchange="togRegInput('ee')"> 🎟 Регистрация по билетам (QR на входе)</label>
+        <input class="fi" id="ee-reglim" inputmode="numeric" placeholder="🔢 Лимит мест (пусто = без лимита)" style="display:none">
+      </div>
       <input class="fi" id="ee-lk" placeholder="🔗 Ссылка на билеты">
       <input class="fi" id="ee-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
       <textarea class="fi" id="ee-dc" rows="3" placeholder="📝 Описание"></textarea>
@@ -718,6 +726,7 @@ let tgU=null,role='user',uid=0,curEv=null,curOrgId=null;
 let evs=[],orgs=[],allEvs=[];
 let favs=JSON.parse(localStorage.getItem('cf')||'[]');
 let going=JSON.parse(localStorage.getItem('cg')||'[]');
+let myReg=JSON.parse(localStorage.getItem('myreg')||'[]');
 let _avaFile=null,editEvId=null,_editAvaFile=null;
 let selCalDay=null,statsEvId=null,statsTimer=null,calY=null,calM=null;
 let currentFilter='all',currentCat='all',filterFree=false,filterWeekend=false;
@@ -761,7 +770,26 @@ function readPrice(pfx){
   const d=document.getElementById(pfx+'-pr').value.replace(/\D/g,'');
   return d?d:'Уточняется';
 }
-function togFreeInput(pfx){const f=document.getElementById(pfx+'-free').checked;const inp=document.getElementById(pfx+'-pr');inp.disabled=f;inp.style.opacity=f?'.4':'1';if(f)inp.value='';hap('sel')}
+function togFreeInput(pfx){
+  const f=document.getElementById(pfx+'-free').checked;
+  const inp=document.getElementById(pfx+'-pr');
+  inp.disabled=f;inp.style.opacity=f?'.4':'1';if(f)inp.value='';
+  const rw=document.getElementById(pfx+'-regwrap');
+  if(rw){rw.style.display=f?'block':'none';if(!f){const rc=document.getElementById(pfx+'-reg');if(rc){rc.checked=false;togRegInput(pfx);}}}
+  hap('sel');
+}
+function togRegInput(pfx){
+  const on=document.getElementById(pfx+'-reg').checked;
+  const lim=document.getElementById(pfx+'-reglim');
+  if(lim){lim.style.display=on?'block':'none';if(!on)lim.value='';}
+  hap('sel');
+}
+function readReg(pfx){
+  const free=document.getElementById(pfx+'-free').checked;
+  const on=free&&document.getElementById(pfx+'-reg').checked;
+  const lim=parseInt((document.getElementById(pfx+'-reglim').value||'').replace(/\D/g,''),10)||0;
+  return {reg_open:on?1:0,reg_limit:on?lim:0};
+}
 function fmtPriceShort(ev){
   if(isFree(ev))return'Бесплатно';
   const p=fmtPrice(ev.price);
@@ -949,7 +977,7 @@ function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" v
 const _PH=['radial-gradient(120% 120% at 30% 20%,#ff2da6,#8b00ff 60%,#1b0033)','radial-gradient(120% 120% at 72% 22%,#00d4ff,#8b00ff 70%,#10001c)','radial-gradient(120% 120% at 62% 18%,#ff0099,#ff7a00 78%,#2b0010)','radial-gradient(120% 120% at 40% 28%,#a855f7,#00d4ff 82%,#0a0016)','radial-gradient(125% 95% at 75% 15%,#ff2da6,#8b00ff 48%,#1b0033)'];
 function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
 function drow(icon,col,bg,lbl,val,full){return `<div class="drow${full?' dfull':''}"><div class="dricon" style="background:${bg};color:${col}">${ic(icon,18,col)}</div><div><div class="drlbl">${lbl}</div><div class="drval">${val}</div></div></div>`;}
-function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;return `${ic('users',13,col)} ${ev.going_count||0} идут`;}
+function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;if(ev.reg_open)return `${ic('ticket',13,col)} ${ev.reg_count||0} идут`;return `${ic('users',13,col)} ${ev.going_count||0} идут`;}
 function renderFeed(list){
   const c=document.getElementById('feed');
   if(!list.length){
@@ -1084,7 +1112,7 @@ async function loadMyTickets(){
           <div style="font-size:14px;font-weight:700;color:#e8d4ff">${escH(t.event)}</div>
           <div style="font-size:12px;color:#886699;margin-top:2px">${escH([t.date,t.venue].filter(Boolean).join(' · '))}</div>
         </div>
-        <div style="font-size:11px;color:#7CFC9B;background:rgba(60,255,130,.1);padding:3px 9px;border-radius:10px;white-space:nowrap">оплачено</div>
+        <div style="font-size:11px;${t.free?'color:#7fe4ff;background:rgba(0,212,255,.12)':'color:#7CFC9B;background:rgba(60,255,130,.1)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'🆓 бесплатно'):'оплачено'}</div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,0,255,.12)">
         <div style="font-size:12px;color:#cbb6e6">🎫 ${escH(t.count)} билет(ов)</div>
@@ -1160,12 +1188,40 @@ function openEv(id){
       btnBuy.onclick=buyTicket;
     }
   }else{buyWrap.style.display='none'}
+  // Путь Б: бесплатная регистрация по билетам
+  if(isFree(ev)&&ev.reg_open){
+    buyWrap.style.display='none';
+    const lim=parseInt(ev.reg_limit||0,10)||0;
+    const left=lim>0?Math.max(0,lim-(ev.reg_count||0)):null;
+    if(myReg.includes(id)){
+      btnGoing.textContent='✅ Билет у тебя';btnGoing.className='bbiggoing active';btnGoing.onclick=()=>openTK();
+    }else if(left===0){
+      btnGoing.textContent='😔 Мест больше нет';btnGoing.className='bbiggoing';btnGoing.onclick=null;
+    }else{
+      btnGoing.textContent=left!=null?`🎟 Получить билет · осталось ${left}`:'🎟 Получить билет';
+      btnGoing.className='bbiggoing';btnGoing.onclick=()=>getFreeTicket(id);
+    }
+  }else{
+    btnGoing.onclick=togGoingDetail;
+  }
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
   nav('d');
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
+async function getFreeTicket(id){
+  hap('medium');
+  const btn=document.getElementById('btn-going');const old=btn.textContent;
+  btn.disabled=true;btn.textContent='Получаем…';
+  const r=await P('/api/events/'+id+'/register',{});
+  btn.disabled=false;
+  if(!r||r.error){btn.textContent=old;alert('❌ '+((r&&r.error)||'Не удалось получить билет. Попробуй ещё раз.'));return}
+  if(!myReg.includes(id)){myReg.push(id);localStorage.setItem('myreg',JSON.stringify(myReg));}
+  if(!r.already){const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);if(e1)e1.reg_count=(e1.reg_count||0)+1;if(e2)e2.reg_count=(e2.reg_count||0)+1;}
+  btn.textContent='✅ Билет у тебя';btn.className='bbiggoing active';btn.onclick=()=>openTK();
+  alert(r.already?'У тебя уже есть билет на это событие — он в «Мои билеты».':'🎟 Билет получен! Он в разделе «Мои билеты».');
+}
 function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||(!ev.venue&&!ev.tc_address))return;hap('light');const base=(ev.tc_address&&ev.tc_address.trim())?ev.tc_address:ev.venue;openExt('https://yandex.ru/maps/?text='+encodeURIComponent(base+', '+(ev.city||'Москва')))}
 async function apiGoing(id,going){
   const r=await P('/api/events/'+id+'/going',{going});
@@ -1944,17 +2000,20 @@ async function openEvStats(id){
       <div style="text-align:right;flex-shrink:0;margin-left:10px"><div style="font-size:14px;font-weight:800;color:#34d399">${fmtMoney(priceNum(c.price)*(c.sold||0))}</div><div style="font-size:11px;color:#664488">пришло ${c.attended||0}</div></div>
     </div>`).join(''):'<div style="text-align:center;padding:16px;color:#664488;font-size:12px">Билетных категорий нет</div>';
   if(free){
-    const convG=views>0?Math.round(going/views*100):0;
+    const reg=ev&&ev.reg_open;
+    const main=reg?(ev.reg_count||0):going;
+    const lim=reg&&ev.reg_limit?ev.reg_limit:0;
+    const convG=views>0?Math.round(main/views*100):0;
     body.innerHTML=`
       ${head}
       <div style="display:flex;gap:8px;margin-bottom:10px">
         ${big(views,'👁 Просмотров','#67e8f9','rgba(0,212,255,.08)')}
-        ${big(going,'🙋 Идут','#c084fc','rgba(139,0,255,.08)')}
+        ${big(main+(lim?` / ${lim}`:''),reg?'🎟 Билетов':'🙋 Идут','#c084fc','rgba(139,0,255,.08)')}
       </div>
       <div style="background:linear-gradient(135deg,rgba(139,0,255,.15),rgba(255,0,153,.06));border:1px solid rgba(139,0,255,.3);border-radius:14px;padding:18px;text-align:center">
         <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.08em">🎉 Бесплатное мероприятие</div>
-        <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#c084fc;margin-top:6px">${going}</div>
-        <div style="font-size:12px;color:#886699;margin-top:6px">отметили «Иду» · конверсия просмотр→иду ${convG}%</div>
+        <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#c084fc;margin-top:6px">${main}${lim?` / ${lim}`:''}</div>
+        <div style="font-size:12px;color:#886699;margin-top:6px">${reg?'получили билет':'отметили «Иду»'} · конверсия ${convG}%</div>
       </div>`;
     return;
   }
@@ -1993,7 +2052,7 @@ async function saveEv(){
   let pu=document.getElementById('fe-pu').value.trim();
   const fi=document.querySelector('#fev input[type="file"]');
   if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up;else{alert('❌ Не удалось загрузить фото. Проверь интернет и попробуй ещё раз.');btn.textContent='Сохранить';btn.disabled=false;return}}
-  const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu});
+  const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu,...readReg('fe')});
   btn.textContent='Сохранить';btn.disabled=false;
   if(r?.error){alert('❌ '+r.error);return}
   ['fe-nm','fe-dt','fe-ts','fe-te','fe-vn','fe-pr','fe-lk','fe-dc','fe-pu'].forEach(i=>document.getElementById(i).value='');
@@ -2013,6 +2072,7 @@ function openEditEv(id){
   document.getElementById('ee-te').value=tp[1]||'';
   document.getElementById('ee-vn').value=ev.venue||'';
   const _ef=isFree(ev);document.getElementById('ee-free').checked=_ef;document.getElementById('ee-pr').value=_ef?'':(ev.price||'').replace(/\D/g,'');togFreeInput('ee');
+  document.getElementById('ee-reg').checked=!!ev.reg_open;document.getElementById('ee-reglim').value=ev.reg_limit?ev.reg_limit:'';togRegInput('ee');
   document.getElementById('ee-lk').value=ev.link||'';
   document.getElementById('ee-dc').value=ev.description||'';
   document.getElementById('ee-pu').value=ev.poster_url||'';
@@ -2041,7 +2101,7 @@ async function saveEditEv(){
   let data;
   try{
     const r=await Promise.race([
-      fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,userId:uid})}),
+      fetch(API+'/api/events/'+editEvId,{method:'PUT',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('ee'),link:document.getElementById('ee-lk').value.trim(),desc:document.getElementById('ee-dc').value.trim(),emoji:document.getElementById('ee-em').value,age_limit:document.getElementById('ee-age').value,poster_url:pu,...readReg('ee'),userId:uid})}),
       new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))
     ]);
     data=await r.json();
