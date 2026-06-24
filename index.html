@@ -1226,7 +1226,10 @@ async function getFreeTicket(id){
   if(!r||r.error){btn.textContent=old;alert('❌ '+((r&&r.error)||'Не удалось получить билет. Попробуй ещё раз.'));return}
   if(!myReg.includes(id)){myReg.push(id);localStorage.setItem('myreg',JSON.stringify(myReg));}
   if(!r.already){const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);if(e1)e1.reg_count=(e1.reg_count||0)+1;if(e2)e2.reg_count=(e2.reg_count||0)+1;}
+  const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
+  const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML=cntHTML(evo,'#9b80c4');
   btn.textContent='✅ Билет у тебя';btn.className='bbiggoing active';btn.onclick=()=>openTK();
+  applyFilters();
   alert(r.already?'У тебя уже есть билет на это событие — он в «Мои билеты».':'🎟 Билет получен! Он в разделе «Мои билеты».');
 }
 function openRoute(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||(!ev.venue&&!ev.tc_address))return;hap('light');const base=(ev.tc_address&&ev.tc_address.trim())?ev.tc_address:ev.venue;openExt('https://yandex.ru/maps/?text='+encodeURIComponent(base+', '+(ev.city||'Москва')))}
@@ -1254,6 +1257,7 @@ async function togGoingDetail(){
     const goingEl=document.getElementById('d-going');
     goingEl.textContent=cnt>0?`🙋 ${cnt} ${plural(cnt,['человек планирует','человека планируют','человек планируют'])} прийти`:'';
   }
+  applyFilters();
 }
 function togFollow(){
   const org=orgs.find(o=>o.tg_id==curOrgId);
