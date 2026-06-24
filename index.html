@@ -1361,7 +1361,7 @@ async function finishOnboard(){
   const pf={name,email,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||''};
   localStorage.setItem('cpf',JSON.stringify(pf));
   try{localStorage.setItem('consent_pd',JSON.stringify({v:PD_POLICY_VERSION,ts:new Date().toISOString()}))}catch(e){}
-  if(uid&&email)P('/api/profile/'+uid,{email}); // сохраняем почту на сервер (для «Мои билеты»)
+  if(uid&&email)P('/api/profile/'+uid,{email,name}); // сохраняем почту и имя на сервер
   P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
   btn.textContent='🚀 Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
@@ -1951,7 +1951,7 @@ async function savePf(){
   if(_avaFile){customPhoto=await uploadImg(_avaFile);_avaFile=null}
   const old=JSON.parse(localStorage.getItem('cpf')||'{}');
   localStorage.setItem('cpf',JSON.stringify({...old,name,email,customPhoto:customPhoto||old.customPhoto,tgUsername:tgU?.username||'',tgId:uid,photoUrl:tgU?.photo_url||old.photoUrl||''}));
-  if(uid)await P('/api/profile/'+uid,{email}); // почта на сервер — для связки билетов
+  if(uid)await P('/api/profile/'+uid,{email,name}); // почта+имя на сервер
   btn.textContent='💾 Сохранить профиль';btn.disabled=false;
   alert('✅ Профиль сохранён!');showS('sm');renderCab();
 }
