@@ -2078,7 +2078,7 @@ function renderScannerCode(id,code){
     <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:16px;padding:16px;text-align:center">
       <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.06em">Код для охраны</div>
       <div style="font-family:'Unbounded',sans-serif;font-size:34px;font-weight:900;letter-spacing:.22em;color:#67e8f9;margin:6px 0 4px">${escH(code)}</div>
-      <div style="font-size:12px;color:#886699;line-height:1.6;margin:6px 4px 14px">Перешли охране — они откроют ссылку, введут код и будут сканировать QR гостей. Telegram у них не обязателен.</div>
+      <div style="font-size:12px;color:#886699;line-height:1.6;margin:6px 4px 14px">Перешли охране — они откроют ссылку, введут код и будут пускать гостей: по списку, а на бесплатных — ещё и сканером QR. Telegram у них не обязателен.</div>
       <button onclick="shareScanToTg()" style="width:100%;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;margin-bottom:8px">✈️ Отправить охране в Telegram</button>
       <button onclick="copyScanLink()" style="width:100%;background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку</button>
       <button onclick="regenScannerCode(${id})" style="width:100%;background:transparent;border:none;color:#7a5a8a;padding:6px;font-size:12px;cursor:pointer">♻️ Сделать новый код (старый перестанет работать)</button>

@@ -60,10 +60,12 @@
       <div class="ev" id="ev-name">—</div>
       <div class="cnt" id="ev-cnt"></div>
     </div>
-    <div id="reader"></div>
-    <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
-    <div class="err-msg" id="scan-err"></div>
-    <div class="glabel">📋 Список гостей</div>
+    <div id="camsec">
+      <div id="reader"></div>
+      <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
+      <div class="err-msg" id="scan-err"></div>
+    </div>
+    <div class="glabel">📋 Гостевой список</div>
     <input id="g-search" placeholder="🔍 Поиск по имени или @нику" oninput="renderGuestList()" style="text-transform:none;text-align:left;letter-spacing:normal;font-size:15px;font-weight:400;margin-bottom:10px">
     <div id="glist"></div>
     <button class="bg" onclick="stopScan()" style="margin-top:16px">← Сменить событие</button>
@@ -97,7 +99,10 @@ async function startScan(){
   updateCounters(r.data.checked_in, r.data.total);
   document.getElementById('screen-code').classList.add('hidden');
   document.getElementById('screen-scan').classList.remove('hidden');
-  startCamera();
+  const hasQr=!!r.data.qr;
+  document.getElementById('camsec').style.display=hasQr?'block':'none';
+  const gl=document.querySelector('.glabel');gl.style.borderTop=hasQr?'':'none';gl.style.marginTop=hasQr?'':'6px';
+  if(hasQr)startCamera();
   loadGuestList();
   startGuestPoll();
 }
