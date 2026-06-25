@@ -1608,11 +1608,23 @@ async function renderASStats(){
     if(label)label.textContent='Обновлено в '+time;
   }
 }
-async function openAO(){const d=await G('/api/orgs');if(d)orgs=d;renderOL();showS('sao')}
+async function openAO(){const d=await G('/api/admin/orgs');if(Array.isArray(d))orgs=d;renderOL();showS('sao')}
 function renderOL(){
   const c=document.getElementById('ol');
   if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i">🏢</div><div class="empty-t">Организаторов пока нет</div></div>';return}
-  c.innerHTML=orgs.map(o=>`<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0077aa,var(--cy));display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div><div><div style="font-size:14px;font-weight:700;color:#fff">${escH(o.name)}</div><div style="font-size:12px;color:#67e8f9;margin-top:2px">ID: ${o.tg_id}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})">Удалить</button></div></div>`).join('');
+  c.innerHTML=orgs.map(o=>{
+    const ava=`<img src="${escH(o.photo_url||'')}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;${o.photo_url?'':'display:none'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0077aa,var(--cy));align-items:center;justify-content:center;font-size:20px;flex-shrink:0;display:${o.photo_url?'none':'flex'}">🏢</div>`;
+    const un=o.tg_username||'';
+    const tap=un?`onclick="openOrgDM('${escH(un)}')" style="cursor:pointer"`:'';
+    const sub=un?`@${escH(un)} · нажми — написать`:`ID: ${o.tg_id}`;
+    return `<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" ${tap}>${ava}<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(o.name)}</div><div style="font-size:12px;color:#67e8f9;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})" style="flex-shrink:0">Удалить</button></div></div>`;
+  }).join('');
+}
+function openOrgDM(username){
+  if(!username)return;hap('light');
+  const u='https://t.me/'+username;
+  try{if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(u);return}}catch(e){}
+  openExt(u);
 }
 async function saveOrg(){
   const un=document.getElementById('fo-un').value.trim().replace('@','');
