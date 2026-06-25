@@ -2111,36 +2111,44 @@ async function loadGuests(eventId){
   const r=await G('/api/events/'+eventId+'/guests');
   renderGuests(r&&Array.isArray(r.guests)?r.guests:[]);
 }
+function gAva(g){
+  const n=(g.name||g.username||'?').trim();
+  const ch=(n[0]||'?').toUpperCase();
+  const cols=['#7c3aed,#ec4899','#2563eb,#06b6d4','#f59e0b,#ef4444','#10b981,#06b6d4','#8b5cf6,#6366f1','#ff0099,#8b00ff'];
+  const c=cols[(n.charCodeAt(0)||0)%cols.length];
+  return `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,${c});display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px;flex-shrink:0">${escH(ch)}</div>`;
+}
 function renderGuests(guests){
   const box=document.getElementById('guestbox');if(!box)return;
   const arr=guests.filter(g=>g.arrived).length;
   const rows=guests.map(g=>{
     const sub=[g.username?'@'+escH(g.username):'',escH(g.note||'')].filter(Boolean).join(' · ');
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(139,0,255,.1)">
-      <button onclick="toggleGuest(${g.id},${g.arrived?0:1})" style="flex-shrink:0;width:32px;height:32px;border-radius:9px;border:1px solid ${g.arrived?'rgba(0,255,136,.4)':'rgba(139,0,255,.3)'};background:${g.arrived?'rgba(0,255,136,.15)':'transparent'};color:${g.arrived?'#7CFC9B':'#664488'};font-size:15px;cursor:pointer">${g.arrived?'✓':''}</button>
-      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:#e8d4ff;${g.arrived?'opacity:.55':''}">${escH(g.name||('@'+(g.username||''))||'Гость')}</div>${sub?`<div style="font-size:11px;color:#886699">${sub}</div>`:''}</div>
-      <button onclick="delGuest(${g.id})" style="flex-shrink:0;background:none;border:none;color:#7a5a8a;font-size:14px;cursor:pointer">🗑</button>
+    return `<div style="display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:14px;margin-bottom:8px;background:${g.arrived?'rgba(0,255,136,.07)':'rgba(139,0,255,.05)'};border:1px solid ${g.arrived?'rgba(0,255,136,.18)':'rgba(139,0,255,.12)'}">
+      ${gAva(g)}
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:#e8d4ff;${g.arrived?'opacity:.5':''};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(g.name||('@'+(g.username||'')))}</div>${sub?`<div style="font-size:11px;color:#886699;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div>`:''}</div>
+      <button onclick="toggleGuest(${g.id},${g.arrived?0:1})" style="flex-shrink:0;width:34px;height:34px;border-radius:11px;border:none;background:${g.arrived?'linear-gradient(135deg,#10b981,#06b6d4)':'rgba(139,0,255,.14)'};color:#fff;font-size:15px;cursor:pointer">${g.arrived?'✓':'○'}</button>
+      <button onclick="delGuest(${g.id})" style="flex-shrink:0;background:none;border:none;color:#6b4a7a;font-size:15px;cursor:pointer">✕</button>
     </div>`;
   }).join('');
   box.innerHTML=`
-    <div style="font-size:13px;font-weight:800;color:#c084fc;text-transform:uppercase;letter-spacing:.05em">📋 Список гостей</div>
-    <div style="font-size:11px;color:#886699;margin:4px 0 12px">Пришло ${arr} из ${guests.length}. Охрана видит список в сканере по тому же коду.</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-      <input class="fi" id="g-name" placeholder="ФИО или имя" style="margin-bottom:0">
-      <div style="display:flex;gap:8px">
-        <input class="fi" id="g-user" placeholder="@username (необяз.)" style="flex:1;margin-bottom:0">
-        <input class="fi" id="g-note" placeholder="Заметка (+1, VIP…)" style="flex:1;margin-bottom:0">
-      </div>
-      <button onclick="addGuest()" style="background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:12px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer">➕ Добавить в список</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:800;font-family:'Unbounded',sans-serif;background:linear-gradient(90deg,#c084fc,#ff0099);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🎟 Гостевой список</div>
+      <div style="font-size:12px;color:#886699">пришло <b style="color:#7CFC9B">${arr}</b> / ${guests.length}</div>
     </div>
-    ${guests.length?rows:'<div style="text-align:center;color:#664488;padding:14px;font-size:13px">Список пуст — добавь первого гостя</div>'}`;
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input class="fi" id="g-name" placeholder="Имя или @username" style="flex:1;margin-bottom:0">
+      <button onclick="addGuest()" style="flex-shrink:0;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:0 20px;border-radius:11px;font-size:20px;font-weight:800;cursor:pointer">＋</button>
+    </div>
+    <input class="fi" id="g-note" placeholder="Заметка (необяз.): от кого, +1, до 23:00…" style="margin-bottom:14px;font-size:13px">
+    ${guests.length?rows:'<div style="text-align:center;color:#664488;padding:18px;font-size:13px">Список пуст — впиши первого гостя</div>'}`;
 }
 async function addGuest(){
   if(!_guestEv)return;
-  const name=document.getElementById('g-name').value.trim();
-  const user=document.getElementById('g-user').value.trim();
-  const note=document.getElementById('g-note').value.trim();
-  if(!name&&!user){alert('Впиши имя или @username');return}
+  const raw=document.getElementById('g-name').value.trim();
+  const noteEl=document.getElementById('g-note');const note=noteEl?noteEl.value.trim():'';
+  if(!raw){alert('Впиши имя или @username');return}
+  let name=raw,user='';
+  if(raw[0]==='@'){user=raw.slice(1);name='';}
   const r=await P('/api/events/'+_guestEv+'/guests',{name,username:user,note});
   if(r&&r.error){alert('❌ '+r.error);return}
   loadGuests(_guestEv);
