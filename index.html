@@ -1091,7 +1091,9 @@ function openTK(){
       ${row('🔗','Ссылка в билете','В письме есть ссылка — открыть билет, переслать его себе заново или оформить возврат.')}
       ${row('🎫','На входе','Покажешь QR-код или штрих-код из билета — и тебя пропустят.')}
     </div>
-    <div style="font-size:11px;color:#554466;text-align:center;margin-top:16px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.<br>Чтобы билеты появлялись здесь — укажи в профиле тот же email, которым платишь.</div>`;
+    <button onclick="openExt('https://customer.ticketscloud.com/')" style="width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#67e8f9;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">🔄 Вернуть билет (в Ticketscloud)</button>
+    <div style="font-size:11px;color:#554466;text-align:center;margin-top:8px;line-height:1.5">Возврат оформляется в личном кабинете Ticketscloud — войди тем же email, которым покупал билет. Сроки и сумма возврата — по правилам Ticketscloud.</div>
+    <div style="font-size:11px;color:#554466;text-align:center;margin-top:14px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.<br>Чтобы билеты появлялись здесь — укажи в профиле тот же email, которым платишь.</div>`;
   showS('stk');
   loadMyTickets();
 }
