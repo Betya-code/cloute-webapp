@@ -907,7 +907,8 @@ function filterPast(list){
 let _navHist=[];
 function nav(p,back){
   hap('sel');
-  document.body.classList.remove('subview');
+  // На детали события и странице орга прячем нижнюю панель (там свои кнопки + «Назад»); на главных вкладках — показываем.
+  document.body.classList.toggle('subview', p==='d'||p==='org');
   const curEl=document.querySelector('.view.active');
   const cur=curEl?curEl.id.slice(1):null;
   if(!back&&cur&&cur!==p){
