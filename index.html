@@ -985,7 +985,7 @@ function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" v
 const _PH=['radial-gradient(120% 120% at 30% 20%,#ff2da6,#8b00ff 60%,#1b0033)','radial-gradient(120% 120% at 72% 22%,#00d4ff,#8b00ff 70%,#10001c)','radial-gradient(120% 120% at 62% 18%,#ff0099,#ff7a00 78%,#2b0010)','radial-gradient(120% 120% at 40% 28%,#a855f7,#00d4ff 82%,#0a0016)','radial-gradient(125% 95% at 75% 15%,#ff2da6,#8b00ff 48%,#1b0033)'];
 function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
 function drow(icon,col,bg,lbl,val,full){return `<div class="drow${full?' dfull':''}"><div class="dricon" style="background:${bg};color:${col}">${ic(icon,18,col)}</div><div><div class="drlbl">${lbl}</div><div class="drval">${val}</div></div></div>`;}
-function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;if(ev.reg_open)return `${ic('ticket',13,col)} ${ev.reg_count||0} идут`;return `${ic('users',13,col)} ${ev.going_count||0} идут`;}
+function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;const n=(ev.reg_count||0)+(ev.going_count||0);return `${ic(ev.reg_open?'ticket':'users',13,col)} ${n} идут`;}
 function renderFeed(list){
   const c=document.getElementById('feed');
   if(!list.length){
@@ -1260,11 +1260,10 @@ async function togGoingDetail(){
   if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.className='bbiggoing'}
   else{going.push(id);btn.textContent='✅ Я иду';btn.className='bbiggoing active'}
   localStorage.setItem('cg',JSON.stringify(going));
-  const cnt=await apiGoing(id,goingNow);
-  if(cnt!=null){
-    const goingEl=document.getElementById('d-going');
-    goingEl.textContent=cnt>0?`🙋 ${cnt} ${plural(cnt,['человек планирует','человека планируют','человек планируют'])} прийти`:'';
-  }
+  await apiGoing(id,goingNow);
+  const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
+  const goingEl=document.getElementById('d-going');
+  if(goingEl&&evo)goingEl.innerHTML=cntHTML(evo,'#9b80c4');
   applyFilters();
 }
 function togFollow(){
