@@ -6,8 +6,10 @@
 <title>CLOUTE</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23b06bff'/><stop offset='1' stop-color='%236a0dad'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><text x='16' y='23' font-family='Arial,Helvetica,sans-serif' font-size='21' font-weight='900' fill='%23fff' text-anchor='middle'>C</text></svg>">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 :root{--p:#8b00ff;--pk:#ff0099;--cy:#00d4ff;--gn:#00ff88;--dk:#080010;--cd:#12001e;--tx:#e8d4ff;--mt:#664488}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--dk);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -843,6 +845,8 @@ async function D(p){
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
+  showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
+  const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
   const token=new URLSearchParams(window.location.search).get('token');
   // Сначала — роль по подписи Telegram (надёжно при любом способе открытия)
   if(window.Telegram?.WebApp?.initData){
@@ -860,8 +864,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     if(!pf&&uid){const sp=await G('/api/profile/'+uid);if(sp?.email){pf=sp;localStorage.setItem('cpf',JSON.stringify(pf))}}
     if(!pf)showOb();
   }
-  showFeedSkeleton();
-  await loadAll();
+  await feedP;                              // дождаться ленты (как правило уже готова к этому моменту)
   // Открыть конкретное событие по deep-link из шеринга (?startev=N или Telegram start_param evN)
   try{
     const sp=(new URLSearchParams(location.search).get('startev'))||(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
@@ -1100,6 +1103,7 @@ function openTK(){
   showS('stk');
   loadMyTickets();
 }
+function loadScript(src){(window._ls=window._ls||{});return window._ls[src]||(window._ls[src]=new Promise(res=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=res;document.head.appendChild(s)}));}
 function qrImg(val){
   try{
     if(!window.qrcode)return `<div style="font-size:12px;color:#444;font-family:monospace;padding:20px">${escH(val)}</div>`;
@@ -1113,6 +1117,7 @@ async function loadMyTickets(){
   const refEl=document.getElementById('tk-refund');
   if(refEl)refEl.style.display=(d&&Array.isArray(d.tickets)&&d.tickets.some(t=>!t.free))?'block':'none';
   if(!d||!Array.isArray(d.tickets)||!d.tickets.length)return;
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
   const qrBlock=(bc)=>`
     <div style="text-align:center;margin-top:14px">
       <div style="display:inline-block;background:#fff;padding:10px;border-radius:12px">${qrImg(bc)}</div>
@@ -2260,6 +2265,5 @@ async function delEv(id){
 </script>
 <!-- Виджет продажи билетов Ticketscloud (ведёт оплату пошагово прямо в приложении) -->
 <script src="https://ticketscloud.com/static/scripts/widget/tcwidget.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </body>
 </html>
