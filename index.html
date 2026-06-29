@@ -1113,7 +1113,7 @@ function qrImg(val){
 }
 async function cancelFreeTicket(code){
   if(!code)return;
-  if(!confirm('Убрать этот билет? (откат регистрации — для перезаписи демо)'))return;
+  if(!confirm('Сдать билет? Бесплатная регистрация отменится, место освободится для других.'))return;
   const r=await P('/api/tickets/'+encodeURIComponent(code)+'/cancel',{});
   if(r&&r.error){alert('❌ '+r.error);return}
   if(r&&r.event_id!=null){const i=myReg.indexOf(r.event_id);if(i>=0){myReg.splice(i,1);localStorage.setItem('myreg',JSON.stringify(myReg));}}
