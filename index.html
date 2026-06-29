@@ -813,7 +813,17 @@ function priceChip(ev){
   return'<span class="ec-price"'+st+'>'+escH(s)+'</span>';
 }
 
-function _hdr(extra){const h=extra||{};const d=window.Telegram?.WebApp?.initData;if(d)h['X-Telegram-Init-Data']=d;return h}
+function _hdr(extra){const h=extra||{};const d=window.Telegram?.WebApp?.initData;if(d)h['X-Telegram-Init-Data']=d;const a=localStorage.getItem('asec');if(a)h['X-Admin-Secret']=a;return h}
+async function gateAdmin(){
+  let r=await G('/api/admin/check');
+  if(r&&r.ok)return true;
+  const code=prompt('🔐 Введи админ-код:');
+  if(!code)return false;
+  localStorage.setItem('asec',code.trim());
+  r=await G('/api/admin/check');
+  if(r&&r.ok){hap('light');return true}
+  localStorage.removeItem('asec');alert('❌ Неверный админ-код');return false;
+}
 async function G(p){
   try{
     const r=await Promise.race([
@@ -1580,6 +1590,7 @@ function renderCab(){
 
 // ── ADMIN ────────────────────────────────────────────────
 async function openAS(){
+  if(!await gateAdmin())return;
   await renderASStats();
   showS('sas');
   // Автообновление каждые 30 сек
@@ -1630,7 +1641,7 @@ async function renderASStats(){
     if(label)label.textContent='Обновлено в '+time;
   }
 }
-async function openAO(){const d=await G('/api/admin/orgs');if(Array.isArray(d))orgs=d;renderOL();showS('sao')}
+async function openAO(){if(!await gateAdmin())return;const d=await G('/api/admin/orgs');if(Array.isArray(d))orgs=d;renderOL();showS('sao')}
 function renderOL(){
   const c=document.getElementById('ol');
   if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i">🏢</div><div class="empty-t">Организаторов пока нет</div></div>';return}
@@ -1665,7 +1676,7 @@ async function rmOrg(tid){
   if(!confirm('Удалить организатора?'))return;
   await D('/api/orgs/'+tid);const d=await G('/api/orgs');if(d)orgs=d;renderOL();
 }
-async function openAE(){const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='🎉 Все события';renderEL(allEvs);showS('sev')}
+async function openAE(){if(!await gateAdmin())return;const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='🎉 Все события';renderEL(allEvs);showS('sev')}
 async function openPromo(){
   const d=await G('/api/events');
   const all=d||evs;
