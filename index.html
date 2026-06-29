@@ -1111,6 +1111,14 @@ function qrImg(val){
     return `<img src="${qr.createDataURL(5,2)}" alt="QR билета" style="width:172px;height:172px;image-rendering:pixelated;display:block">`;
   }catch(e){return `<div style="font-size:12px;color:#444;font-family:monospace;padding:20px">${escH(val)}</div>`}
 }
+async function cancelFreeTicket(code){
+  if(!code)return;
+  if(!confirm('Убрать этот билет? (откат регистрации — для перезаписи демо)'))return;
+  const r=await P('/api/tickets/'+encodeURIComponent(code)+'/cancel',{});
+  if(r&&r.error){alert('❌ '+r.error);return}
+  if(r&&r.event_id!=null){const i=myReg.indexOf(r.event_id);if(i>=0){myReg.splice(i,1);localStorage.setItem('myreg',JSON.stringify(myReg));}}
+  hap('light');loadMyTickets();
+}
 async function loadMyTickets(){
   const box=document.getElementById('tk-real');if(!box)return;
   const d=await G('/api/my-tickets');
@@ -1131,7 +1139,10 @@ async function loadMyTickets(){
           <div style="font-size:14px;font-weight:700;color:#e8d4ff">${escH(t.event)}</div>
           <div style="font-size:12px;color:#886699;margin-top:2px">${escH([t.date,t.venue].filter(Boolean).join(' · '))}</div>
         </div>
-        <div style="font-size:11px;${t.free?'color:#7fe4ff;background:rgba(0,212,255,.12)':'color:#7CFC9B;background:rgba(60,255,130,.1)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'🆓 бесплатно'):'оплачено'}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <div style="font-size:11px;${t.free?'color:#7fe4ff;background:rgba(0,212,255,.12)':'color:#7CFC9B;background:rgba(60,255,130,.1)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'🆓 бесплатно'):'оплачено'}</div>
+          ${t.free?`<button onclick="cancelFreeTicket('${escH((t.barcodes&&t.barcodes[0])||'')}')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`:`<button onclick="openExt('https://customer.ticketscloud.com/')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`}
+        </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,0,255,.12)">
         <div style="font-size:12px;color:#cbb6e6">🎫 ${escH(t.count)} билет(ов)</div>
