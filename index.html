@@ -1220,9 +1220,18 @@ function openEv(id){
       // нашу фиолетовую кнопку, а реальный клик ловит оверлей и открывает оплату TC.
       tcBuy.setAttribute('data-tc-event',tcw.event);
       tcBuy.setAttribute('data-tc-token',tcw.token);
-      tcBuy.style.display='block';
-      btnBuy.onclick=null;
-      tcInit();
+      // ВАЖНО (фолбэк): наша кнопка всегда умеет открыть страницу оплаты TC напрямую —
+      // на случай если внешний скрипт виджета не загрузился (медленная сеть / блокировка /
+      // адблок). Иначе оверлей оставался бы «мёртвым» и билет было бы не купить.
+      btnBuy.onclick=buyTicket;
+      if(window.ticketsCloudWidget&&window.ticketsCloudWidget.init){
+        // Виджет доступен → показываем оверлей, оплата идёт пошагово внутри приложения.
+        tcBuy.style.display='block';
+        tcInit();
+      }else{
+        // Виджета нет → оверлей прячем, работает прямая кнопка (открывает оплату TC).
+        tcBuy.style.display='none';
+      }
     }else{
       // Обычная ссылка на билеты — оверлей не нужен, работает наша кнопка
       btnBuy.onclick=buyTicket;
