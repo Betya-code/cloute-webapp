@@ -83,9 +83,14 @@ const k = new URLSearchParams(location.search).get('k');
 if (k) document.getElementById('code').value = k.trim().toUpperCase();
 
 async function api(path, body){
-  const r = await fetch(API + path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-  let d = {}; try { d = await r.json(); } catch(e) {}
-  return {ok:r.ok, status:r.status, data:d};
+  try {
+    const r = await fetch(API + path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    let d = {}; try { d = await r.json(); } catch(e) {}
+    return {ok:r.ok, status:r.status, data:d};
+  } catch(e) {
+    // Сеть отвалилась — не даём промису «упасть», иначе сканер завис бы навсегда
+    return {ok:false, status:0, data:{}};
+  }
 }
 
 async function startScan(){
@@ -181,9 +186,12 @@ async function manualEntry(){
 }
 
 async function checkTicket(ticket_code){
+  if(busy) return;
   busy = true;
-  const r = await api('/api/scan', {code:accessCode, ticket_code});
-  busy = false;
+  let r;
+  try { r = await api('/api/scan', {code:accessCode, ticket_code}); }
+  finally { busy = false; }   // сбрасываем ВСЕГДА — сканер не должен залипать
+  if(!r || r.status === 0){ showResult('warn','⚠️','Нет сети — повтори', ''); beep(false); return; }
   const s = r.data.status;
   if(s === 'ok'){ showResult('ok','✅','Проход разрешён', r.data.name); updateCounters(r.data.checked_in, r.data.total); beep(true); }
   else if(s === 'used'){ showResult('warn','⚠️','Уже использован', (r.data.name||'') + (r.data.used_at? ' · '+fmtTime(r.data.used_at):'')); beep(false); }
