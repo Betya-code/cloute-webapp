@@ -1126,7 +1126,18 @@ async function cancelFreeTicket(code){
   if(!confirm('Сдать билет? Бесплатная регистрация отменится, место освободится для других.'))return;
   const r=await P('/api/tickets/'+encodeURIComponent(code)+'/cancel',{});
   if(r&&r.error){alert('❌ '+r.error);return}
-  if(r&&r.event_id!=null){const i=myReg.indexOf(r.event_id);if(i>=0){myReg.splice(i,1);localStorage.setItem('myreg',JSON.stringify(myReg));}}
+  if(r&&r.event_id!=null){
+    const eid=r.event_id;
+    const i=myReg.indexOf(eid);if(i>=0){myReg.splice(i,1);localStorage.setItem('myreg',JSON.stringify(myReg));}
+    // Счётчик «идут» = регистрации + «иду». При возврате билета уменьшаем регистрации,
+    // чтобы число откатилось сразу (на сервере reg_count уже пересчитается при загрузке).
+    const e1=evs.find(e=>e.id===eid),e2=allEvs.find(e=>e.id===eid);
+    if(e1)e1.reg_count=Math.max(0,(e1.reg_count||0)-1);
+    if(e2)e2.reg_count=Math.max(0,(e2.reg_count||0)-1);
+    // если открыта деталь этого события — обновим счётчик в шапке
+    if(curEv===eid){const evo=e1||e2;const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML=cntHTML(evo,'#9b80c4');}
+    applyFilters();
+  }
   hap('light');loadMyTickets();
 }
 async function loadMyTickets(){
