@@ -731,7 +731,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
 <script>
 const API='https://cloute.ru';
-let tgU=null,role='user',uid=0,curEv=null,curOrgId=null;
+let tgU=null,role='user',uid=0,curEv=null,curOrgId=null,authTok='';
 let evs=[],orgs=[],allEvs=[];
 let favs=JSON.parse(localStorage.getItem('cf')||'[]');
 let going=JSON.parse(localStorage.getItem('cg')||'[]');
@@ -813,7 +813,7 @@ function priceChip(ev){
   return'<span class="ec-price"'+st+'>'+escH(s)+'</span>';
 }
 
-function _hdr(extra){const h=extra||{};const d=window.Telegram?.WebApp?.initData;if(d)h['X-Telegram-Init-Data']=d;const a=localStorage.getItem('asec');if(a)h['X-Admin-Secret']=a;return h}
+function _hdr(extra){const h=extra||{};const d=window.Telegram?.WebApp?.initData;if(d)h['X-Telegram-Init-Data']=d;if(authTok)h['X-Auth-Token']=authTok;const a=localStorage.getItem('asec');if(a)h['X-Admin-Secret']=a;return h}
 async function gateAdmin(){
   let r=await G('/api/admin/check');
   if(r&&r.ok)return true;
@@ -858,6 +858,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
   const token=new URLSearchParams(window.location.search).get('token');
+  // Токен из ссылки мини-аппа — запасная авторизация для получения/возврата билета
+  // (шлём его в X-Auth-Token, если клиент не отдал initData). Кэшируем на будущее.
+  authTok=token||localStorage.getItem('atok')||'';
+  if(token)localStorage.setItem('atok',token);
   // Сначала — роль по подписи Telegram (надёжно при любом способе открытия)
   if(window.Telegram?.WebApp?.initData){
     const me=await G('/api/me');
@@ -1275,9 +1279,9 @@ function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light'
 function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
 async function getFreeTicket(id){
   hap('medium');
-  // Билет выдаётся только по подтверждённому входу Telegram (initData). Если его нет
-  // (открыли вне бота / по старой ссылке / старый клиент) — ловим заранее и подсказываем.
-  if(!window.Telegram?.WebApp?.initData){alert(tgReopenMsg());return}
+  // Билет выдаётся по подписи Telegram (initData) ИЛИ по токену из ссылки мини-аппа.
+  // Если нет ни того, ни другого (открыли вне бота / по старой ссылке) — подсказываем.
+  if(!window.Telegram?.WebApp?.initData&&!authTok){alert(tgReopenMsg());return}
   const btn=document.getElementById('btn-going');const old=btn.textContent;
   btn.disabled=true;btn.textContent='Получаем…';
   const r=await P('/api/events/'+id+'/register',{});
