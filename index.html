@@ -1260,13 +1260,25 @@ function openEv(id){
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
+// Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
+function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
 async function getFreeTicket(id){
   hap('medium');
+  // Билет выдаётся только по подтверждённому входу Telegram (initData). Если его нет
+  // (открыли вне бота / по старой ссылке / старый клиент) — ловим заранее и подсказываем.
+  if(!window.Telegram?.WebApp?.initData){alert(tgReopenMsg());return}
   const btn=document.getElementById('btn-going');const old=btn.textContent;
   btn.disabled=true;btn.textContent='Получаем…';
   const r=await P('/api/events/'+id+'/register',{});
   btn.disabled=false;
-  if(!r||r.error){btn.textContent=old;alert('❌ '+((r&&r.error)||'Не удалось получить билет. Попробуй ещё раз.'));return}
+  if(!r||r.error){
+    btn.textContent=old;
+    const msg=(r&&r.error)||'';
+    if(!r){alert('Сеть барахлит. Проверь интернет и попробуй ещё раз.');}
+    else if(/авториз/i.test(msg)){alert(tgReopenMsg());}   // 401 — вход не подтвердился
+    else{alert('❌ '+msg);}
+    return;
+  }
   if(!myReg.includes(id)){myReg.push(id);localStorage.setItem('myreg',JSON.stringify(myReg));}
   if(!r.already){const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);if(e1)e1.reg_count=(e1.reg_count||0)+1;if(e2)e2.reg_count=(e2.reg_count||0)+1;}
   const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
