@@ -1020,11 +1020,11 @@ function renderFeed(list){
   }
 }
 function hlCard(ev){
-  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge"><span class="flame">🔥</span> Хит</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span><span style="font-size:12px;color:#fff;background:rgba(10,0,22,.55);padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:4px;flex-shrink:0">${cntHTML(ev,'#fff')}</span></div></div></div>`;
+  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge"><span class="flame">🔥</span> Хит</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;margin-top:7px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span></div></div></div>`;
 }
 function ecCard(ev){
   const isFav=favs.includes(ev.id);
-  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#9b80c4;display:flex;align-items:center;gap:4px">${cntHTML(ev,'#9b80c4')}</span>${priceChip(ev)}</div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button></div>`;
+  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px">${priceChip(ev)}</div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button></div>`;
 }
 
 // Нормализация ссылок орга: добавляем схему, понимаем @ник и t.me
@@ -1139,7 +1139,7 @@ async function cancelFreeTicket(code){
     if(e1)e1.reg_count=Math.max(0,(e1.reg_count||0)-1);
     if(e2)e2.reg_count=Math.max(0,(e2.reg_count||0)-1);
     // если открыта деталь этого события — обновим счётчик в шапке
-    if(curEv===eid){const evo=e1||e2;const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML=cntHTML(evo,'#9b80c4');}
+    if(curEv===eid){const evo=e1||e2;const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML='';}
     applyFilters();
   }
   hap('light');loadMyTickets();
@@ -1211,7 +1211,7 @@ function openEv(id){
   if(ev.age_limit)dbadges+=`<span class="dbadge dba">${escH(ev.age_limit)}</span>`;
   document.getElementById('d-badges').innerHTML=dbadges;
   document.getElementById('d-desc').textContent=ev.description||'';
-  document.getElementById('d-going').innerHTML=cntHTML(ev,'#9b80c4');
+  document.getElementById('d-going').innerHTML='';
   document.getElementById('d-rows').innerHTML=
     drow('cal','#c89bff','rgba(139,0,255,.16)','Дата',fmtDate(ev.date)+` <span style="color:#664488;font-weight:400;font-size:12px">· ${escH(ev.date)}</span>`)+
     drow('clock','#ff86c7','rgba(255,0,153,.14)','Время',escH(ev.time))+
@@ -1297,7 +1297,7 @@ async function getFreeTicket(id){
   if(!myReg.includes(id)){myReg.push(id);localStorage.setItem('myreg',JSON.stringify(myReg));}
   if(!r.already){const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);if(e1)e1.reg_count=(e1.reg_count||0)+1;if(e2)e2.reg_count=(e2.reg_count||0)+1;}
   const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
-  const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML=cntHTML(evo,'#9b80c4');
+  const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML='';
   btn.textContent='✅ Билет у тебя';btn.className='bbiggoing active';btn.onclick=()=>openTK();
   applyFilters();
   alert(r.already?'У тебя уже есть билет на это событие — он в «Мои билеты».':'🎟 Билет получен! Он в разделе «Мои билеты».');
@@ -1333,7 +1333,7 @@ async function togGoingDetail(){
   }
   const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
   const goingEl=document.getElementById('d-going');
-  if(goingEl&&evo)goingEl.innerHTML=cntHTML(evo,'#9b80c4');
+  if(goingEl&&evo)goingEl.innerHTML='';
   applyFilters();
 }
 function togFollow(){
@@ -1361,7 +1361,6 @@ function openOrgPage(){
         <div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div>
         <div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>
         <div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div>
-        ${ev.views?`<div style="font-size:10px;color:#554466;margin-top:4px">👁 ${ev.views} просмотров · 🙋 ${ev.going_count||0} идут</div>`:''}
       </div>`).join('');
   nav('org');
 }
