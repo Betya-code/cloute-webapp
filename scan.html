@@ -62,11 +62,11 @@
     </div>
     <div id="camsec">
       <div id="reader"></div>
-      <button class="bg" onclick="manualEntry()">⌨️ Ввести код билета вручную</button>
+      <button class="bg" onclick="manualEntry()">Ввести код вручную</button>
       <div class="err-msg" id="scan-err"></div>
     </div>
-    <div class="glabel">📋 Гостевой список</div>
-    <input id="g-search" placeholder="🔍 Поиск по имени или @нику" oninput="renderGuestList()" style="text-transform:none;text-align:left;letter-spacing:normal;font-size:15px;font-weight:400;margin-bottom:10px">
+    <div class="glabel">Гостевой список</div>
+    <input id="g-search" placeholder="Поиск по имени или @нику" oninput="renderGuestList()" style="text-transform:none;text-align:left;letter-spacing:normal;font-size:15px;font-weight:400;margin-bottom:10px">
     <div id="glist"></div>
     <button class="bg" onclick="stopScan()" style="margin-top:16px">← Сменить событие</button>
   </div>
@@ -114,7 +114,7 @@ async function startScan(){
 
 function updateCounters(ci, total){
   const el = document.getElementById('ev-cnt');
-  if(typeof ci === 'number' && typeof total === 'number') el.textContent = `✅ ${ci} / ${total}`;
+  if(typeof ci === 'number' && typeof total === 'number') el.textContent = `${ci} / ${total}`;
 }
 
 function startCamera(){

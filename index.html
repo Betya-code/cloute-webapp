@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
-:root{--p:#8b00ff;--pk:#b58bf0;--cy:#00d4ff;--gn:#00ff88;--dk:#0a0a0b;--cd:#151517;--tx:#f4f4f6;--mt:#8a8a92;--ac:#7c4dff;--hair:rgba(255,255,255,.09)}
+:root{--p:#8b00ff;--pk:#b58bf0;--cy:#b58bf0;--gn:#34d399;--dk:#0a0a0b;--cd:#151517;--tx:#f4f4f6;--mt:#8a8a92;--ac:#7c4dff;--hair:rgba(255,255,255,.09)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--dk);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 60%);pointer-events:none;z-index:0}
@@ -137,7 +137,7 @@ button:active{transform:scale(.96);opacity:.85}
 .pov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(5,0,12,.97),rgba(5,0,12,.7) 60%,transparent);padding:20px 16px 16px}
 .pbdg{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:8px}
 .ph{background:rgba(10,10,11,.5);border:1px solid rgba(255,255,255,.5);color:#fff}
-.pfree{background:rgba(0,255,136,.9);color:#000}
+.pfree{background:rgba(255,255,255,.92);color:#000}
 .page{background:rgba(255,100,0,.85);color:#fff}
 .pname{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px}
 .porg{font-size:12px;color:#b58bf0;font-weight:600;margin-bottom:4px}
@@ -283,7 +283,7 @@ button:active{transform:scale(.96);opacity:.85}
 .fb{display:none;background:var(--cd);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;margin-bottom:14px}
 .fb.open{display:block}
 .fi{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.13);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
-.freechk{display:flex;align-items:center;gap:8px;font-size:13px;color:#c8a8e8;margin:-2px 0 8px 2px;cursor:pointer;user-select:none}
+.freechk{display:flex;align-items:center;gap:8px;font-size:13px;color:#cbb6f0;margin:-2px 0 8px 2px;cursor:pointer;user-select:none}
 .freechk input{width:17px;height:17px;accent-color:var(--p);cursor:pointer}
 .fi::placeholder{color:#8a8a92}
 .fsel{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.13);color:#fff;padding:11px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px}
@@ -292,7 +292,7 @@ button:active{transform:scale(.96);opacity:.85}
 .bcanc{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#888;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
 .badd{width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(255,255,255,.12);margin-bottom:14px}
 .badd.cy{background:var(--ac)}
-.pulbl{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(0,212,255,.05);border:1px dashed rgba(0,212,255,.3);border-radius:12px;padding:14px;cursor:pointer;color:#b58bf0;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px}
+.pulbl{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16);border-radius:12px;padding:14px;cursor:pointer;color:#b58bf0;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px}
 .pprev{display:none;margin-bottom:8px;border-radius:12px;overflow:hidden;max-height:200px}
 .pprev img{width:100%;object-fit:cover;border-radius:12px}
 .li{background:var(--cd);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -311,7 +311,7 @@ button:active{transform:scale(.96);opacity:.85}
 
 /* EMPTY */
 .empty{text-align:center;padding:60px 24px;color:#8a8a92}
-.empty-i{font-size:44px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-i{font-size:40px;filter:grayscale(1);opacity:.5;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .empty-t{font-size:14px;line-height:1.6;color:#8a8a92}
 .bretry{margin-top:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:#b58bf0;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .bretry:active{background:rgba(255,255,255,.16)}
@@ -319,7 +319,7 @@ button:active{transform:scale(.96);opacity:.85}
 .ptr.show{height:32px;line-height:32px}
 .ssug-h{font-size:11px;font-weight:700;color:#8a8a92;text-transform:uppercase;letter-spacing:.06em;margin:4px 0 10px}
 .ssug-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.ssug-chip{background:var(--cd);border:1px solid rgba(255,255,255,.13);color:#c8a8e8;padding:8px 14px;border-radius:18px;font-size:13px;cursor:pointer}
+.ssug-chip{background:var(--cd);border:1px solid rgba(255,255,255,.13);color:#cbb6f0;padding:8px 14px;border-radius:18px;font-size:13px;cursor:pointer}
 .ssug-chip:active{background:rgba(255,255,255,.12)}
 
 /* BOTTOM NAV */
@@ -343,7 +343,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
   <div style="font-size:14px;color:#8a8a92;margin-bottom:32px">Добро пожаловать! Заполни профиль 👇</div>
   <div style="text-align:center;margin-bottom:28px">
-    <div id="ob-ava" style="width:80px;height:80px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;overflow:hidden">👤</div>
+    <div id="ob-ava" style="width:80px;height:80px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;overflow:hidden"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div style="font-size:11px;color:#8a8a92">Аватарка из Telegram</div>
   </div>
   <div style="margin-bottom:24px">
@@ -359,7 +359,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <input type="checkbox" id="ob-consent" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#8b00ff">
     <span style="font-size:12px;color:#8a8a92;line-height:1.5">Я даю своё согласие на обработку своих персональных данных в соответствии с <span style="color:#b58bf0;text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacy()">Политикой конфиденциальности</span></span>
   </label>
-  <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 8px 30px rgba(255,255,255,.14)">🚀 Войти в CLOUTE</button>
+  <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 8px 30px rgba(255,255,255,.14)">Войти в CLOUTE</button>
 </div>
 </div>
 
@@ -375,7 +375,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 <!-- HOME -->
 <div id="vh" class="view active">
   <div class="hdr">
-    <div class="hdr-top"><div class="logo">CLOUTE</div><div id="rbadge" class="rbadge ru">👤 Гость</div></div>
+    <div class="hdr-top"><div class="logo">CLOUTE</div><div id="rbadge" class="rbadge ru">Гость</div></div>
     <div class="tabs">
       <div class="tab active" onclick="ftab(this,'all')">Все</div>
       <div class="tab" onclick="ftab(this,'today')">Сегодня</div>
@@ -386,7 +386,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
   <!-- Сегодня -->
   <div class="today-section" id="today-section" style="display:none">
-    <div class="section-hdr"><div class="section-title">Сегодня 🔥</div><div class="section-sub" id="today-count"></div></div>
+    <div class="section-hdr"><div class="section-title">Сегодня</div><div class="section-sub" id="today-count"></div></div>
     <div class="today-scroll" id="today-scroll"></div>
   </div>
   <div class="feed" id="feed"><div style="text-align:center;padding:40px;color:#8a8a92">Загружаем тусовки...</div></div>
@@ -401,7 +401,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <button class="bback" onclick="navBack()">← Назад</button>
     <div class="dtop">
       <button class="bcircle" id="btn-fav" onclick="togFav()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-      <button class="bcircle" onclick="shareEv()">🔗</button>
+      <button class="bcircle" onclick="shareev()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
     </div>
     <div class="dh-info"><div id="d-badges"></div><div class="dtitle" id="d-name"></div></div>
   </div>
@@ -409,7 +409,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="dorow"><div class="dorglbl" id="d-org" onclick="openOrgPage()"></div><div class="dgoing-count" id="d-going"></div></div>
     <div class="dinfo" id="d-rows"></div>
     <button class="droute" id="btn-route" onclick="openRoute()">🗺 Построить маршрут</button>
-    <button class="droute" id="btn-tg" style="display:none;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#b58bf0" onclick="openTgChannel()">✈️ Telegram-канал события</button>
+    <button class="droute" id="btn-tg" style="display:none;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#b58bf0" onclick="openTgChannel()">Telegram-канал события</button>
     <div class="ddesc" id="d-desc"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">Пойду</button>
@@ -428,11 +428,11 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
   <div class="org-banner">
     <div style="height:20px"></div>
-    <div class="org-logo" id="org-logo">🏢</div>
+    <div class="org-logo" id="org-logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg></div>
     <div class="org-name" id="org-name"></div>
     <div class="org-desc" id="org-desc"></div>
     <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-follow" id="btn-follow" onclick="togFollow()">✈️ Telegram канал</button>
+      <button class="btn-follow" id="btn-follow" onclick="togFollow()">Telegram канал</button>
       <div style="font-size:12px;color:#8a8a92" id="org-followers"></div>
     </div>
   </div>
@@ -444,7 +444,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
 <!-- CALENDAR -->
 <div id="vc" class="view">
-  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">📅 Календарь</div></div></div>
+  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">Календарь</div></div></div>
   <div class="cw">
     <div class="cm"><button class="cmnav" onclick="shiftMonth(-1)">‹</button><span id="cal-m"></span><button class="cmnav" onclick="shiftMonth(1)">›</button></div>
     <div class="cg" id="cal-g"></div>
@@ -454,9 +454,9 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
 <!-- SEARCH -->
 <div id="vs" class="view">
-  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">🔍 Поиск</div></div></div>
+  <div class="hdr"><div class="hdr-top"><div class="logo">CLOUTE</div><div class="rbadge ru">Поиск</div></div></div>
   <div class="sw">
-    <input class="si" placeholder="🔍 Название, место или организатор..." oninput="doSearch(this.value)" onchange="saveSearch(this.value)">
+    <input class="si" placeholder="Название, место или организатор..." oninput="doSearch(this.value)" onchange="saveSearch(this.value)">
     <div id="sr"></div>
   </div>
 </div>
@@ -465,7 +465,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 <div id="vk" class="view">
   <div id="sm" class="sv active">
     <div class="ch">
-      <div class="cava" id="cava">👤</div>
+      <div class="cava" id="cava"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
       <div class="cname" id="cname">...</div>
       <div class="cuname" id="cuname"></div>
       <div class="crole" id="crole"></div>
@@ -476,10 +476,10 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- PROFILE EDIT -->
   <div id="spf" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">👤 Мой профиль</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Мой профиль</div></div>
     <div class="sbody">
       <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
-        <div id="pf-ava" onclick="document.getElementById('pf-ava-inp').click()" style="width:90px;height:90px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;cursor:pointer">👤</div>
+        <div id="pf-ava" onclick="document.getElementById('pf-ava-inp').click()" style="width:90px;height:90px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;cursor:pointer"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <input type="file" id="pf-ava-inp" accept="image/*" style="display:none" onchange="prevAva(this)">
         <div style="font-size:12px;color:#8a8a92;margin-top:8px;cursor:pointer" onclick="document.getElementById('pf-ava-inp').click()">Нажми чтобы изменить фото</div>
       </div>
@@ -490,19 +490,19 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
           <div style="font-size:11px;color:#8a8a92;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Telegram</div>
           <div id="pf-tg" style="font-size:13px;color:#b58bf0"></div>
         </div>
-        <button onclick="savePf()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(255,255,255,.12)">💾 Сохранить профиль</button>
+        <button onclick="savePf()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(255,255,255,.12)">Сохранить профиль</button>
       </div>
     </div>
   </div>
 
   <!-- PROMOTION -->
   <div id="sprom" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🔥 Продвижение</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Продвижение</div></div>
     <div class="sbody">
       <div style="background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:16px;margin-bottom:16px">
         <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Как работает продвижение</div>
         <div style="font-size:12px;color:#8a8a92;line-height:1.7">
-          🔥 Событие показывается <b style="color:#fff">первым</b> в ленте<br>
+          Событие показывается <b style="color:#fff">первым</b> в ленте<br>
           📌 Помечается значком <b style="color:#cbb6f0">"Рекомендуем"</b><br>
           ⏰ Ты сам управляешь когда включать и выключать
         </div>
@@ -514,7 +514,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- ADMIN STATS -->
   <div id="sas" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📊 Статистика</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Статистика</div></div>
     <div class="sgrid">
       <div class="scard"><div class="snum" id="as-e">0</div><div class="slbl">Событий</div></div>
       <div class="scard c"><div class="snum" id="as-o">0</div><div class="slbl">Организаторов</div></div>
@@ -524,7 +524,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <!-- Топ событий по просмотрам -->
     <div style="padding:0 14px 14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">🔥 Топ по просмотрам</div>
+        <div style="font-size:11px;font-weight:700;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">Топ по просмотрам</div>
         <div style="font-size:10px;color:#443355" id="as-update-time"></div>
       </div>
       <div id="as-top"></div>
@@ -533,13 +533,13 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- ADMIN ORGS -->
   <div id="sao" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🏢 Организаторы</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Организаторы</div></div>
     <div class="sbody">
       <button class="badd cy" onclick="tog('fo')">➕ Добавить организатора</button>
       <div class="fb" id="fo">
         <div style="font-size:12px;color:#b58bf0;margin-bottom:10px;line-height:1.6">ℹ️ Организатор должен сначала написать <b>/start</b> боту</div>
         <input class="fi" id="fo-un" placeholder="@username организатора">
-        <input class="fi" id="fo-nm" placeholder="🏢 Название организации">
+        <input class="fi" id="fo-nm" placeholder="Название организации">
         <div class="frow"><button class="bcanc" onclick="tog('fo')">Отмена</button><button class="bsave" id="fo-btn" onclick="saveOrg()">Добавить</button></div>
       </div>
       <div id="ol"></div>
@@ -548,35 +548,35 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- EVENTS (admin/org) -->
   <div id="sev" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit" id="sev-t">🎉 События</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit" id="sev-t">События</div></div>
     <div class="sbody">
       <button class="badd" onclick="tog('fev')">➕ Добавить событие</button>
       <div class="fb" id="fev">
         <div class="pprev" id="pprev"><img id="pprev-img" src="" alt=""></div>
-        <label class="pulbl">📸 Выбрать афишу из галереи<input type="file" accept="image/*" onchange="prevPost(this)" style="display:none"></label>
-        <input class="fi" id="fe-pu" placeholder="🔗 Или вставь ссылку на афишу">
-        <input class="fi" id="fe-nm" placeholder="🎉 Название *">
-        <input class="fi" id="fe-dt" placeholder="📅 Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+        <label class="pulbl">Выбрать афишу из галереи<input type="file" accept="image/*" onchange="prevPost(this)" style="display:none"></label>
+        <input class="fi" id="fe-pu" placeholder="Или вставь ссылку на афишу">
+        <input class="fi" id="fe-nm" placeholder="Название *">
+        <input class="fi" id="fe-dt" placeholder="Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
         <div style="display:flex;gap:8px">
           <input class="fi" id="fe-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
           <input class="fi" id="fe-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
         </div>
         <div style="height:8px"></div>
-        <input class="fi" id="fe-vn" placeholder="📍 Место *">
-        <input class="fi" id="fe-pr" inputmode="numeric" placeholder="💵 Цена в рублях (число)">
-        <label class="freechk"><input type="checkbox" id="fe-free" onchange="togFreeInput('fe')"> 🆓 Бесплатный вход</label>
+        <input class="fi" id="fe-vn" placeholder="Место *">
+        <input class="fi" id="fe-pr" inputmode="numeric" placeholder="Цена в рублях (число)">
+        <label class="freechk"><input type="checkbox" id="fe-free" onchange="togFreeInput('fe')"> Бесплатный вход</label>
         <div id="fe-regwrap" style="display:none">
-          <label class="freechk"><input type="checkbox" id="fe-reg" onchange="togRegInput('fe')"> 🎟 Регистрация по билетам (QR на входе)</label>
+          <label class="freechk"><input type="checkbox" id="fe-reg" onchange="togRegInput('fe')"> Регистрация по билетам (QR на входе)</label>
           <input class="fi" id="fe-reglim" inputmode="numeric" placeholder="🔢 Лимит мест (пусто = без лимита)" style="display:none">
         </div>
-        <input class="fi" id="fe-lk" placeholder="🔗 Ссылка на билеты">
-        <input class="fi" id="fe-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
-        <textarea class="fi" id="fe-dc" rows="3" placeholder="📝 Описание"></textarea>
+        <input class="fi" id="fe-lk" placeholder="Ссылка на билеты">
+        <input class="fi" id="fe-tg" placeholder="Telegram канал (https://t.me/...)">
+        <textarea class="fi" id="fe-dc" rows="3" placeholder="Описание"></textarea>
         <select class="fsel" id="fe-em">
-          <option value="🎉">🎉 Вечеринка</option>
+          <option value="🎉">Вечеринка</option>
           <option value="🌙">🌙 Ночной клуб</option>
           <option value="🎵">🎵 Концерт</option>
-          <option value="🔥">🔥 Горячее</option>
+          <option value="🔥">Горячее</option>
           <option value="🌊">🌊 Open air</option>
           <option value="🎸">🎸 Живая музыка</option>
         </select>
@@ -587,7 +587,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
           <option value="18+">18+</option>
         </select>
         <div class="frow">
-          <button class="bcanc" onclick="saveDraft()">💾 Черновик</button>
+          <button class="bcanc" onclick="saveDraft()">Черновик</button>
           <button class="bsave" id="fev-btn" onclick="saveEv()">Опубликовать</button>
         </div>
       </div>
@@ -597,23 +597,23 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- ORG APPLICATION -->
   <div id="soa" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🏢 Стать организатором</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Стать организатором</div></div>
     <div class="sbody">
       <div style="background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:16px;margin-bottom:20px">
         <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Размести свои мероприятия в CLOUTE</div>
         <div style="font-size:12px;color:#8a8a92;line-height:1.7">
-          🎉 Бесплатное размещение событий<br>
-          📊 Статистика просмотров<br>
+          Бесплатное размещение событий<br>
+          Статистика просмотров<br>
           👥 Аудитория молодёжи Москвы
         </div>
       </div>
       <div id="soa-form">
-        <input class="fi" id="oa-name" placeholder="🏢 Название организации *">
-        <textarea class="fi" id="oa-desc" rows="2" placeholder="📝 Что организуете? (вечеринки, концерты...) *"></textarea>
-        <input class="fi" id="oa-social" placeholder="🔗 Ссылка на канал/соцсеть (VK, Telegram, сайт) *">
+        <input class="fi" id="oa-name" placeholder="Название организации *">
+        <textarea class="fi" id="oa-desc" rows="2" placeholder="Что организуете? (вечеринки, концерты...) *"></textarea>
+        <input class="fi" id="oa-social" placeholder="Ссылка на канал/соцсеть (VK, Telegram, сайт) *">
         <input class="fi" id="oa-contact" placeholder="📞 Контакт для связи (телефон или @username) *">
         <button id="oa-btn" onclick="submitOrgApp()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(255,255,255,.12)">
-          📋 Отправить заявку
+          Отправить заявку
         </button>
       </div>
       <div id="soa-success" style="display:none;text-align:center;padding:30px 0">
@@ -627,7 +627,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- DRAFTS -->
   <div id="sdr" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📝 Черновики</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Черновики</div></div>
     <div class="sbody" id="drl"></div>
   </div>
 
@@ -636,28 +636,28 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">✏️ Редактировать</div></div>
     <div class="sbody">
       <div class="pprev" id="eprev"><img id="eprev-img" src="" alt=""></div>
-      <label class="pulbl">📸 Изменить афишу<input type="file" accept="image/*" onchange="prevEpost(this)" style="display:none"></label>
-      <input class="fi" id="ee-pu" placeholder="🔗 Или вставь ссылку на афишу">
-      <input class="fi" id="ee-nm" placeholder="🎉 Название *">
-      <input class="fi" id="ee-dt" placeholder="📅 Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+      <label class="pulbl">Изменить афишу<input type="file" accept="image/*" onchange="prevEpost(this)" style="display:none"></label>
+      <input class="fi" id="ee-pu" placeholder="Или вставь ссылку на афишу">
+      <input class="fi" id="ee-nm" placeholder="Название *">
+      <input class="fi" id="ee-dt" placeholder="Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
       <div style="display:flex;gap:8px">
         <input class="fi" id="ee-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
         <input class="fi" id="ee-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
       </div>
       <div style="height:8px"></div>
-      <input class="fi" id="ee-vn" placeholder="📍 Место *">
-      <input class="fi" id="ee-pr" inputmode="numeric" placeholder="💵 Цена в рублях (число)">
-      <label class="freechk"><input type="checkbox" id="ee-free" onchange="togFreeInput('ee')"> 🆓 Бесплатный вход</label>
+      <input class="fi" id="ee-vn" placeholder="Место *">
+      <input class="fi" id="ee-pr" inputmode="numeric" placeholder="Цена в рублях (число)">
+      <label class="freechk"><input type="checkbox" id="ee-free" onchange="togFreeInput('ee')"> Бесплатный вход</label>
       <div id="ee-regwrap" style="display:none">
-        <label class="freechk"><input type="checkbox" id="ee-reg" onchange="togRegInput('ee')"> 🎟 Регистрация по билетам (QR на входе)</label>
+        <label class="freechk"><input type="checkbox" id="ee-reg" onchange="togRegInput('ee')"> Регистрация по билетам (QR на входе)</label>
         <input class="fi" id="ee-reglim" inputmode="numeric" placeholder="🔢 Лимит мест (пусто = без лимита)" style="display:none">
       </div>
-      <input class="fi" id="ee-lk" placeholder="🔗 Ссылка на билеты">
-      <input class="fi" id="ee-tg" placeholder="✈️ Telegram канал (https://t.me/...)">
-      <textarea class="fi" id="ee-dc" rows="3" placeholder="📝 Описание"></textarea>
+      <input class="fi" id="ee-lk" placeholder="Ссылка на билеты">
+      <input class="fi" id="ee-tg" placeholder="Telegram канал (https://t.me/...)">
+      <textarea class="fi" id="ee-dc" rows="3" placeholder="Описание"></textarea>
       <select class="fsel" id="ee-em">
-        <option value="🎉">🎉 Вечеринка</option><option value="🌙">🌙 Ночной клуб</option>
-        <option value="🎵">🎵 Концерт</option><option value="🔥">🔥 Горячее</option>
+        <option value="🎉">Вечеринка</option><option value="🌙">🌙 Ночной клуб</option>
+        <option value="🎵">🎵 Концерт</option><option value="🔥">Горячее</option>
         <option value="🌊">🌊 Open air</option><option value="🎸">🎸 Живая музыка</option>
       </select>
       <select class="fsel" id="ee-age">
@@ -666,20 +666,20 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
         <option value="16+">16+</option>
         <option value="18+">18+</option>
       </select>
-      <button id="ee-btn" onclick="saveEditEv()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(255,255,255,.12)">💾 Сохранить изменения</button>
+      <button id="ee-btn" onclick="saveEditEv()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(255,255,255,.12)">Сохранить изменения</button>
     </div>
   </div>
 
   <!-- ORG STATS -->
   <div id="sos" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">📊 Статистика</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Статистика</div></div>
     <div class="sbody" id="sos-body">
       <div style="text-align:center;padding:30px;color:#8a8a92">Загружаем...</div>
     </div>
   </div>
 
   <div id="sst" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">📊 Статистика события</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">Статистика события</div></div>
     <div class="sbody" id="sst-body">
       <div style="text-align:center;padding:30px;color:#8a8a92">Загружаем...</div>
     </div>
@@ -687,19 +687,19 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
   <!-- FAVS -->
   <div id="sfv" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">❤️ Избранное</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Избранное</div></div>
     <div class="sbody" id="fvl"></div>
   </div>
 
   <!-- TICKETS -->
   <div id="stk" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🎟 Мои билеты</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Мои билеты</div></div>
     <div class="sbody" id="tkl"></div>
   </div>
 
   <!-- GOING -->
   <div id="sgo" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">🙋 Я иду</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Я иду</div></div>
     <div class="sbody" id="gol"></div>
   </div>
 
@@ -714,7 +714,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
 
   <div id="sscan" class="sv">
-    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">🎟 Вход и гости</div></div>
+    <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">Вход и гости</div></div>
     <div class="sbody"><div id="scanbody"></div><div id="guestbox" style="margin-top:20px"></div></div>
   </div>
 </div>
@@ -800,7 +800,7 @@ function readReg(pfx){
 function fmtPriceShort(ev){
   if(isFree(ev))return'Бесплатно';
   const p=fmtPrice(ev.price);
-  if(p==='Билеты')return'🎟 Билеты';
+  if(p==='Билеты')return'Билеты';
   if(/^(от|до)\s/i.test(p)||p.includes('–'))return p;
   return'от '+p;
 }
@@ -867,8 +867,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   if((!uid||role==='user')&&token){const a=await G('/api/auth/'+token);if(a?.role&&a.user_id){role=a.role;uid=a.user_id;localStorage.setItem('cr',a.role);localStorage.setItem('cu',a.user_id)}}
   if(!uid){role=localStorage.getItem('cr')||'user';uid=parseInt(localStorage.getItem('cu')||'0')}
   const b=document.getElementById('rbadge');
-  if(role==='admin'){b.textContent='👑 Админ';b.className='rbadge ra'}
-  else if(role==='org'){b.textContent='🏢 Организатор';b.className='rbadge ro'}
+  if(role==='admin'){b.textContent='Админ';b.className='rbadge ra'}
+  else if(role==='org'){b.textContent='Организатор';b.className='rbadge ro'}
   if(role==='user'){
     let pf=JSON.parse(localStorage.getItem('cpf')||'null');
     if(!pf&&uid){const sp=await G('/api/profile/'+uid);if(sp?.email){pf=sp;localStorage.setItem('cpf',JSON.stringify(pf))}}
@@ -1107,7 +1107,7 @@ function openTK(){
       ${row('🎫','На входе','Покажешь QR-код или штрих-код из билета — и тебя пропустят.')}
     </div>
     <div id="tk-refund" style="display:none">
-      <button onclick="openExt('https://customer.ticketscloud.com/')" style="width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#b58bf0;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">🔄 Вернуть билет (в Ticketscloud)</button>
+      <button onclick="openExt('https://customer.ticketscloud.com/')" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#b58bf0;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">🔄 Вернуть билет (в Ticketscloud)</button>
       <div style="font-size:11px;color:#554466;text-align:center;margin-top:8px;line-height:1.5">Возврат оформляется в личном кабинете Ticketscloud — войди тем же email, которым покупал билет. Сроки и сумма возврата — по правилам Ticketscloud.</div>
     </div>
     <div style="font-size:11px;color:#554466;text-align:center;margin-top:14px;line-height:1.5">Не нашёл билет? Проверь «Спам»<br>или напиши организатору события.<br>Чтобы билеты появлялись здесь — укажи в профиле тот же email, которым платишь.</div>`;
@@ -1162,18 +1162,18 @@ async function loadMyTickets(){
           <div style="font-size:12px;color:#8a8a92;margin-top:2px">${escH([t.date,t.venue].filter(Boolean).join(' · '))}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <div style="font-size:11px;${t.free?'color:#7fe4ff;background:rgba(0,212,255,.12)':'color:#7CFC9B;background:rgba(60,255,130,.1)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'🆓 бесплатно'):'оплачено'}</div>
+          <div style="font-size:11px;${t.free?'color:#cbb6f0;background:rgba(255,255,255,.08)':'color:#cfc7db;background:rgba(255,255,255,.06)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'бесплатно'):'оплачено'}</div>
           ${t.free?`<button onclick="cancelFreeTicket('${escH((t.barcodes&&t.barcodes[0])||'')}')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`:`<button onclick="openExt('https://customer.ticketscloud.com/')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`}
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
-        <div style="font-size:12px;color:#cbb6e6">🎫 ${escH(t.count)} билет(ов)</div>
+        <div style="font-size:12px;color:#cbb6e6">${escH(t.count)} билет(ов)</div>
         ${t.amount?`<div style="font-size:12px;color:#8a8a92">${escH(t.amount)} ₽</div>`:''}
       </div>
       ${(t.barcodes&&t.barcodes.length)?t.barcodes.map(qrBlock).join(''):''}
     </div>`;
   box.innerHTML=`
-    <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">🎟 Твои билеты</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">Твои билеты</div>
     <div style="font-size:12px;color:#8a8a92;margin:0 0 14px">Покажи QR с экрана на входе.</div>
     ${d.tickets.map(card).join('')}
     <div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Этот же билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>
@@ -1199,7 +1199,7 @@ function openEv(id){
   else{img.style.display='none';em.style.display='block';em.textContent=ev.emoji}
   document.getElementById('dh').style.background=ev.poster_url?'':phGrad(ev.id);
   const orgEl=document.getElementById('d-org');
-  if(org){orgEl.textContent='🏢 '+org.name;orgEl.style.display='block';curOrgId=ev.org_id}
+  if(org){orgEl.textContent=org.name;orgEl.style.display='block';curOrgId=ev.org_id}
   else{orgEl.style.display='none'}
   document.getElementById('d-name').textContent=ev.name;
   let dbadges='';
@@ -1343,11 +1343,11 @@ function openOrgPage(){
   if(!curOrgId)return;
   const org=orgs.find(o=>o.tg_id==curOrgId);
   if(!org)return;
-  document.getElementById('org-logo').innerHTML='🏢';
+  document.getElementById('org-logo').innerHTML='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg>';
   document.getElementById('org-name').textContent=org.name;
   document.getElementById('org-desc').textContent=org.description||'Организатор мероприятий';
   const btn=document.getElementById('btn-follow');
-  if(org.contact){btn.textContent='✈️ Telegram канал';btn.style.display='flex'}
+  if(org.contact){btn.textContent='Telegram канал';btn.style.display='flex'}
   else{btn.style.display='none'}
   document.getElementById('org-followers').textContent='';
   const orgEvs=evs.filter(e=>e.org_id==curOrgId);
@@ -1357,7 +1357,7 @@ function openOrgPage(){
       <div class="sc" onclick="openEv(${ev.id})">
         <div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div>
         <div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div>
-        <div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div>
+        <div class="scmeta"><span>${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div>
       </div>`).join('');
   nav('org');
 }
@@ -1445,7 +1445,7 @@ async function finishOnboard(){
   try{localStorage.setItem('consent_pd',JSON.stringify({v:PD_POLICY_VERSION,ts:new Date().toISOString()}))}catch(e){}
   if(uid&&email)P('/api/profile/'+uid,{email,name}); // сохраняем почту и имя на сервер
   P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
-  btn.textContent='🚀 Войти в CLOUTE';btn.disabled=false;
+  btn.textContent='Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
 }
 function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
@@ -1454,7 +1454,7 @@ function renderPrivacy(){
   const el=document.getElementById('pp-body');if(!el||el.dataset.done)return;
   const h=(t)=>`<div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">${t}</div>`;
   el.innerHTML=`
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">1. ОБЩИЕ ПОЛОЖЕНИЯ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">1. ОБЩИЕ ПОЛОЖЕНИЯ</div>
     <p>Настоящая политика обработки персональных данных (далее – Политика) составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, полученных Индивидуальным предпринимателем Дауровым Альбертом Муратовичем, ИНН – 231141949430 (далее – Оператор).</p>
     <p>Оператор ставит своей важнейшей целью и условием осуществления своей деятельности соблюдение прав и свобод человека и гражданина при обработке его персональных данных, в том числе защиты прав на неприкосновенность частной жизни, личную и семейную тайны.</p>
     <p>Основные понятия, используемые в Политике:</p>
@@ -1474,7 +1474,7 @@ function renderPrivacy(){
     <p>1) клиенты и контрагенты Оператора (физические лица)</p>
     <p>2) представители/работники клиентов и контрагентов Оператора (юридических лиц)</p>
     <p>посетители сайта.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">2. ЦЕЛИ И УСЛОВИЯ ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ И СООТВЕТСТВУЮЩИЕ ИМ ПЕРЕЧНИ ОБРАБАТЫВАЕМЫХ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">2. ЦЕЛИ И УСЛОВИЯ ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ И СООТВЕТСТВУЮЩИЕ ИМ ПЕРЕЧНИ ОБРАБАТЫВАЕМЫХ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
     <p>2.1. Персональные данные, разрешенные к обработке в рамках настоящей Политики, предоставляются Пользователем добровольно путем заполнения формы данных Пользователя на Сайте либо путем представления информации лично Оператору посредством электронной переписки.</p>
     <p>2.2. Персональные данные лиц, указанных в подпунктах 1-2 пункта 1.3 Политики, обрабатываются в следующих целях:</p>
     <p>идентификации стороны в рамках соглашений и договоров, заключаемых с Оператором;</p>
@@ -1505,7 +1505,7 @@ function renderPrivacy(){
     <p>2.9. Согласием на обработку Персональных данных, включающих в себя Cookie-файлы, для Пользователей, использующих Сайт для получения информации о деятельности Оператора, является использование Сайта и нажатие кнопки «хорошо» или аналогичной по смыслу кнопки на уведомлении о сборе Cookie-файлов в соответствии с настоящей Политикой конфиденциальности.</p>
     <p>2.10. Персональные данные, указанные в пунктах 2.3, 2.6 настоящей Политики далее по тексту объединены общим понятием Персональные данные.</p>
     <p>2.11. Специальные категории персональных данных не обрабатываются.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">3. ПОРЯДОК ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">3. ПОРЯДОК ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
     <p>3.1. Обработка персональных данных выполняется с использованием средств автоматизации или без использования таких средств. Обработка персональных данных без использования средств автоматизации может осуществляться в виде документов на бумажных носителях и в электронном виде (файлы, базы данных) на электронных носителях информации.</p>
     <p>3.2. Оператор не осуществляет трансграничную передачу персональных данных</p>
     <p>3.3. Оператор не передает персональные данные третьим лицам, за исключением:</p>
@@ -1518,7 +1518,7 @@ function renderPrivacy(){
     <p>в случае выявления неправомерной обработки персональных данных, осуществляемой оператором в срок, не превышающий трех рабочих дней с даты этого выявления;</p>
     <p>в случае отзыва субъектом персональных данных согласия на обработку его персональных данных;</p>
     <p>в случае достижения цели обработки персональных данных и уничтожить персональные данные в срок, не превышающий тридцати дней с даты достижения цели обработки персональных данных. В случае отсутствия возможности уничтожения персональных данных в течение указанного срока оператор осуществляет блокирование таких персональных данных и обеспечивает уничтожение персональных данных в срок не более чем шесть месяцев, если иной срок не установлен федеральными законами.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">4. ПРАВА И ОБЯЗАННОСТИ СТОРОН.</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">4. ПРАВА И ОБЯЗАННОСТИ СТОРОН.</div>
     <p>4.1. Оператор вправе:</p>
     <p>получать от Пользователя достоверную информацию, содержащую персональные данные;</p>
     <p>4.2. Оператор обязан:</p>
@@ -1535,7 +1535,7 @@ function renderPrivacy(){
     <p>на осуществление иных прав, предусмотренных законодательством Российской Федерации.</p>
     <p>4.4. Пользователь обязан:</p>
     <p>предоставлять Оператору только достоверные данные о себе</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">5. ПОРЯДОК ОБРАБОТКИ ОБРАЩЕНИЙ СУБЪЕКТОВ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">5. ПОРЯДОК ОБРАБОТКИ ОБРАЩЕНИЙ СУБЪЕКТОВ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
     <p>5.1. Лица, указанные в пункте 1.3 настоящей Политики, имеют право на получение информации, касающейся обработки их персональных данных, в том числе содержащей:</p>
     <p>1) подтверждение факта обработки персональных данных Оператором;</p>
     <p>2) правовые основания и цели обработки персональных данных;</p>
@@ -1553,7 +1553,7 @@ function renderPrivacy(){
     <p>3) подпись субъекта персональных данных или его представителя. Запрос может быть направлен в форме электронного документа и подписан электронной подписью в соответствии с законодательством Российской Федерации.</p>
     <p>5.5. В случае выявления неточностей в персональных данных, Пользователь может актуализировать их самостоятельно, путем направления Оператору уведомление на адрес электронной почты Оператора dauralbmur@gmail.com с пометкой «Актуализация персональных данных». В срок, не превышающий семи рабочих дней со дня предоставления субъектом персональных данных или его представителем сведений, подтверждающих, что персональные данные являются неполными, неточными или неактуальными, оператор обязан внести в них необходимые изменения.</p>
     <p>5.6. В срок, не превышающий семи рабочих дней со дня представления субъектом персональных данных или его представителем сведений, подтверждающих, что такие персональные данные являются незаконно полученными или не являются необходимыми для заявленной цели обработки, оператор обязан уничтожить такие персональные данные. Оператор обязан уведомить субъекта персональных данных или его представителя о внесенных изменениях и предпринятых мерах.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">6. МЕРЫ ПО ОБЕСПЕЧЕНИЮ БЕЗОПАСНОСТИ ПЕРСОНАЛЬНЫХ ДАННЫХ ПРИ ИХ ОБРАБОТКЕ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">6. МЕРЫ ПО ОБЕСПЕЧЕНИЮ БЕЗОПАСНОСТИ ПЕРСОНАЛЬНЫХ ДАННЫХ ПРИ ИХ ОБРАБОТКЕ</div>
     <p>6.1. Безопасность персональных данных, которые обрабатываются Оператором, обеспечивается путем реализации правовых, организационных и технических мер, необходимых для выполнения в полном объеме требований действующего законодательства в области защиты персональных данных.</p>
     <p>К таким мерам защиты, в частности относятся:</p>
     <p>использование антивирусных средств защиты информации;</p>
@@ -1563,7 +1563,7 @@ function renderPrivacy(){
     <p>обнаружение фактов несанкционированного доступа к персональным данным и принятием мер, в том числе мер по обнаружению, предупреждению и ликвидации последствий компьютерных атак на информационные системы персональных данных и по реагированию на компьютерные инциденты в них</p>
     <p>восстановлением персональных данных, модифицированных или уничтоженных вследствие несанкционированного доступа к ним.</p>
     <p>6.2. Оператор обеспечивает сохранность персональных данных и принимает все возможные меры, исключающие доступ к персональным данным неуполномоченных лиц.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">7. COOKIE-ФАЙЛЫ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">7. COOKIE-ФАЙЛЫ</div>
     <p>7.1. На Сайте собираются следующие cookie-файлы:</p>
     <p>7.1.1. Технические сookie-файлы — сбор данных файлов нельзя запретить при посещении, так как они необходимы для правильной работы и предоставления полного функционала Сайта;</p>
     <p>7.2. Цели сбора cookie-файлов:</p>
@@ -1573,7 +1573,7 @@ function renderPrivacy(){
     <p>7.3.1. Если Пользователь не хочет, чтобы cookie-файлы сохранялись на его устройстве, то отключить эту опцию можно в настройках браузера. Сохраненные cookie-файлы также можно удалить в любое время в системных настройках браузера. Пользователь может изменить настройки браузера, чтобы принимать или отклонять по умолчанию все cookie-файлы либо cookie-файлы с Сайта.</p>
     <p>7.3.2. ОБРАЩАЕМ ВНИМАНИЕ ЧТО, ОТКЛЮЧИВ COOKIE-ФАЙЛЫ, ПОЛЬЗОВАТЕЛЬ НЕ СМОЖЕТ ПОЛЬЗОВАТЬСЯ НЕКОТОРЫМИ ФУНКЦИЯМИ И ИНСТРУМЕНТАМИ САЙТА.</p>
     <p>Обработка Cookie-файлов осуществляется в статистических или иных исследовательских целях при условии обязательного обезличивания персональных данных.</p>
-    <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">8. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">8. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ</div>
     <p>Пользователь может получить любые разъяснения по интересующим вопросам, касающимся обработки его персональных данных, обратившись к Оператору с помощью электронной почты dauralbmur@gmail.com</p>
     <p>В данном документе будут отражены любые изменения политики обработки персональных данных Оператором. Политика действует бессрочно до замены ее новой версией.</p>
     <p>Актуальная версия Политики в свободном доступе расположена в сети Интернет по адресу  https://cloute.ru/privacy</p>`;
@@ -1588,7 +1588,7 @@ function renderCab(){
   const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
   const ava=document.getElementById('cava');
   if(photo)ava.innerHTML=`<img src="${escH(photo)}">`;
-  else ava.textContent=role==='admin'?'👑':role==='org'?'🏢':'👤';
+  else ava.innerHTML='<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   document.getElementById('cname').textContent=role==='org'?(orgs.find(o=>o.tg_id==uid)?.name||name):name;
   document.getElementById('cuname').textContent=tgU?.username?'@'+tgU.username:'';
   if(role==='admin'){
@@ -1617,7 +1617,7 @@ function renderCab(){
       <div class="ci" onclick="openTK()"><div class="ciico">${ic('ticket',20)}</div><div><div class="citit">Мои билеты</div><div class="cisub">Купленные события</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openFV()"><div class="ciico">${ic('heart',20)}</div><div><div class="citit">Избранное</div><div class="cisub">${favs.length} сохранено</div></div><div class="carr">›</div></div>
       <div style="margin-top:8px;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="openOrgApply()">
-        <div style="font-size:22px;width:40px;height:40px;background:var(--ac);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏢</div>
+        <div style="font-size:22px;width:40px;height:40px;background:var(--ac);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg></div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600;color:#b58bf0">Стать организатором</div>
           <div style="font-size:11px;color:#8a8a92;margin-top:2px">Размести своё мероприятие</div>
@@ -1684,13 +1684,13 @@ async function renderASStats(){
 async function openAO(){if(!await gateAdmin())return;const d=await G('/api/admin/orgs');if(Array.isArray(d))orgs=d;renderOL();showS('sao')}
 function renderOL(){
   const c=document.getElementById('ol');
-  if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i">🏢</div><div class="empty-t">Организаторов пока нет</div></div>';return}
+  if(!orgs.length){c.innerHTML='<div class="empty"><div class="empty-i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg></div><div class="empty-t">Организаторов пока нет</div></div>';return}
   c.innerHTML=orgs.map(o=>{
-    const ava=`<img src="${escH(o.photo_url||'')}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;${o.photo_url?'':'display:none'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:44px;height:44px;border-radius:50%;background:#1c1c1f;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;display:${o.photo_url?'none':'flex'}">🏢</div>`;
+    const ava=`<img src="${escH(o.photo_url||'')}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;${o.photo_url?'':'display:none'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:44px;height:44px;border-radius:50%;background:#1c1c1f;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;display:${o.photo_url?'none':'flex'}"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg></div>`;
     const un=o.tg_username||'';
     const tap=un?`onclick="openOrgDM('${escH(un)}')" style="cursor:pointer"`:'';
     const sub=un?`@${escH(un)} · нажми — написать`:`ID: ${o.tg_id}`;
-    return `<div style="background:var(--cd);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" ${tap}>${ava}<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(o.name)}</div><div style="font-size:12px;color:#b58bf0;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})" style="flex-shrink:0">Удалить</button></div></div>`;
+    return `<div style="background:var(--cd);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" ${tap}>${ava}<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(o.name)}</div><div style="font-size:12px;color:#b58bf0;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})" style="flex-shrink:0">Удалить</button></div></div>`;
   }).join('');
 }
 function openOrgDM(username){
@@ -1716,7 +1716,7 @@ async function rmOrg(tid){
   if(!confirm('Удалить организатора?'))return;
   await D('/api/orgs/'+tid);const d=await G('/api/orgs');if(d)orgs=d;renderOL();
 }
-async function openAE(){if(!await gateAdmin())return;const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='🎉 Все события';renderEL(allEvs);showS('sev')}
+async function openAE(){if(!await gateAdmin())return;const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='Все события';renderEL(allEvs);showS('sev')}
 async function openPromo(){
   const d=await G('/api/events');
   const all=d||evs;
@@ -1736,11 +1736,11 @@ async function openPromo(){
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ev.name)}</div>
           <div style="font-size:11px;color:#8a8a92;margin-top:2px">${org?escH(org.name)+' · ':''} ${escH(ev.date)}</div>
-          ${isHot?'<div style="font-size:10px;color:#cbb6f0;margin-top:3px">🔥 Сейчас в топе</div>':''}
+          ${isHot?'<div style="font-size:10px;color:#cbb6f0;margin-top:3px">Сейчас в топе</div>':''}
         </div>
         <button onclick="toggleHot(${ev.id},${isHot?0:1},this)"
           style="flex-shrink:0;padding:8px 14px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;${isHot?'background:rgba(255,255,255,.08);color:#b58bf0':'background:var(--ac);color:#fff'}">
-          ${isHot?'⬇️ Убрать':'🔥 В топ'}
+          ${isHot?'Убрать':'В топ'}
         </button>
       </div>
     </div>`;
@@ -1906,10 +1906,10 @@ async function renderOSStats(){
           <div style="font-size:10px;color:#8a8a92">👁 Просмотров</div>
         </div>
         <div style="flex:1;background:rgba(60,255,140,.07);border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:22px;font-weight:900;color:#7CFC9B">${s?s.tickets:0}</div>
-          <div style="font-size:10px;color:#8a8a92">🎫 Продано</div>
+          <div style="font-size:22px;font-weight:900;color:#cfc7db">${s?s.tickets:0}</div>
+          <div style="font-size:10px;color:#8a8a92">Продано</div>
         </div>
-        <div style="flex:1;background:rgba(0,212,255,.08);border-radius:8px;padding:8px;text-align:center">
+        <div style="flex:1;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:center">
           <div style="font-size:14px;font-weight:900;color:#b58bf0">${s?(s.revenue+' ₽'):fmtPrice(ev.price)}</div>
           <div style="font-size:10px;color:#8a8a92">${s?'💰 Выручка':'💵 Цена'}</div>
         </div>
@@ -1918,7 +1918,7 @@ async function renderOSStats(){
 
   c.innerHTML=`
     ${(totSold||totRev)?`<div class="sgrid" style="padding:0;margin-bottom:10px">
-      <div class="scard"><div class="snum">${totSold}</div><div class="slbl">🎫 Продано</div></div>
+      <div class="scard"><div class="snum">${totSold}</div><div class="slbl">Продано</div></div>
       <div class="scard c"><div class="snum">${totRev}</div><div class="slbl">💰 Выручка ₽</div></div>
     </div>`:''}
     <div class="sgrid" style="padding:0;margin-bottom:14px">
@@ -2002,7 +2002,7 @@ async function submitOrgApp(){
   btn.textContent='Отправляем...';btn.disabled=true;
   const r=await P('/api/org-apply',{name,desc,social,contact,
     tg_username:tgU?.username||'',tg_name:tgU?.first_name||''});
-  btn.textContent='📋 Отправить заявку';btn.disabled=false;
+  btn.textContent='Отправить заявку';btn.disabled=false;
   if(r?.error){alert('❌ '+r.error);return}
   document.getElementById('soa-form').style.display='none';
   document.getElementById('soa-success').style.display='block';
@@ -2012,21 +2012,21 @@ function openGoing(){
   const goEvs=evs.filter(e=>going.includes(e.id));
   const c=document.getElementById('gol');
   c.innerHTML=!goEvs.length?'<div class="empty"><div class="empty-i">🙋</div><div class="empty-t">Ты пока никуда не собираешься.<br>Найди тусовку!</div></div>':
-  goEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
+  goEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
   showS('sgo');
 }
 function openFV(){
   const fEvs=evs.filter(e=>favs.includes(e.id));
   const c=document.getElementById('fvl');
   c.innerHTML=!fEvs.length?'<div class="empty"><div class="empty-i">❤️</div><div class="empty-t">Нет сохранённых тусовок</div></div>':
-  fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>📍 ${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
+  fEvs.map(ev=>`<div class="sc" onclick="openEv(${ev.id})"><div class="scdate">${escH(ev.date)} · ${escH(ev.time)}</div><div class="scname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="scmeta"><span>${escH(ev.venue)}</span><span>${fmtPriceShort(ev)}</span></div></div>`).join('');
   showS('sfv');
 }
 async function openPF(){
   const pf=JSON.parse(localStorage.getItem('cpf')||'{}');
   document.getElementById('pf-name').value=pf.name||tgU?.first_name||'';
   document.getElementById('pf-email').value=pf.email||'';
-  document.getElementById('pf-tg').innerHTML=`${tgU?.username?`<div>✈️ @${tgU.username}</div>`:''}<div style="font-size:11px;color:#554466">ID: ${uid||'—'}</div>`;
+  document.getElementById('pf-tg').innerHTML=`${tgU?.username?`<div>@${tgU.username}</div>`:''}<div style="font-size:11px;color:#554466">ID: ${uid||'—'}</div>`;
   const ava=document.getElementById('pf-ava');
   const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
   if(photo)ava.innerHTML=`<img src="${escH(photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
@@ -2064,8 +2064,8 @@ function renderEL(list){
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="flex:1;min-width:0;cursor:pointer" onclick="openEvStats(${ev.id})"><div class="liname">${escH(ev.emoji)} ${escH(ev.name)}</div><div class="limeta">${escH(ev.date)} · ${escH(ev.time)} · ${escH(ev.venue)} · 👁 ${ev.views||0}</div></div>
         <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
-          <button style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#7CFC9B;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openScanForEvent(${ev.id})" title="Вход и гости">🎟</button>
-          <button style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#b58bf0;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEvStats(${ev.id})">📊</button>
+          <button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:#cfc7db;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openScanForEvent(${ev.id})" title="Вход и гости">🎟</button>
+          <button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:#b58bf0;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEvStats(${ev.id})">📊</button>
           <button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:#b58bf0;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer" onclick="openEditEv(${ev.id})">✏️</button>
           <button class="bdel" onclick="delEv(${ev.id})">🗑</button>
         </div>
@@ -2106,11 +2106,11 @@ async function openEvStats(id){
     body.innerHTML=`
       ${head}
       <div style="display:flex;gap:8px;margin-bottom:10px">
-        ${big(views,'👁 Просмотров','#b58bf0','rgba(0,212,255,.08)')}
+        ${big(views,'👁 Просмотров','#b58bf0','rgba(255,255,255,.05)')}
         ${big(main+(lim?` / ${lim}`:''),reg?'🎟 Билетов':'🙋 Идут','#b58bf0','rgba(255,255,255,.05)')}
       </div>
       <div style="background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:18px;text-align:center">
-        <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">🎉 Бесплатное мероприятие</div>
+        <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">Бесплатное мероприятие</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;color:#b58bf0;margin-top:6px">${main}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#8a8a92;margin-top:6px">${reg?'получили билет':'отметили «Иду»'} · конверсия ${convG}%</div>
       </div>`;
@@ -2119,12 +2119,12 @@ async function openEvStats(id){
   body.innerHTML=`
     ${head}
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      ${big(views,'👁 Просмотров','#b58bf0','rgba(0,212,255,.08)')}
+      ${big(views,'👁 Просмотров','#b58bf0','rgba(255,255,255,.05)')}
       ${big(sold,'🎟 Продано','#b58bf0','rgba(255,255,255,.05)')}
       ${big(attended,'✅ Пришло','#34d399','rgba(16,185,129,.08)')}
     </div>
     <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
-      <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">💵 Выручка с билетов</div>
+      <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">Выручка с билетов</div>
       <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;color:#34d399;margin-top:4px">${fmtMoney(revenue)}</div>
       <div style="font-size:11px;color:#8a8a92;margin-top:4px">Конверсия просмотр→покупка: ${conv}%</div>
     </div>
@@ -2152,8 +2152,8 @@ function renderScannerCode(id,code){
       <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.06em">Код для охраны</div>
       <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:900;letter-spacing:.22em;color:#b58bf0;margin:6px 0 4px">${escH(code)}</div>
       <div style="font-size:12px;color:#8a8a92;line-height:1.6;margin:6px 4px 14px">Перешли охране — они откроют ссылку, введут код и будут пускать гостей: по списку, а на бесплатных — ещё и сканером QR. Telegram у них не обязателен.</div>
-      <button onclick="shareScanToTg()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Space Grotesk',sans-serif;margin-bottom:8px">✈️ Отправить охране в Telegram</button>
-      <button onclick="copyScanLink()" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#b58bf0;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку</button>
+      <button onclick="shareScanToTg()" style="width:100%;background:var(--ac);color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Space Grotesk',sans-serif;margin-bottom:8px">Отправить охране в Telegram</button>
+      <button onclick="copyScanLink()" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#b58bf0;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Скопировать ссылку</button>
       <button onclick="regenScannerCode(${id})" style="width:100%;background:transparent;border:none;color:#7a5a8a;padding:6px;font-size:12px;cursor:pointer">♻️ Сделать новый код (старый перестанет работать)</button>
     </div>`;
 }
@@ -2196,7 +2196,7 @@ function renderGuests(guests){
   const arr=guests.filter(g=>g.arrived).length;
   const rows=guests.map(g=>{
     const sub=[g.username?'@'+escH(g.username):'',escH(g.note||'')].filter(Boolean).join(' · ');
-    return `<div style="display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:14px;margin-bottom:8px;background:${g.arrived?'rgba(0,255,136,.07)':'rgba(255,255,255,.04)'};border:1px solid ${g.arrived?'rgba(0,255,136,.18)':'rgba(255,255,255,.08)'}">
+    return `<div style="display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:14px;margin-bottom:8px;background:${g.arrived?'rgba(255,255,255,.05)':'rgba(255,255,255,.04)'};border:1px solid ${g.arrived?'rgba(255,255,255,.1)':'rgba(255,255,255,.08)'}">
       ${gAva(g)}
       <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:#e8d4ff;${g.arrived?'opacity:.5':''};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(g.name||('@'+(g.username||'')))}</div>${sub?`<div style="font-size:11px;color:#8a8a92;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div>`:''}</div>
       <button onclick="toggleGuest(${g.id},${g.arrived?0:1})" style="flex-shrink:0;width:34px;height:34px;border-radius:11px;border:none;background:${g.arrived?'linear-gradient(135deg,#10b981,#06b6d4)':'rgba(255,255,255,.08)'};color:#fff;font-size:15px;cursor:pointer">${g.arrived?'✓':'○'}</button>
@@ -2205,8 +2205,8 @@ function renderGuests(guests){
   }).join('');
   box.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:800;font-family:'Space Grotesk',sans-serif;background:linear-gradient(90deg,#b58bf0,#b58bf0);-webkit-background-clip:text;-webkit-text-fill-color:#fff">🎟 Гостевой список</div>
-      <div style="font-size:12px;color:#8a8a92">пришло <b style="color:#7CFC9B">${arr}</b> / ${guests.length}</div>
+      <div style="font-size:16px;font-weight:800;font-family:'Space Grotesk',sans-serif;background:linear-gradient(90deg,#b58bf0,#b58bf0);-webkit-background-clip:text;-webkit-text-fill-color:#fff">Гостевой список</div>
+      <div style="font-size:12px;color:#8a8a92">пришло <b style="color:#cfc7db">${arr}</b> / ${guests.length}</div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <input class="fi" id="g-name" placeholder="Имя или @username" style="flex:1;margin-bottom:0">
