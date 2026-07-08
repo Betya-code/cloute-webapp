@@ -168,32 +168,30 @@ button:active{transform:scale(.96);opacity:.85}
 .ec-fav{background:none;border:none;cursor:pointer;padding:4px;font-size:20px;flex-shrink:0;align-self:flex-start}
 
 /* DETAIL */
-.dh{position:relative;width:100%;background:linear-gradient(135deg,#1a0033,#0d0020);overflow:hidden}
+.dh{position:relative;width:100%;background:#1c1c1f;overflow:hidden}
 .dh img{width:100%;object-fit:cover;max-height:70vh;display:block}
 .demoji{font-size:100px;padding:60px 0;text-align:center}
-.dho{position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(0deg,#080010 6%,transparent)}
+.dho{position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(0deg,#0a0a0b 5%,rgba(10,10,11,.15) 55%,transparent)}
 .bback{position:absolute;top:14px;left:14px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;backdrop-filter:blur(10px)}
 .dtop{position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:8px}
 .bcircle{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
-.dbody{padding:20px 16px;background:#080010}
-.dorglbl{font-size:12px;color:#c084fc;margin-bottom:6px;font-weight:600;cursor:pointer}
-.dtitle{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px}
+.dbody{padding:20px 16px;background:var(--dk)}
+.dorglbl{font-size:11px;color:var(--mt);margin-bottom:8px;font-weight:500;cursor:pointer;letter-spacing:.08em;text-transform:uppercase}
+.dtitle{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:600;color:#fff;line-height:1.15;margin-bottom:16px;letter-spacing:-.01em}
 .dinfo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.drow{display:flex;align-items:center;gap:10px;background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.12);border-radius:12px;padding:9px 11px;min-width:0}
+.drow{display:flex;align-items:center;gap:10px;background:var(--cd);border:1px solid var(--hair);border-radius:10px;padding:10px 11px;min-width:0}
 .drow.dfull{grid-column:1/-1}
 .drow>div:last-child{min-width:0}
-.dricon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.drlbl{font-size:9px;color:#664488;text-transform:uppercase;letter-spacing:.06em}
-.drval{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px;overflow-wrap:anywhere}
-.ddesc{font-size:14px;color:#886699;line-height:1.7;margin-bottom:16px}
+.dricon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.drlbl{font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em}
+.drval{font-size:13px;color:var(--tx);font-weight:500;margin-top:2px;overflow-wrap:anywhere}
+.ddesc{font-size:14px;color:var(--mt);line-height:1.7;margin-bottom:16px}
 .dbtns{display:flex;gap:10px;margin-bottom:16px}
-.bbiggoing{flex:1;background:rgba(139,0,255,.10);border:1.5px solid rgba(139,0,255,.32);color:#c084fc;padding:15px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-align:center;transition:transform .12s ease,background .2s}
+.bbiggoing{flex:1;background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:15px;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-align:center;transition:transform .12s ease,background .2s}
 .bbiggoing:active{transform:scale(.97)}
-.bbiggoing.active{background:rgba(139,0,255,.22);border-color:rgba(255,0,153,.45);color:#fff}
-.bbigbuy{flex:2;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:15px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 20px -2px rgba(255,0,153,.42);text-align:center;letter-spacing:.02em;transition:transform .12s ease,box-shadow .2s}
-.bbigbuy:active{transform:scale(.97);box-shadow:0 3px 12px -2px rgba(255,0,153,.4)}
-@keyframes buyGlow{0%,100%{box-shadow:0 6px 20px -2px rgba(255,0,153,.4)}50%{box-shadow:0 7px 28px 0 rgba(255,0,153,.62)}}
-.bbigbuy{animation:buyGlow 2.8s ease-in-out infinite}
+.bbiggoing.active{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.42);color:#fff}
+.bbigbuy{flex:2;background:var(--ac);color:#140a1f;border:none;padding:15px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-align:center;letter-spacing:.01em;transition:transform .12s ease}
+.bbigbuy:active{transform:scale(.97)}
 /* Прозрачный TC-оверлей поверх нашей кнопки «Купить»: ловит реальный клик и открывает оплату TC, наш вид сохраняется. !important — чтобы стиль виджета TC не сдвинул оверлей. */
 #tc-buy{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;z-index:3!important;border:none!important;background:transparent!important;margin:0!important;padding:0!important;border-radius:16px;cursor:pointer}
 .dgoing-count{font-size:12px;color:#9b80c4;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
@@ -201,20 +199,20 @@ button:active{transform:scale(.96);opacity:.85}
 .dh-info .dtitle{margin-bottom:0;font-size:24px}
 .dorow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
 #d-img{width:100%;max-height:320px;object-fit:cover;display:block}
-.dbadge{display:inline-block;padding:4px 9px;border-radius:13px;font-size:11px;font-weight:700;margin-right:6px;margin-bottom:8px}
-.dbh{background:rgba(255,0,153,.85);color:#fff}
-.dbf{background:rgba(0,212,255,.18);color:#7fe4ff}
-.dba{background:rgba(255,100,0,.22);color:#ffae73}
-.droute{width:100%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cy);padding:12px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin:0 0 16px}
-.droute:active{background:rgba(0,212,255,.2)}
+.dbadge{display:inline-block;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-right:6px;margin-bottom:8px;background:transparent;border:1px solid var(--hair);color:var(--tx)}
+.dbh{border-color:rgba(181,139,240,.5);color:#cbb6f0}
+.dbf{border-color:rgba(255,255,255,.22);color:#e6e6ea}
+.dba{border-color:rgba(255,255,255,.22);color:#e6e6ea}
+.droute{width:100%;background:transparent;border:1px solid var(--hair);color:var(--tx);padding:13px;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;margin:0 0 16px}
+.droute:active{background:rgba(255,255,255,.06)}
 
 /* ORG PAGE */
-.org-banner{background:linear-gradient(135deg,#1a0033,#000d1a);padding:24px 16px;border-bottom:1px solid rgba(139,0,255,.2);position:relative;overflow:hidden}
-.org-logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;overflow:hidden}
-.org-logo img{width:100%;height:100%;object-fit:cover;border-radius:16px}
-.org-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
-.org-desc{font-size:13px;color:#886699;line-height:1.6;margin-bottom:12px}
-.btn-follow{background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.org-banner{background:var(--cd);padding:24px 16px;border-bottom:1px solid var(--hair);position:relative;overflow:hidden}
+.org-logo{width:72px;height:72px;border-radius:14px;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px;overflow:hidden}
+.org-logo img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.org-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:4px}
+.org-desc{font-size:13px;color:var(--mt);line-height:1.6;margin-bottom:12px}
+.btn-follow{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
 
 /* CALENDAR */
 .cw{padding:14px}
@@ -414,9 +412,9 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <button class="droute" id="btn-tg" style="display:none;background:rgba(139,0,255,.1);border-color:rgba(139,0,255,.3);color:#c084fc" onclick="openTgChannel()">✈️ Telegram-канал события</button>
     <div class="ddesc" id="d-desc"></div>
     <div class="dbtns">
-      <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">🙋 Пойду</button>
+      <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">Пойду</button>
       <div id="buy-wrap" style="flex:2;position:relative;display:flex">
-        <button class="bbigbuy" id="btn-buy" onclick="buyTicket()" style="flex:1">🎟 Купить билет</button>
+        <button class="bbigbuy" id="btn-buy" onclick="buyTicket()" style="flex:1">Купить билет</button>
         <button id="tc-buy" type="button" aria-label="Купить билет" style="display:none"></button>
       </div>
     </div>
@@ -1086,8 +1084,8 @@ function shareEvent(ev){tgShare(ev)}
 function qShr(id){tgShare(evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id))}
 function qGoing(id,btn){
   const i=going.indexOf(id);
-  if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.classList.remove('active')}
-  else{going.push(id);btn.textContent='✅ Иду';btn.classList.add('active')}
+  if(i>=0){going.splice(i,1);btn.textContent='Пойду';btn.classList.remove('active')}
+  else{going.push(id);btn.textContent='Иду';btn.classList.add('active')}
   localStorage.setItem('cg',JSON.stringify(going));
 }
 
@@ -1204,21 +1202,21 @@ function openEv(id){
   else{orgEl.style.display='none'}
   document.getElementById('d-name').textContent=ev.name;
   let dbadges='';
-  if(ev.hot)dbadges+='<span class="dbadge dbh"><span class="flame">🔥</span> Хит</span>';
+  if(ev.hot)dbadges+='<span class="dbadge dbh">Хит</span>';
   if(isFree(ev))dbadges+='<span class="dbadge dbf">Бесплатно</span>';
   if(ev.age_limit)dbadges+=`<span class="dbadge dba">${escH(ev.age_limit)}</span>`;
   document.getElementById('d-badges').innerHTML=dbadges;
   document.getElementById('d-desc').textContent=ev.description||'';
   document.getElementById('d-going').innerHTML='';
   document.getElementById('d-rows').innerHTML=
-    drow('cal','#c89bff','rgba(139,0,255,.16)','Дата',fmtDate(ev.date)+` <span style="color:#664488;font-weight:400;font-size:12px">· ${escH(ev.date)}</span>`)+
-    drow('clock','#ff86c7','rgba(255,0,153,.14)','Время',escH(ev.time))+
-    drow('pin','#7fe4ff','rgba(0,212,255,.14)','Место',escH(ev.tc_address||ev.venue),true)+
-    drow('tag','#7CFC9B','rgba(0,255,136,.12)','Вход',escH(fmtPrice(ev.price)))+
-    (ev.age_limit?drow('alert','#f97316','rgba(255,100,0,.14)','Возраст',escH(ev.age_limit)):'');
+    drow('cal','#b58bf0','rgba(255,255,255,.05)','Дата',fmtDate(ev.date)+` <span style="color:var(--mt);font-weight:400;font-size:12px">· ${escH(ev.date)}</span>`)+
+    drow('clock','#b58bf0','rgba(255,255,255,.05)','Время',escH(ev.time))+
+    drow('pin','#b58bf0','rgba(255,255,255,.05)','Место',escH(ev.tc_address||ev.venue),true)+
+    drow('tag','#b58bf0','rgba(255,255,255,.05)','Вход',escH(fmtPrice(ev.price)))+
+    (ev.age_limit?drow('alert','#b58bf0','rgba(255,255,255,.05)','Возраст',escH(ev.age_limit)):'');
   const btnGoing=document.getElementById('btn-going');
   const isGoing=going.includes(id);
-  btnGoing.textContent=isGoing?'✅ Я иду':'🙋 Пойду';
+  btnGoing.textContent=isGoing?'Я иду':'Пойду';
   btnGoing.className='bbiggoing'+(isGoing?' active':'');
   const btnBuy=document.getElementById('btn-buy');
   const buyWrap=document.getElementById('buy-wrap');
@@ -1256,11 +1254,11 @@ function openEv(id){
     const lim=parseInt(ev.reg_limit||0,10)||0;
     const left=lim>0?Math.max(0,lim-(ev.reg_count||0)):null;
     if(myReg.includes(id)){
-      btnGoing.textContent='✅ Билет у тебя';btnGoing.className='bbiggoing active';btnGoing.onclick=()=>openTK();
+      btnGoing.textContent='Билет у тебя';btnGoing.className='bbiggoing active';btnGoing.onclick=()=>openTK();
     }else if(left===0){
-      btnGoing.textContent='😔 Мест больше нет';btnGoing.className='bbiggoing';btnGoing.onclick=null;
+      btnGoing.textContent='Мест больше нет';btnGoing.className='bbiggoing';btnGoing.onclick=null;
     }else{
-      btnGoing.textContent=left!=null?`🎟 Получить билет · осталось ${left}`:'🎟 Получить билет';
+      btnGoing.textContent=left!=null?`Получить билет · осталось ${left}`:'Получить билет';
       btnGoing.className='bbiggoing';btnGoing.onclick=()=>getFreeTicket(id);
     }
   }else{
@@ -1296,7 +1294,7 @@ async function getFreeTicket(id){
   if(!r.already){const e1=evs.find(e=>e.id===id),e2=allEvs.find(e=>e.id===id);if(e1)e1.reg_count=(e1.reg_count||0)+1;if(e2)e2.reg_count=(e2.reg_count||0)+1;}
   const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
   const ge=document.getElementById('d-going');if(ge&&evo)ge.innerHTML='';
-  btn.textContent='✅ Билет у тебя';btn.className='bbiggoing active';btn.onclick=()=>openTK();
+  btn.textContent='Билет у тебя';btn.className='bbiggoing active';btn.onclick=()=>openTK();
   applyFilters();
   alert(r.already?'У тебя уже есть билет на это событие — он в «Мои билеты».':'🎟 Билет получен! Он в разделе «Мои билеты».');
 }
@@ -1317,8 +1315,8 @@ async function togGoingDetail(){
   const i=going.indexOf(id);
   const goingNow=i<0;
   const btn=document.getElementById('btn-going');
-  if(i>=0){going.splice(i,1);btn.textContent='🙋 Пойду';btn.className='bbiggoing'}
-  else{going.push(id);btn.textContent='✅ Я иду';btn.className='bbiggoing active'}
+  if(i>=0){going.splice(i,1);btn.textContent='Пойду';btn.className='bbiggoing'}
+  else{going.push(id);btn.textContent='Я иду';btn.className='bbiggoing active'}
   localStorage.setItem('cg',JSON.stringify(going));
   const ok=await apiGoing(id,goingNow);
   if(ok===null){
@@ -1327,7 +1325,7 @@ async function togGoingDetail(){
     if(goingNow){if(j>=0)going.splice(j,1);}else if(j<0)going.push(id);
     localStorage.setItem('cg',JSON.stringify(going));
     const gg=going.includes(id);
-    btn.textContent=gg?'✅ Я иду':'🙋 Пойду';btn.className='bbiggoing'+(gg?' active':'');
+    btn.textContent=gg?'Я иду':'Пойду';btn.className='bbiggoing'+(gg?' active':'');
   }
   const evo=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
   const goingEl=document.getElementById('d-going');
