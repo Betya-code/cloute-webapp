@@ -8,9 +8,9 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
-:root{--p:#8b00ff;--pk:#ff0099;--cy:#00d4ff;--gn:#00ff88;--dk:#080010;--cd:#12001e;--tx:#e8d4ff;--mt:#664488}
+:root{--p:#8b00ff;--pk:#ff0099;--cy:#00d4ff;--gn:#00ff88;--dk:#0a0a0b;--cd:#151517;--tx:#f4f4f6;--mt:#8a8a92;--ac:#b58bf0;--hair:rgba(255,255,255,.09)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--dk);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;top:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(139,0,255,.12),transparent 60%);pointer-events:none;z-index:0}
@@ -81,9 +81,9 @@ button:active{transform:scale(.96);opacity:.85}
 /* TODAY CARD */
 .today-card{transition:transform .15s ease}
 .today-card:active{transform:scale(.97)}
-.hdr{padding:14px 16px 12px;position:sticky;top:0;background:rgba(8,0,16,.97);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(139,0,255,.15)}
+.hdr{padding:14px 16px 12px;position:sticky;top:0;background:rgba(10,10,11,.97);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid var(--hair)}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.logo{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#c084fc,#ff0099,#8b00ff,#c084fc);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:logoFlow 5s linear infinite}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:700;letter-spacing:.16em;color:#fff}
 @keyframes logoFlow{from{background-position:0% 50%}to{background-position:250% 50%}}
 .flame{display:inline-block;transform-origin:bottom center;animation:flameFlick 1.1s infinite}
 @keyframes flameFlick{0%{transform:scale(1,1) rotate(-3deg);filter:brightness(1) drop-shadow(0 0 3px rgba(255,140,0,.7))}14%{transform:scale(1.1,.92) rotate(4deg);filter:brightness(1.35) drop-shadow(0 0 7px rgba(255,80,0,.95))}28%{transform:scale(.95,1.14) rotate(-2deg);filter:brightness(1.1) drop-shadow(0 0 4px rgba(255,170,0,.85))}42%{transform:scale(1.14,.95) rotate(5deg);filter:brightness(1.5) drop-shadow(0 0 9px rgba(255,60,0,1))}57%{transform:scale(.97,1.1) rotate(-4deg);filter:brightness(1.15) drop-shadow(0 0 5px rgba(255,150,0,.9))}71%{transform:scale(1.09,.97) rotate(2deg);filter:brightness(1.4) drop-shadow(0 0 8px rgba(255,90,0,.95))}85%{transform:scale(1.02,1.05) rotate(-2deg);filter:brightness(1.2) drop-shadow(0 0 5px rgba(255,130,0,.85))}100%{transform:scale(1,1) rotate(-3deg);filter:brightness(1) drop-shadow(0 0 3px rgba(255,140,0,.7))}}
@@ -97,37 +97,37 @@ button:active{transform:scale(.96);opacity:.85}
 .ru{background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc}
 .tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid rgba(139,0,255,.2);background:transparent;color:var(--mt);font-family:'Inter',sans-serif}
-.tab.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+.tab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--hair);background:transparent;color:var(--mt);font-family:'Inter',sans-serif;letter-spacing:.02em}
+.tab.active{background:#fff;border-color:#fff;color:#0a0a0b}
 
 /* HERO */
-.hero{margin:14px;background:linear-gradient(135deg,#1a0033,#000d1a);border:1px solid rgba(139,0,255,.3);border-radius:20px;padding:20px;position:relative;overflow:hidden}
-.hero::before{content:'🎉';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:56px;opacity:.12}
-.hero h2{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;margin-bottom:4px}
-.hero p{font-size:12px;color:#888}
-.hstats{display:flex;gap:20px;margin-top:12px}
-.hnum{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hlbl{font-size:10px;color:#555;margin-top:1px}
+.hero{margin:14px;background:var(--cd);border:1px solid var(--hair);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.hero::before{content:''}
+.hero h2{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;color:#fff;margin-bottom:4px}
+.hero p{font-size:12px;color:var(--mt)}
+.hstats{display:flex;gap:24px;margin-top:14px}
+.hnum{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:#fff}
+.hlbl{font-size:10px;color:var(--mt);margin-top:2px;letter-spacing:.06em;text-transform:uppercase}
 
 /* CATEGORIES ROW */
 .cats-row{display:flex;gap:8px;padding:0 14px 14px;overflow-x:auto;scrollbar-width:none}
 .cats-row::-webkit-scrollbar{display:none}
-.cat-chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid rgba(139,0,255,.2);background:transparent;color:var(--mt);font-family:'Inter',sans-serif;flex-shrink:0}
-.cat-chip.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
+.cat-chip{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--hair);background:transparent;color:var(--mt);font-family:'Inter',sans-serif;flex-shrink:0;letter-spacing:.02em}
+.cat-chip.active{background:#fff;border-color:#fff;color:#0a0a0b}
 
 /* TODAY ROW */
 .today-section{padding:0 14px 16px}
 .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.section-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff}
 .section-sub{font-size:11px;color:var(--mt)}
 .today-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
 .today-scroll::-webkit-scrollbar{display:none}
-.today-card{flex-shrink:0;width:140px;background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;overflow:hidden;cursor:pointer}
+.today-card{flex-shrink:0;width:140px;background:var(--cd);border:1px solid var(--hair);border-radius:12px;overflow:hidden;cursor:pointer}
 .today-card-img{width:100%;height:90px;object-fit:cover}
-.today-card-emoji{width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(135deg,#1a0033,#0d0020)}
+.today-card-emoji{width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:30px;background:#1c1c1f}
 .today-card-body{padding:8px}
-.today-card-name{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.today-card-time{font-size:10px;color:var(--cy)}
+.today-card-name{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.today-card-time{font-size:10px;color:var(--mt);letter-spacing:.03em}
 
 /* FEED */
 .feed{display:flex;flex-direction:column;padding:0 14px}
@@ -139,7 +139,7 @@ button:active{transform:scale(.96);opacity:.85}
 .ph{background:rgba(255,0,153,.9);color:#fff}
 .pfree{background:rgba(0,255,136,.9);color:#000}
 .page{background:rgba(255,100,0,.85);color:#fff}
-.pname{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px}
+.pname{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px}
 .porg{font-size:12px;color:#c084fc;font-weight:600;margin-bottom:4px}
 .prow{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
 .pplace{font-size:12px;color:#aaa}
@@ -150,21 +150,21 @@ button:active{transform:scale(.96);opacity:.85}
 .bshr{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
 .bgoing{flex:1;background:rgba(139,0,255,.15);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:10px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .bgoing.active{background:linear-gradient(90deg,var(--p),var(--pk));border-color:transparent;color:#fff}
-.bbuy{flex:1;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:11px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif}
+.bbuy{flex:1;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:11px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif}
 .headliner{position:relative;height:172px;border-radius:22px;overflow:hidden;margin-bottom:18px;cursor:pointer}
 .hl-img{width:100%;height:100%;object-fit:cover;display:block}
-.hl-ph{width:100%;height:100%;background:linear-gradient(135deg,#2a0a4a,#10001c);display:flex;align-items:center;justify-content:center;font-size:60px}
-.hl-ov{position:absolute;inset:0;background:linear-gradient(to top,#0a0016 3%,rgba(10,0,22,.1) 55%,transparent)}
-.hl-badge{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;background:rgba(255,0,153,.85);color:#fff}
-.hl-info{position:absolute;left:16px;right:16px;bottom:13px}
-.hl-name{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.05}
-.feed-label{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#e8d4ff;margin:0 4px 11px}
-.ec{display:flex;gap:12px;padding:10px;background:rgba(139,0,255,.05);border:1px solid rgba(139,0,255,.13);border-radius:18px;margin-bottom:10px;cursor:pointer;align-items:center}
-.ec-thumb{width:68px;height:68px;border-radius:14px;flex-shrink:0;object-fit:cover}
-.ec-ph{width:68px;height:68px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#2a0a4a,#10001c);display:flex;align-items:center;justify-content:center;font-size:30px}
-.ec-name{font-size:15px;font-weight:600;color:#f0e6ff;line-height:1.2}
-.ec-meta{font-size:12px;color:#9b80c4;margin:3px 0 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ec-price{font-size:12px;font-weight:700;padding:3px 9px;border-radius:9px;background:rgba(0,255,136,.12);color:#7CFC9B}
+.hl-ph{width:100%;height:100%;background:#1c1c1f;display:flex;align-items:center;justify-content:center;font-size:52px}
+.hl-ov{position:absolute;inset:0;background:linear-gradient(to top,#0a0a0b 4%,rgba(10,10,11,.12) 56%,transparent)}
+.hl-badge{position:absolute;top:12px;left:12px;font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:rgba(10,10,11,.45);border:1px solid rgba(255,255,255,.55);color:#fff}
+.hl-info{position:absolute;left:16px;right:16px;bottom:14px}
+.hl-name{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:600;color:#fff;line-height:1.08;letter-spacing:-.01em}
+.feed-label{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--mt);margin:0 2px 12px}
+.ec{display:flex;gap:13px;padding:12px 2px;background:transparent;border:none;border-bottom:1px solid var(--hair);border-radius:0;margin-bottom:0;cursor:pointer;align-items:center}
+.ec-thumb{width:66px;height:66px;border-radius:10px;flex-shrink:0;object-fit:cover}
+.ec-ph{width:66px;height:66px;border-radius:10px;flex-shrink:0;background:#1c1c1f;display:flex;align-items:center;justify-content:center;font-size:26px}
+.ec-name{font-size:15px;font-weight:500;color:var(--tx);line-height:1.25}
+.ec-meta{font-size:12px;color:var(--mt);margin:4px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
+.ec-price{font-size:12px;font-weight:500;padding:0;background:none;color:#cfc7db;letter-spacing:.02em}
 .ec-fav{background:none;border:none;cursor:pointer;padding:4px;font-size:20px;flex-shrink:0;align-self:flex-start}
 
 /* DETAIL */
@@ -177,7 +177,7 @@ button:active{transform:scale(.96);opacity:.85}
 .bcircle{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
 .dbody{padding:20px 16px;background:#080010}
 .dorglbl{font-size:12px;color:#c084fc;margin-bottom:6px;font-weight:600;cursor:pointer}
-.dtitle{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px}
+.dtitle{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:16px}
 .dinfo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .drow{display:flex;align-items:center;gap:10px;background:rgba(139,0,255,.06);border:1px solid rgba(139,0,255,.12);border-radius:12px;padding:9px 11px;min-width:0}
 .drow.dfull{grid-column:1/-1}
@@ -187,10 +187,10 @@ button:active{transform:scale(.96);opacity:.85}
 .drval{font-size:13px;color:#e8d4ff;font-weight:500;margin-top:1px;overflow-wrap:anywhere}
 .ddesc{font-size:14px;color:#886699;line-height:1.7;margin-bottom:16px}
 .dbtns{display:flex;gap:10px;margin-bottom:16px}
-.bbiggoing{flex:1;background:rgba(139,0,255,.10);border:1.5px solid rgba(139,0,255,.32);color:#c084fc;padding:15px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;text-align:center;transition:transform .12s ease,background .2s}
+.bbiggoing{flex:1;background:rgba(139,0,255,.10);border:1.5px solid rgba(139,0,255,.32);color:#c084fc;padding:15px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-align:center;transition:transform .12s ease,background .2s}
 .bbiggoing:active{transform:scale(.97)}
 .bbiggoing.active{background:rgba(139,0,255,.22);border-color:rgba(255,0,153,.45);color:#fff}
-.bbigbuy{flex:2;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:15px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 20px -2px rgba(255,0,153,.42);text-align:center;letter-spacing:.02em;transition:transform .12s ease,box-shadow .2s}
+.bbigbuy{flex:2;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:15px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 20px -2px rgba(255,0,153,.42);text-align:center;letter-spacing:.02em;transition:transform .12s ease,box-shadow .2s}
 .bbigbuy:active{transform:scale(.97);box-shadow:0 3px 12px -2px rgba(255,0,153,.4)}
 @keyframes buyGlow{0%,100%{box-shadow:0 6px 20px -2px rgba(255,0,153,.4)}50%{box-shadow:0 7px 28px 0 rgba(255,0,153,.62)}}
 .bbigbuy{animation:buyGlow 2.8s ease-in-out infinite}
@@ -212,14 +212,14 @@ button:active{transform:scale(.96);opacity:.85}
 .org-banner{background:linear-gradient(135deg,#1a0033,#000d1a);padding:24px 16px;border-bottom:1px solid rgba(139,0,255,.2);position:relative;overflow:hidden}
 .org-logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;overflow:hidden}
 .org-logo img{width:100%;height:100%;object-fit:cover;border-radius:16px}
-.org-name{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.org-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
 .org-desc{font-size:13px;color:#886699;line-height:1.6;margin-bottom:12px}
 .btn-follow{background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 
 /* CALENDAR */
 .cw{padding:14px}
 .cm{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
-.cm>span{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:#fff}
+.cm>span{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:900;color:#fff}
 .cmnav{width:34px;height:34px;border-radius:10px;background:var(--cd);border:1px solid rgba(139,0,255,.3);color:#c084fc;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;font-family:inherit;flex-shrink:0}
 .cmnav:active{background:rgba(139,0,255,.2)}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
@@ -236,7 +236,7 @@ button:active{transform:scale(.96);opacity:.85}
 .cei{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.06)}
 .cei:last-child{border-bottom:none}
 .cdb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.cdday{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:#fff;line-height:1}
+.cdday{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:900;color:#fff;line-height:1}
 .cdmon{font-size:8px;color:rgba(255,255,255,.7);text-transform:uppercase}
 
 /* SEARCH */
@@ -245,7 +245,7 @@ button:active{transform:scale(.96);opacity:.85}
 .si::placeholder{color:#664488}
 .sc{background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;cursor:pointer;margin-bottom:10px}
 .scdate{font-size:11px;color:var(--cy);font-weight:600;margin-bottom:3px}
-.scname{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.scname{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
 .scmeta{display:flex;justify-content:space-between;font-size:11px;color:#664488}
 
 /* CABINET */
@@ -253,11 +253,11 @@ button:active{transform:scale(.96);opacity:.85}
 .ch::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(139,0,255,.2),transparent 70%)}
 .cava{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pk));display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;box-shadow:0 0 20px rgba(139,0,255,.4);overflow:hidden}
 .cava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.cname{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:2px}
+.cname{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:2px}
 .cuname{font-size:12px;color:#886699;margin-bottom:4px}
 .crole{font-size:12px;color:#886699;margin-bottom:16px}
 .cstats{display:flex;gap:20px}
-.csnum{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.csnum{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .cslbl{font-size:10px;color:#555;margin-top:1px}
 .cmenu{padding:14px;display:flex;flex-direction:column;gap:8px}
 .ci{background:var(--cd);border:1px solid rgba(139,0,255,.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer}
@@ -270,13 +270,13 @@ button:active{transform:scale(.96);opacity:.85}
 /* SUBVIEWS */
 .sh{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(139,0,255,.15);background:rgba(8,0,16,.98);position:sticky;top:0;z-index:50}
 .sbk{background:rgba(139,0,255,.1);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif}
-.stit{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.stit{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff}
 .sbody{padding:14px}
 
 /* STATS */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
 .scard{background:var(--cd);border:1px solid rgba(139,0,255,.2);border-radius:14px;padding:14px;text-align:center}
-.snum{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.snum{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .slbl{font-size:11px;color:#664488;margin-top:3px}
 .scard.c .snum{background:linear-gradient(90deg,#0077aa,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .scard.g .snum{background:linear-gradient(90deg,#00aa55,var(--gn));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -292,7 +292,7 @@ button:active{transform:scale(.96);opacity:.85}
 .frow{display:flex;gap:8px}
 .bsave{flex:2;padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--p),var(--pk));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .bcanc{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#888;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
-.badd{width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(139,0,255,.35);margin-bottom:14px}
+.badd{width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(139,0,255,.35);margin-bottom:14px}
 .badd.cy{background:linear-gradient(90deg,#0077aa,var(--cy))}
 .pulbl{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(0,212,255,.05);border:1px dashed rgba(0,212,255,.3);border-radius:12px;padding:14px;cursor:pointer;color:#67e8f9;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px}
 .pprev{display:none;margin-bottom:8px;border-radius:12px;overflow:hidden;max-height:200px}
@@ -325,14 +325,14 @@ button:active{transform:scale(.96);opacity:.85}
 .ssug-chip:active{background:rgba(139,0,255,.2)}
 
 /* BOTTOM NAV */
-.bn{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom));left:14px;right:14px;border-radius:26px;background:rgba(18,8,30,.5);border:1px solid rgba(255,255,255,.13);display:flex;padding:5px;backdrop-filter:blur(34px) saturate(200%);-webkit-backdrop-filter:blur(34px) saturate(200%);z-index:200;box-shadow:0 10px 34px -8px rgba(0,0,0,.55);transition:transform .3s ease}
+.bn{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom));left:14px;right:14px;border-radius:18px;background:rgba(20,20,22,.6);border:1px solid rgba(255,255,255,.1);display:flex;padding:5px;backdrop-filter:blur(34px) saturate(160%);-webkit-backdrop-filter:blur(34px) saturate(160%);z-index:200;box-shadow:0 10px 34px -8px rgba(0,0,0,.55);transition:transform .3s ease}
 body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 .ni{flex:1;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:20px;transition:background .2s}
 .ni.active{background:rgba(255,255,255,.11)}
 .nicon{color:#7d6fa3;display:flex;line-height:0;transition:color .2s}
 .nlbl{font-size:9px;color:#7d6fa3;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .ni.active .nlbl{color:#fff}
-.ni.active .nicon{color:#fff;filter:drop-shadow(0 0 6px rgba(139,0,255,.6))}
+.ni.active .nicon{color:#fff}
 </style>
 </head>
 <body>
@@ -341,7 +341,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 <div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
 <div style="padding:40px 20px;max-width:420px;margin:0 auto">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <div style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">CLOUTE</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#fff,#c084fc,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent">CLOUTE</div>
   </div>
   <div style="font-size:14px;color:#664488;margin-bottom:32px">Добро пожаловать! Заполни профиль 👇</div>
   <div style="text-align:center;margin-bottom:28px">
@@ -361,7 +361,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <input type="checkbox" id="ob-consent" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#8b00ff">
     <span style="font-size:12px;color:#886699;line-height:1.5">Я даю своё согласие на обработку своих персональных данных в соответствии с <span style="color:#c084fc;text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacy()">Политикой конфиденциальности</span></span>
   </label>
-  <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4)">🚀 Войти в CLOUTE</button>
+  <button id="ob-btn" onclick="finishOnboard()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 8px 30px rgba(139,0,255,.4)">🚀 Войти в CLOUTE</button>
 </div>
 </div>
 
@@ -369,7 +369,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 <div id="vprivacy" style="display:none;position:fixed;inset:0;z-index:1100;background:var(--dk);overflow-y:auto">
 <div style="padding:20px 18px 60px;max-width:560px;margin:0 auto">
   <button onclick="closePrivacy()" style="background:rgba(255,255,255,.06);border:1px solid rgba(139,0,255,.25);color:#c084fc;padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px">← Назад</button>
-  <div style="font-family:'Unbounded',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px">Политика конфиденциальности</div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px">Политика конфиденциальности</div>
   <div id="pp-body" style="font-size:13px;color:#cbb6e6;line-height:1.7"></div>
 </div>
 </div>
@@ -439,7 +439,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     </div>
   </div>
   <div style="padding:14px">
-    <div style="font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">События организатора</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">События организатора</div>
     <div id="org-events"></div>
   </div>
 </div>
@@ -492,7 +492,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
           <div style="font-size:11px;color:#664488;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Telegram</div>
           <div id="pf-tg" style="font-size:13px;color:#c084fc"></div>
         </div>
-        <button onclick="savePf()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить профиль</button>
+        <button onclick="savePf()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить профиль</button>
       </div>
     </div>
   </div>
@@ -614,13 +614,13 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
         <textarea class="fi" id="oa-desc" rows="2" placeholder="📝 Что организуете? (вечеринки, концерты...) *"></textarea>
         <input class="fi" id="oa-social" placeholder="🔗 Ссылка на канал/соцсеть (VK, Telegram, сайт) *">
         <input class="fi" id="oa-contact" placeholder="📞 Контакт для связи (телефон или @username) *">
-        <button id="oa-btn" onclick="submitOrgApp()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">
+        <button id="oa-btn" onclick="submitOrgApp()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">
           📋 Отправить заявку
         </button>
       </div>
       <div id="soa-success" style="display:none;text-align:center;padding:30px 0">
         <div style="font-size:56px;margin-bottom:16px">🎉</div>
-        <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:10px">Заявка отправлена!</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:10px">Заявка отправлена!</div>
         <div style="font-size:13px;color:#886699;line-height:1.7">Я рассмотрю её в ближайшее время<br>и напишу тебе в бот</div>
       </div>
       <div id="soa-status" style="display:none"></div>
@@ -668,7 +668,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
         <option value="16+">16+</option>
         <option value="18+">18+</option>
       </select>
-      <button id="ee-btn" onclick="saveEditEv()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить изменения</button>
+      <button id="ee-btn" onclick="saveEditEv()" style="width:100%;background:linear-gradient(90deg,var(--p),var(--pk));color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 6px 24px rgba(139,0,255,.35)">💾 Сохранить изменения</button>
     </div>
   </div>
 
@@ -807,10 +807,8 @@ function fmtPriceShort(ev){
   return'от '+p;
 }
 function priceChip(ev){
-  if(isFree(ev))return'<span class="ec-price" style="background:rgba(0,212,255,.12);color:#7fe4ff">Free</span>';
-  const s=fmtPriceShort(ev);
-  const st=s.indexOf('Билеты')>=0?' style="background:rgba(155,128,196,.16);color:#bda6e6"':'';
-  return'<span class="ec-price"'+st+'>'+escH(s)+'</span>';
+  const s=isFree(ev)?'Бесплатно':fmtPriceShort(ev).replace('🎟 ','');
+  return'<span class="ec-price">'+escH(s)+'</span>';
 }
 
 function _hdr(extra){const h=extra||{};const d=window.Telegram?.WebApp?.initData;if(d)h['X-Telegram-Init-Data']=d;if(authTok)h['X-Auth-Token']=authTok;const a=localStorage.getItem('asec');if(a)h['X-Admin-Secret']=a;return h}
@@ -999,7 +997,7 @@ function showFeedSkeleton(){
 
 const _ICN={tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
 function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0">${_ICN[n]||''}</svg>`}
-const _PH=['radial-gradient(120% 120% at 30% 20%,#ff2da6,#8b00ff 60%,#1b0033)','radial-gradient(120% 120% at 72% 22%,#00d4ff,#8b00ff 70%,#10001c)','radial-gradient(120% 120% at 62% 18%,#ff0099,#ff7a00 78%,#2b0010)','radial-gradient(120% 120% at 40% 28%,#a855f7,#00d4ff 82%,#0a0016)','radial-gradient(125% 95% at 75% 15%,#ff2da6,#8b00ff 48%,#1b0033)'];
+const _PH=['#1c1c1f','#19191c','#1e1b22','#181818','#1b1c1e'];
 function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
 function drow(icon,col,bg,lbl,val,full){return `<div class="drow${full?' dfull':''}"><div class="dricon" style="background:${bg};color:${col}">${ic(icon,18,col)}</div><div><div class="drlbl">${lbl}</div><div class="drval">${val}</div></div></div>`;}
 function cntHTML(ev,col){if(tcWidgetData(ev.link))return `${ic('ticket',13,col)} ${ev.sold||0} продано`;const n=(ev.reg_count||0)+(ev.going_count||0);return `${ic(ev.reg_open?'ticket':'users',13,col)} ${n} идут`;}
@@ -1020,7 +1018,7 @@ function renderFeed(list){
   }
 }
 function hlCard(ev){
-  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge"><span class="flame">🔥</span> Хит</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;margin-top:7px"><span style="font-size:12px;color:#e6d3ff;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#e6d3ff')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span></div></div></div>`;
+  return `<div class="headliner poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="hl-img" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="hl-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div class="hl-ov"></div>${ev.hot?'<span class="hl-badge">Хит</span>':''}<div class="hl-info"><div class="hl-name">${escH(ev.name)}</div><div style="display:flex;align-items:center;margin-top:7px"><span style="font-size:12px;color:#d6d6db;letter-spacing:.02em;display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ic('pin',13,'#d6d6db')} ${escH(ev.venue)} · ${escH(fmtDate(ev.date))}</span></div></div></div>`;
 }
 function ecCard(ev){
   const isFav=favs.includes(ev.id);
@@ -1101,7 +1099,7 @@ function openTK(){
     <div id="tk-real"></div>
     <div style="text-align:center;padding:22px 8px 4px">
       <div style="font-size:54px;margin-bottom:8px">🎟</div>
-      <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:800">Билеты — на твоей почте</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800">Билеты — на твоей почте</div>
       <div style="font-size:13px;color:#886699;line-height:1.6;max-width:330px;margin:8px auto 0">Покупка билетов в CLOUTE проходит через <b style="color:#c084fc">Ticketscloud</b> — нашего билетного партнёра. Билет приходит на email, указанный при оплате.</div>
     </div>
     <div style="background:var(--cd);border:1px solid rgba(139,0,255,.18);border-radius:16px;padding:4px 16px;margin-top:18px">
@@ -1176,7 +1174,7 @@ async function loadMyTickets(){
       ${(t.barcodes&&t.barcodes.length)?t.barcodes.map(qrBlock).join(''):''}
     </div>`;
   box.innerHTML=`
-    <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">🎟 Твои билеты</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">🎟 Твои билеты</div>
     <div style="font-size:12px;color:#886699;margin:0 0 14px">Покажи QR с экрана на входе.</div>
     ${d.tickets.map(card).join('')}
     <div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Этот же билет продублирован в письме на <b style="color:#886699">${escH(d.email)}</b>.</div>
@@ -1455,7 +1453,7 @@ function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style
 function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
 function renderPrivacy(){
   const el=document.getElementById('pp-body');if(!el||el.dataset.done)return;
-  const h=(t)=>`<div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">${t}</div>`;
+  const h=(t)=>`<div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">${t}</div>`;
   el.innerHTML=`
     <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#fff;margin:18px 0 6px">1. ОБЩИЕ ПОЛОЖЕНИЯ</div>
     <p>Настоящая политика обработки персональных данных (далее – Политика) составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, полученных Индивидуальным предпринимателем Дауровым Альбертом Муратовичем, ИНН – 231141949430 (далее – Оператор).</p>
@@ -1968,7 +1966,7 @@ function renderAppStatus(app){
   st.innerHTML=`
     <div style="text-align:center;padding:14px 0 4px"><div style="font-size:52px">${m.ico}</div></div>
     <div style="background:${m.bg};border:1px solid ${m.bd};border-radius:16px;padding:16px;margin-top:8px">
-      <div style="font-family:'Unbounded',sans-serif;font-size:15px;font-weight:800;color:${m.color};margin-bottom:8px">Заявка: ${m.title}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:${m.color};margin-bottom:8px">Заявка: ${m.title}</div>
       <div style="font-size:12px;color:#886699;line-height:1.6;margin-bottom:10px">${m.sub}</div>
       ${det?`<div style="border-top:1px solid rgba(139,0,255,.15);padding-top:10px">${det}</div>`:''}
     </div>`;
@@ -2094,7 +2092,7 @@ async function openEvStats(id){
   const sold=s.total_sold||0, attended=s.total_attended||0;
   const free=ev&&isFree(ev), going=ev?(ev.going_count||0):0;
   const conv=views>0?Math.round(sold/views*100):0;
-  const head=ev?`<div style="margin-bottom:14px"><div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:800">${ev.emoji||''} ${escH(ev.name||'')}</div><div style="font-size:12px;color:#664488;margin-top:4px">${escH(ev.date||'')} · ${escH(ev.venue||'')}</div></div>`:'';
+  const head=ev?`<div style="margin-bottom:14px"><div style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800">${ev.emoji||''} ${escH(ev.name||'')}</div><div style="font-size:12px;color:#664488;margin-top:4px">${escH(ev.date||'')} · ${escH(ev.venue||'')}</div></div>`:'';
   const big=(val,lbl,col,bg)=>`<div style="flex:1;background:${bg};border-radius:12px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:${col}">${val}</div><div style="font-size:10px;color:#664488;margin-top:2px">${lbl}</div></div>`;
   const catRows=cats.length?cats.map(c=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(139,0,255,.12)">
@@ -2114,7 +2112,7 @@ async function openEvStats(id){
       </div>
       <div style="background:linear-gradient(135deg,rgba(139,0,255,.15),rgba(255,0,153,.06));border:1px solid rgba(139,0,255,.3);border-radius:14px;padding:18px;text-align:center">
         <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.08em">🎉 Бесплатное мероприятие</div>
-        <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#c084fc;margin-top:6px">${main}${lim?` / ${lim}`:''}</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;color:#c084fc;margin-top:6px">${main}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#886699;margin-top:6px">${reg?'получили билет':'отметили «Иду»'} · конверсия ${convG}%</div>
       </div>`;
     return;
@@ -2128,7 +2126,7 @@ async function openEvStats(id){
     </div>
     <div style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
       <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.08em">💵 Выручка с билетов</div>
-      <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#34d399;margin-top:4px">${fmtMoney(revenue)}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;color:#34d399;margin-top:4px">${fmtMoney(revenue)}</div>
       <div style="font-size:11px;color:#664488;margin-top:4px">Конверсия просмотр→покупка: ${conv}%</div>
     </div>
     <div style="font-size:11px;font-weight:700;color:#664488;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">По категориям билетов</div>
@@ -2153,9 +2151,9 @@ function renderScannerCode(id,code){
     <div style="font-size:15px;font-weight:700;color:#e8d4ff;margin-bottom:14px">${escH(_evName(id))}</div>
     <div style="background:var(--cd);border:1px solid rgba(139,0,255,.25);border-radius:16px;padding:16px;text-align:center">
       <div style="font-size:11px;color:#664488;text-transform:uppercase;letter-spacing:.06em">Код для охраны</div>
-      <div style="font-family:'Unbounded',sans-serif;font-size:34px;font-weight:900;letter-spacing:.22em;color:#67e8f9;margin:6px 0 4px">${escH(code)}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:900;letter-spacing:.22em;color:#67e8f9;margin:6px 0 4px">${escH(code)}</div>
       <div style="font-size:12px;color:#886699;line-height:1.6;margin:6px 4px 14px">Перешли охране — они откроют ссылку, введут код и будут пускать гостей: по списку, а на бесплатных — ещё и сканером QR. Telegram у них не обязателен.</div>
-      <button onclick="shareScanToTg()" style="width:100%;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Unbounded',sans-serif;margin-bottom:8px">✈️ Отправить охране в Telegram</button>
+      <button onclick="shareScanToTg()" style="width:100%;background:linear-gradient(135deg,var(--p),var(--pk));color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Space Grotesk',sans-serif;margin-bottom:8px">✈️ Отправить охране в Telegram</button>
       <button onclick="copyScanLink()" style="width:100%;background:rgba(139,0,255,.12);border:1px solid rgba(139,0,255,.3);color:#c084fc;padding:11px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔗 Скопировать ссылку</button>
       <button onclick="regenScannerCode(${id})" style="width:100%;background:transparent;border:none;color:#7a5a8a;padding:6px;font-size:12px;cursor:pointer">♻️ Сделать новый код (старый перестанет работать)</button>
     </div>`;
@@ -2208,7 +2206,7 @@ function renderGuests(guests){
   }).join('');
   box.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:800;font-family:'Unbounded',sans-serif;background:linear-gradient(90deg,#c084fc,#ff0099);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🎟 Гостевой список</div>
+      <div style="font-size:16px;font-weight:800;font-family:'Space Grotesk',sans-serif;background:linear-gradient(90deg,#c084fc,#ff0099);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🎟 Гостевой список</div>
       <div style="font-size:12px;color:#886699">пришло <b style="color:#7CFC9B">${arr}</b> / ${guests.length}</div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
