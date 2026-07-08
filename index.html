@@ -249,7 +249,7 @@ button:active{transform:scale(.96);opacity:.85}
 /* CABINET */
 .ch{padding:24px 16px 20px;background:#151517;border-bottom:1px solid rgba(255,255,255,.12);position:relative;overflow:hidden}
 .ch::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%)}
-.cava{width:72px;height:72px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;box-shadow:0 0 20px rgba(255,255,255,.14);overflow:hidden}
+.cava{width:72px;height:72px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;overflow:hidden}
 .cava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .cname{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:2px}
 .cuname{font-size:12px;color:#8a8a92;margin-bottom:4px}
@@ -260,7 +260,7 @@ button:active{transform:scale(.96);opacity:.85}
 .cmenu{padding:14px;display:flex;flex-direction:column;gap:8px}
 .ci{background:var(--cd);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer}
 .ci:active{opacity:.8}
-.ciico{font-size:22px;width:40px;height:40px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ciico{width:40px;height:40px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#e6e6ea}
 .citit{font-size:14px;font-weight:600;color:#fff}
 .cisub{font-size:11px;color:#8a8a92;margin-top:2px}
 .carr{margin-left:auto;color:#8a8a92;font-size:16px}
@@ -343,7 +343,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
   <div style="font-size:14px;color:#8a8a92;margin-bottom:32px">Добро пожаловать! Заполни профиль 👇</div>
   <div style="text-align:center;margin-bottom:28px">
-    <div id="ob-ava" style="width:80px;height:80px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;box-shadow:0 0 24px rgba(255,255,255,.14);overflow:hidden">👤</div>
+    <div id="ob-ava" style="width:80px;height:80px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;overflow:hidden">👤</div>
     <div style="font-size:11px;color:#8a8a92">Аватарка из Telegram</div>
   </div>
   <div style="margin-bottom:24px">
@@ -400,7 +400,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="dho"></div>
     <button class="bback" onclick="navBack()">← Назад</button>
     <div class="dtop">
-      <button class="bcircle" id="btn-fav" onclick="togFav()">🤍</button>
+      <button class="bcircle" id="btn-fav" onclick="togFav()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
       <button class="bcircle" onclick="shareEv()">🔗</button>
     </div>
     <div class="dh-info"><div id="d-badges"></div><div class="dtitle" id="d-name"></div></div>
@@ -479,7 +479,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">👤 Мой профиль</div></div>
     <div class="sbody">
       <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
-        <div id="pf-ava" onclick="document.getElementById('pf-ava-inp').click()" style="width:90px;height:90px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 24px rgba(255,255,255,.14);overflow:hidden;cursor:pointer">👤</div>
+        <div id="pf-ava" onclick="document.getElementById('pf-ava-inp').click()" style="width:90px;height:90px;border-radius:50%;background:#1c1c1f;border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;cursor:pointer">👤</div>
         <input type="file" id="pf-ava-inp" accept="image/*" style="display:none" onchange="prevAva(this)">
         <div style="font-size:12px;color:#8a8a92;margin-top:8px;cursor:pointer" onclick="document.getElementById('pf-ava-inp').click()">Нажми чтобы изменить фото</div>
       </div>
@@ -993,8 +993,9 @@ function showFeedSkeleton(){
   document.getElementById('feed').innerHTML=hl+[1,2,3].map(()=>card).join('');
 }
 
-const _ICN={tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'};
+const _ICN={tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',pin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',ticket:'<path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/>',search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',chev:'<polyline points="9 18 15 12 9 6"/>',route:'<polygon points="3 11 22 2 13 21 11 13 3 11"/>',back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>',chart:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',building:'<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/>',star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',heart:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'};
 function ic(n,s=15,col='currentColor'){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0">${_ICN[n]||''}</svg>`}
+function favIcon(on){const c=on?'#7c4dff':'#8a8a92';return `<svg width="20" height="20" viewBox="0 0 24 24" fill="${on?c:'none'}" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px">${_ICN.heart}</svg>`}
 const _PH=['#1c1c1f','#19191c','#1e1b22','#181818','#1b1c1e'];
 function phGrad(id){return _PH[Math.abs(id||0)%_PH.length]}
 function drow(icon,col,bg,lbl,val,full){return `<div class="drow${full?' dfull':''}"><div class="dricon" style="background:${bg};color:${col}">${ic(icon,18,col)}</div><div><div class="drlbl">${lbl}</div><div class="drval">${val}</div></div></div>`;}
@@ -1020,7 +1021,7 @@ function hlCard(ev){
 }
 function ecCard(ev){
   const isFav=favs.includes(ev.id);
-  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px">${priceChip(ev)}</div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${isFav?'💜':'🤍'}</button></div>`;
+  return `<div class="ec poster-appear" onclick="openEv(${ev.id})">${ev.poster_url?`<img class="ec-thumb" src="${escH(ev.poster_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="ec-ph" style="${ev.poster_url?'display:none':'background:'+phGrad(ev.id)}">${escH(ev.emoji)}</div><div style="flex:1;min-width:0"><div class="ec-name">${escH(ev.name)}</div><div class="ec-meta">${escH(fmtDate(ev.date))} · ${escH(ev.time)} · ${escH(ev.venue)}</div><div style="display:flex;align-items:center;gap:10px">${priceChip(ev)}</div></div><button class="ec-fav" onclick="event.stopPropagation();qFav(${ev.id},this)">${favIcon(isFav)}</button></div>`;
 }
 
 // Нормализация ссылок орга: добавляем схему, понимаем @ник и t.me
@@ -1069,7 +1070,7 @@ function tcInit(){try{if(window.ticketsCloudWidget&&window.ticketsCloudWidget.in
 // В ленте: TC-событие открываем в детали (там виджет встроен правильно); обычную ссылку — открываем сразу
 function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev?.link)return;if(tcWidgetData(ev.link))openEv(id);else openExt(ticketUrl(ev.link))}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
-function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.textContent='🤍'}else{favs.push(id);btn.textContent='💜'}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
+function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.innerHTML=favIcon(false)}else{favs.push(id);btn.innerHTML=favIcon(true)}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Лови движуху в CLOUTE 👇`;}
 function shareLink(id){return 'https://t.me/clout_msk_bot?start=ev'+id}
 function tgShare(ev){
@@ -1268,7 +1269,7 @@ function openEv(id){
   document.getElementById('btn-tg').style.display=ev.tg_link?'block':'none';
   nav('d');
 }
-function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").textContent=favs.includes(curEv)?"💜":"🤍";apiFav(curEv,favNow)}
+function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").innerHTML=favIcon(favs.includes(curEv));apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
 // Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
@@ -1594,27 +1595,27 @@ function renderCab(){
     document.getElementById('crole').textContent='Администратор платформы';
     document.getElementById('cstats').innerHTML=`<div><div class="csnum">${evs.length}</div><div class="cslbl">событий</div></div><div><div class="csnum">${orgs.length}</div><div class="cslbl">оргов</div></div>`;
     document.getElementById('cmenu').innerHTML=`
-      <div class="ci" onclick="openAS()"><div class="ciico">📊</div><div><div class="citit">Статистика</div><div class="cisub">Пользователи, события</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openAO()"><div class="ciico">🏢</div><div><div class="citit">Организаторы</div><div class="cisub">${orgs.length} подключено</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openAE()"><div class="ciico">🎉</div><div><div class="citit">Все события</div><div class="cisub">${evs.length} событий</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openPromo()" style="border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.04)"><div class="ciico" style="background:var(--ac)">🔥</div><div><div class="citit">Продвижение</div><div class="cisub">Управление топом ленты</div></div><div class="carr">›</div></div>`;
+      <div class="ci" onclick="openAS()"><div class="ciico">${ic('chart',20)}</div><div><div class="citit">Статистика</div><div class="cisub">Пользователи, события</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openAO()"><div class="ciico">${ic('building',20)}</div><div><div class="citit">Организаторы</div><div class="cisub">${orgs.length} подключено</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openAE()"><div class="ciico">${ic('cal',20)}</div><div><div class="citit">Все события</div><div class="cisub">${evs.length} событий</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openPromo()" style="border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.04)"><div class="ciico" style="background:var(--ac);color:#fff">${ic('star',20)}</div><div><div class="citit">Продвижение</div><div class="cisub">Управление топом ленты</div></div><div class="carr">›</div></div>`;
   } else if(role==='org'){
     document.getElementById('crole').textContent='Организатор мероприятий';
     const myEvs=evs.filter(e=>e.org_id==uid&&uid>0);
     const draftsCount=getDrafts().length;
     document.getElementById('cstats').innerHTML=`<div><div class="csnum">${myEvs.length}</div><div class="cslbl">событий</div></div><div><div class="csnum">${draftsCount}</div><div class="cslbl">черновиков</div></div>`;
     document.getElementById('cmenu').innerHTML=`
-      <div class="ci" style="border-color:rgba(255,255,255,.14)" onclick="openOAdd()"><div class="ciico" style="background:var(--ac)">➕</div><div><div class="citit">Добавить мероприятие</div><div class="cisub">Создать событие</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openOE()"><div class="ciico">🎉</div><div><div class="citit">Мои мероприятия</div><div class="cisub">${myEvs.length} событий</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openDrafts()"><div class="ciico">📝</div><div><div class="citit">Черновики</div><div class="cisub" id="drafts-count">0 черновиков</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openOS()"><div class="ciico">📊</div><div><div class="citit">Статистика</div><div class="cisub">Просмотры событий</div></div><div class="carr">›</div></div>`;
+      <div class="ci" style="border-color:rgba(255,255,255,.14)" onclick="openOAdd()"><div class="ciico" style="background:var(--ac);color:#fff">${ic('plus',20)}</div><div><div class="citit">Добавить мероприятие</div><div class="cisub">Создать событие</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openOE()"><div class="ciico">${ic('cal',20)}</div><div><div class="citit">Мои мероприятия</div><div class="cisub">${myEvs.length} событий</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openDrafts()"><div class="ciico">${ic('edit',20)}</div><div><div class="citit">Черновики</div><div class="cisub" id="drafts-count">0 черновиков</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openOS()"><div class="ciico">${ic('chart',20)}</div><div><div class="citit">Статистика</div><div class="cisub">Просмотры событий</div></div><div class="carr">›</div></div>`;
   } else {
     document.getElementById('crole').textContent='Участник сообщества';
     document.getElementById('cstats').innerHTML=`<div><div class="csnum">${favs.length}</div><div class="cslbl">избранных</div></div>`;
     document.getElementById('cmenu').innerHTML=`
-      <div class="ci" style="background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.2)" onclick="openPF()"><div class="ciico" style="background:rgba(0,212,255,.1)">👤</div><div><div class="citit">Мой профиль</div><div class="cisub">${pf.name||'Нажми чтобы изменить'}</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openTK()"><div class="ciico">🎟</div><div><div class="citit">Мои билеты</div><div class="cisub">Купленные события</div></div><div class="carr">›</div></div>
-      <div class="ci" onclick="openFV()"><div class="ciico">❤️</div><div><div class="citit">Избранное</div><div class="cisub">${favs.length} сохранено</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openPF()"><div class="ciico">${ic('user',20)}</div><div><div class="citit">Мой профиль</div><div class="cisub">${pf.name||'Нажми чтобы изменить'}</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openTK()"><div class="ciico">${ic('ticket',20)}</div><div><div class="citit">Мои билеты</div><div class="cisub">Купленные события</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openFV()"><div class="ciico">${ic('heart',20)}</div><div><div class="citit">Избранное</div><div class="cisub">${favs.length} сохранено</div></div><div class="carr">›</div></div>
       <div style="margin-top:8px;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="openOrgApply()">
         <div style="font-size:22px;width:40px;height:40px;background:var(--ac);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏢</div>
         <div style="flex:1">
