@@ -336,11 +336,11 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 #pl-num{font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:600;color:#fff;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
 #pl-track{width:120px;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
 #pl-bar{height:100%;width:0;background:#b58bf0;transition:width .12s linear}
-#pl-lbl{font-size:10px;letter-spacing:.3em;color:#8a8a92;text-transform:uppercase}
+#pl-pct{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:500;color:#8a8a92;line-height:1}
 </style>
 </head>
 <body>
-<div id="preloader"><div id="pl-num">0</div><div id="pl-track"><div id="pl-bar"></div></div><div id="pl-lbl">Загрузка</div></div>
+<div id="preloader"><div style="display:flex;align-items:baseline;gap:3px"><div id="pl-num">0</div><div id="pl-pct">%</div></div><div id="pl-track"><div id="pl-bar"></div></div></div>
 
 <!-- ONBOARDING -->
 <div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
