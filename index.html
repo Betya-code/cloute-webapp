@@ -1207,12 +1207,26 @@ async function loadMyTickets(){
       </div>
       ${(t.barcodes&&t.barcodes.length)?t.barcodes.map(qrBlock).join(''):''}
     </div>`;
+  // Делим на актуальные (событие сегодня/в будущем) и прошедшие (в базе остаются всегда)
+  const _pastD=(ds)=>{const p=(ds||'').split('.');if(p.length<3)return false;const d=new Date(+p[2],+p[1]-1,+p[0]);const n=new Date();n.setHours(0,0,0,0);return d<n;};
+  const _tsD=(ds)=>{const p=(ds||'').split('.');return p.length<3?0:new Date(+p[2],+p[1]-1,+p[0]).getTime();};
+  const active=d.tickets.filter(t=>!_pastD(t.date)).sort((a,b)=>_tsD(a.date)-_tsD(b.date));
+  const past=d.tickets.filter(t=>_pastD(t.date)).sort((a,b)=>_tsD(b.date)-_tsD(a.date));
+  const pastCard=(t)=>`
+    <div style="background:var(--cd);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px 14px;margin-bottom:8px;opacity:.7">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:20px;flex-shrink:0;filter:grayscale(1)">${escH(t.emoji||'🎟')}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:#cfc7db;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(t.event)}</div><div style="font-size:11px;color:#8a8a92;margin-top:2px">${escH([t.date,t.venue].filter(Boolean).join(' · '))}</div></div>
+        <div style="font-size:10px;color:#8a8a92;border:1px solid var(--hair);padding:3px 8px;border-radius:8px;white-space:nowrap">завершено</div>
+      </div>
+    </div>`;
   box.innerHTML=`
-    <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">Твои билеты</div>
-    <div style="font-size:12px;color:#8a8a92;margin:0 0 14px">Покажи QR с экрана на входе.</div>
-    ${d.tickets.map(card).join('')}
-    ${(d.email&&d.tickets.some(t=>!t.free))?`<div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Оплаченный билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>`:''}
-    <div style="height:1px;background:rgba(255,255,255,.08);margin:0 0 6px"></div>`;
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin:6px 0 4px">Твои билеты</div>
+    <div style="font-size:12px;color:#8a8a92;margin:0 0 14px">${active.length?'Покажи QR с экрана на входе.':'Актуальных билетов пока нет.'}</div>
+    ${active.map(card).join('')}
+    ${(d.email&&active.some(t=>!t.free))?`<div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Оплаченный билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>`:''}
+    ${past.length?`<div onclick="var e=document.getElementById('tk-hist');var o=e.style.display==='none';e.style.display=o?'block':'none';this.querySelector('i').textContent=o?'▾':'▸'" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:20px 0 10px;color:#8a8a92;font-size:12px;letter-spacing:.08em;text-transform:uppercase"><i style="font-style:normal">▸</i> История · ${past.length}</div><div id="tk-hist" style="display:none">${past.map(pastCard).join('')}</div>`:''}
+    <div style="height:1px;background:rgba(255,255,255,.08);margin:14px 0 6px"></div>`;
 }
 
 function countView(ev){
