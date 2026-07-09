@@ -1224,7 +1224,6 @@ async function loadMyTickets(){
     <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin:6px 0 4px">Твои билеты</div>
     <div style="font-size:12px;color:#8a8a92;margin:0 0 14px">${active.length?'Покажи QR с экрана на входе.':'Актуальных билетов пока нет.'}</div>
     ${active.map(card).join('')}
-    ${(d.email&&active.some(t=>!t.free))?`<div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Оплаченный билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>`:''}
     ${past.length?`<div onclick="var e=document.getElementById('tk-hist');var o=e.style.display==='none';e.style.display=o?'block':'none';this.querySelector('i').textContent=o?'▾':'▸'" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:20px 0 10px;color:#8a8a92;font-size:12px;letter-spacing:.08em;text-transform:uppercase"><i style="font-style:normal">▸</i> История · ${past.length}</div><div id="tk-hist" style="display:none">${past.map(pastCard).join('')}</div>`:''}
     <div style="height:1px;background:rgba(255,255,255,.08);margin:14px 0 6px"></div>`;
 }
