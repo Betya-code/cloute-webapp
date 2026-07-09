@@ -331,8 +331,8 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 .nlbl{font-size:9px;color:#7d6fa3;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .ni.active .nlbl{color:#fff}
 .ni.active .nicon{color:#fff}
-#preloader{position:fixed;inset:0;z-index:9999;background:#0a0a0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .55s ease,filter .55s ease}
-#preloader.hide{opacity:0;filter:blur(10px);pointer-events:none}
+#preloader{position:fixed;inset:0;z-index:9999;background:#0a0a0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .45s ease}
+#preloader.hide{opacity:0;pointer-events:none}
 #pl-num{font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:600;color:#fff;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
 #pl-track{width:120px;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
 #pl-bar{height:100%;width:0;background:#b58bf0;transition:width .12s linear}
@@ -858,24 +858,27 @@ async function D(p){
 // ── ПРЕЛОАДЕР (счётчик 0→100). Гибрид: плавно бежит к 90%, ждёт реальные данные,
 // затем добегает до 100 → тактильный «тик» → размывается и исчезает. Никогда не
 // тормозит дольше, чем реально грузится лента (safety-таймаут 7с). ──
-let _plVal=0,_plTarget=90,_plRAF=0;
+let _plN=null,_plB=null,_plVal=0,_plTarget=90,_plRAF=0,_plEnded=false,_plT0=0;
 function _plLoop(){
+  if(_plEnded)return;
+  if(Date.now()-_plT0>8000)_plTarget=100;          // жёсткий предел: не крутиться дольше 8с ни при каких условиях
   _plVal += (_plTarget-_plVal)*0.08;
   if(_plTarget>=100 && _plVal>99.3)_plVal=100;
   const v=Math.min(100,Math.round(_plVal));
-  const n=document.getElementById('pl-num'); if(n)n.textContent=v;
-  const bar=document.getElementById('pl-bar'); if(bar)bar.style.width=v+'%';
-  if(_plVal>=100 && _plTarget>=100){_plDone();return;}
+  if(_plN)_plN.textContent=v;
+  if(_plB)_plB.style.width=v+'%';
+  if(_plVal>=100){_plDone();return;}
   _plRAF=requestAnimationFrame(_plLoop);
 }
-function _plStart(){_plRAF=requestAnimationFrame(_plLoop);}
+function _plStart(){_plN=document.getElementById('pl-num');_plB=document.getElementById('pl-bar');_plT0=Date.now();_plRAF=requestAnimationFrame(_plLoop);}
 function _plFinish(){_plTarget=100;}
 function _plDone(){
+  if(_plEnded)return; _plEnded=true;               // защита от повторного вызова
   cancelAnimationFrame(_plRAF);
   try{window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light')}catch(e){}
   const p=document.getElementById('preloader'); if(!p)return;
   p.classList.add('hide');
-  setTimeout(()=>{try{p.remove()}catch(e){}},600);
+  setTimeout(()=>{try{p.style.display='none';p.remove()}catch(e){}},480);  // гарантированно убираем слой из DOM
 }
 
 // ── INIT ──────────────────────────────────────────────────
