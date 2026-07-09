@@ -1264,9 +1264,7 @@ function openEv(id){
     drow('tag','#b58bf0','rgba(255,255,255,.05)','Вход',escH(fmtPrice(ev.price)))+
     (ev.age_limit?drow('alert','#b58bf0','rgba(255,255,255,.05)','Возраст',escH(ev.age_limit)):'');
   const btnGoing=document.getElementById('btn-going');
-  const isGoing=going.includes(id);
-  btnGoing.textContent=isGoing?'Я иду':'Пойду';
-  btnGoing.className='bbiggoing'+(isGoing?' active':'');
+  btnGoing.style.display='none';   // «Пойду» (RSVP) убрана как бесполезная; кнопка нужна только под «Получить билет» (Путь Б)
   const btnBuy=document.getElementById('btn-buy');
   const buyWrap=document.getElementById('buy-wrap');
   const tcBuy=document.getElementById('tc-buy');
@@ -1300,6 +1298,7 @@ function openEv(id){
   // Путь Б: бесплатная регистрация по билетам
   if(isFree(ev)&&ev.reg_open){
     buyWrap.style.display='none';
+    btnGoing.style.display='';   // показываем кнопку только ради «Получить билет»
     const lim=parseInt(ev.reg_limit||0,10)||0;
     const left=lim>0?Math.max(0,lim-(ev.reg_count||0)):null;
     if(myReg.includes(id)){
@@ -1310,8 +1309,6 @@ function openEv(id){
       btnGoing.textContent=left!=null?`Получить билет · осталось ${left}`:'Получить билет';
       btnGoing.className='bbiggoing';btnGoing.onclick=()=>getFreeTicket(id);
     }
-  }else{
-    btnGoing.onclick=togGoingDetail;
   }
   document.getElementById('btn-route').style.display=ev.venue?'block':'none';
   document.getElementById('btn-tg').style.display=ev.tg_link?'block':'none';
