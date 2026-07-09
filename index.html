@@ -1211,7 +1211,7 @@ async function loadMyTickets(){
     <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:6px 0 4px">Твои билеты</div>
     <div style="font-size:12px;color:#8a8a92;margin:0 0 14px">Покажи QR с экрана на входе.</div>
     ${d.tickets.map(card).join('')}
-    <div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Этот же билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>
+    ${(d.email&&d.tickets.some(t=>!t.free))?`<div style="font-size:11px;color:#554466;text-align:center;margin:4px 0 18px;line-height:1.5">Оплаченный билет продублирован в письме на <b style="color:#8a8a92">${escH(d.email)}</b>.</div>`:''}
     <div style="height:1px;background:rgba(255,255,255,.08);margin:0 0 6px"></div>`;
 }
 
