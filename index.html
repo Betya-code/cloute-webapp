@@ -331,9 +331,16 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 .nlbl{font-size:9px;color:#7d6fa3;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .ni.active .nlbl{color:#fff}
 .ni.active .nicon{color:#fff}
+#preloader{position:fixed;inset:0;z-index:9999;background:#0a0a0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .55s ease,filter .55s ease}
+#preloader.hide{opacity:0;filter:blur(10px);pointer-events:none}
+#pl-num{font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:600;color:#fff;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+#pl-track{width:120px;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
+#pl-bar{height:100%;width:0;background:#b58bf0;transition:width .12s linear}
+#pl-lbl{font-size:10px;letter-spacing:.3em;color:#8a8a92;text-transform:uppercase}
 </style>
 </head>
 <body>
+<div id="preloader"><div id="pl-num">0</div><div id="pl-track"><div id="pl-bar"></div></div><div id="pl-lbl">Загрузка</div></div>
 
 <!-- ONBOARDING -->
 <div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
@@ -848,10 +855,34 @@ async function D(p){
   }catch(e){console.error('DELETE error:',p,e);return null}
 }
 
+// ── ПРЕЛОАДЕР (счётчик 0→100). Гибрид: плавно бежит к 90%, ждёт реальные данные,
+// затем добегает до 100 → тактильный «тик» → размывается и исчезает. Никогда не
+// тормозит дольше, чем реально грузится лента (safety-таймаут 7с). ──
+let _plVal=0,_plTarget=90,_plRAF=0;
+function _plLoop(){
+  _plVal += (_plTarget-_plVal)*0.08;
+  if(_plTarget>=100 && _plVal>99.3)_plVal=100;
+  const v=Math.min(100,Math.round(_plVal));
+  const n=document.getElementById('pl-num'); if(n)n.textContent=v;
+  const bar=document.getElementById('pl-bar'); if(bar)bar.style.width=v+'%';
+  if(_plVal>=100 && _plTarget>=100){_plDone();return;}
+  _plRAF=requestAnimationFrame(_plLoop);
+}
+function _plStart(){_plRAF=requestAnimationFrame(_plLoop);}
+function _plFinish(){_plTarget=100;}
+function _plDone(){
+  cancelAnimationFrame(_plRAF);
+  try{window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light')}catch(e){}
+  const p=document.getElementById('preloader'); if(!p)return;
+  p.classList.add('hide');
+  setTimeout(()=>{try{p.remove()}catch(e){}},600);
+}
+
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
+  _plStart(); setTimeout(_plFinish,7000);   // прелоадер + страховка, чтобы не завис
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
   const token=new URLSearchParams(window.location.search).get('token');
   // Токен из ссылки мини-аппа — запасная авторизация для получения/возврата билета
@@ -875,6 +906,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     if(!pf)showOb();
   }
   await feedP;                              // дождаться ленты (как правило уже готова к этому моменту)
+  _plFinish();                              // данные готовы → прелоадер добегает до 100 и исчезает
   // Открыть конкретное событие по deep-link из шеринга (?startev=N или Telegram start_param evN)
   try{
     const sp=(new URLSearchParams(location.search).get('startev'))||(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
