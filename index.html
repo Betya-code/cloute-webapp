@@ -881,9 +881,20 @@ function _plDone(){
   setTimeout(()=>{try{p.style.display='none';p.remove()}catch(e){}},480);  // гарантированно убираем слой из DOM
 }
 
+// Достаём номер меро из ссылки (надёжно, из всех источников: connector &startev, Telegram start_param, hash)
+function _readStartEv(){
+  try{
+    let sp=new URLSearchParams(location.search).get('startev')||'';
+    if(!sp)sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
+    if(!sp){const h=new URLSearchParams((location.hash||'').replace(/^#/,''));sp=h.get('tgWebAppStartParam')||'';}
+    const mm=String(sp).match(/(\d+)/);
+    return mm?parseInt(mm[1]):0;
+  }catch(e){return 0;}
+}
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
+  pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
   _plStart(); setTimeout(_plFinish,7000);   // прелоадер + страховка, чтобы не завис
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
@@ -910,12 +921,17 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }
   await feedP;                              // дождаться ленты (как правило уже готова к этому моменту)
   _plFinish();                              // данные готовы → прелоадер добегает до 100 и исчезает
-  // Открыть конкретное событие по deep-link из шеринга (?startev=N или Telegram start_param evN)
-  try{
-    const sp=(new URLSearchParams(location.search).get('startev'))||(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
-    const mm=String(sp).match(/(\d+)/);
-    if(mm){pendingEv=parseInt(mm[1]);if(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv))openEv(pendingEv);}
-  }catch(e){}
+  // Пришли по ссылке на меро → открываем его (с повтором, если лента ещё догружается).
+  // Для нового юзера событие откроется под онбордингом, а finishOnboard откроет его после регистрации.
+  if(pendingEv){
+    let _t=0,_done=false;
+    const _tryOpen=()=>{
+      if(_done||!pendingEv)return;
+      if(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv)){_done=true;openEv(pendingEv);return;}
+      if(++_t<20)setTimeout(_tryOpen,250);
+    };
+    _tryOpen();
+  }
   // Синхронизируем «Я иду» с сервером (актуально на любом устройстве)
   if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}
     const f=await G('/api/my-favs');if(f&&Array.isArray(f.favs)){favs=f.favs;localStorage.setItem('cf',JSON.stringify(favs));}}
@@ -1114,7 +1130,7 @@ function tcInit(){try{if(window.ticketsCloudWidget&&window.ticketsCloudWidget.in
 function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev?.link)return;if(tcWidgetData(ev.link))openEv(id);else openExt(ticketUrl(ev.link))}
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.innerHTML=favIcon(false)}else{favs.push(id);btn.innerHTML=favIcon(true)}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
-function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Лови движуху в CLOUTE 👇`;}
+function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);const price=isFree(ev)?'Вход свободный':fmtPrice(ev.price);return `${ev.emoji||''} ${ev.name}\n${fmtDate(ev.date)} · ${ev.venue}\n${price}${org?'\n'+org.name:''}\n\nОткрывай в CLOUTE 👇`;}
 function shareLink(id){return 'https://t.me/clout_msk_bot/app?startapp=ev'+id}
 function tgShare(ev){
   if(!ev)return;hap('light');
