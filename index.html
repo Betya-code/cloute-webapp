@@ -1131,7 +1131,7 @@ function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id=
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.innerHTML=favIcon(false)}else{favs.push(id);btn.innerHTML=favIcon(true)}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);const price=isFree(ev)?'Вход свободный':fmtPrice(ev.price);return `${ev.emoji||''} ${ev.name}\n${fmtDate(ev.date)} · ${ev.venue}\n${price}${org?'\n'+org.name:''}\n\nОткрывай в CLOUTE 👇`;}
-function shareLink(id){return 'https://t.me/clout_msk_bot/app?startapp=ev'+id}
+function shareLink(id){return 'https://t.me/clout_msk_bot?start=ev'+id}
 function tgShare(ev){
   if(!ev)return;hap('light');
   const url=shareLink(ev.id),text=buildShareText(ev),tg=window.Telegram?.WebApp;
