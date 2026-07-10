@@ -417,6 +417,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="dinfo" id="d-rows"></div>
     <button class="droute" id="btn-route" onclick="openRoute()">🗺 Построить маршрут</button>
     <button class="droute" id="btn-tg" style="display:none;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#b58bf0" onclick="openTgChannel()">Telegram-канал события</button>
+    <button class="droute" id="btn-copylink" onclick="copyEvLink()" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)">Скопировать ссылку на меро</button>
     <div class="ddesc" id="d-desc"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">Пойду</button>
@@ -1324,6 +1325,15 @@ function openEv(id){
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").innerHTML=favIcon(favs.includes(curEv));apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
+function copyEvLink(){
+  const url=shareLink(curEv);const btn=document.getElementById('btn-copylink');
+  const done=()=>{hap('success');if(btn){btn.textContent='Скопировано ✓';setTimeout(()=>{btn.textContent='Скопировать ссылку на меро'},1600);}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,()=>_fallbackCopy(url,done));return;}}catch(e){}
+  _fallbackCopy(url,done);
+}
+function _fallbackCopy(text,cb){
+  try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);document.execCommand('copy');document.body.removeChild(ta);cb&&cb();}catch(e){alert(text);}
+}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
 // Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
 function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
