@@ -337,10 +337,17 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 #pl-track{width:120px;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
 #pl-bar{height:100%;width:0;background:#b58bf0;transition:width .12s linear}
 #pl-pct{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:500;color:#8a8a92;line-height:1}
+/* Лайтбокс афиши */
+#imgbox{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:16px}
+#imgbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+#ib-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dh .dho,.dh .dh-info{pointer-events:none}
+.dh-expand{position:absolute;right:12px;bottom:12px;z-index:4;width:30px;height:30px;border-radius:8px;background:rgba(10,10,11,.5);border:1px solid rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none}
 </style>
 </head>
 <body>
 <div id="preloader"><div style="display:flex;align-items:baseline;gap:3px"><div id="pl-num">0</div><div id="pl-pct">%</div></div><div id="pl-track"><div id="pl-bar"></div></div></div>
+<div id="imgbox" onclick="closeImgbox(event)"><button id="ib-close" onclick="closeImgbox()">✕</button><img id="ib-img" src="" alt="Афиша"></div>
 
 <!-- ONBOARDING -->
 <div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
@@ -402,8 +409,9 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 <!-- DETAIL -->
 <div id="vd" class="view" style="padding-bottom:0">
   <div class="dh" id="dh">
-    <img id="d-img" src="" style="display:none">
+    <img id="d-img" src="" style="display:none;cursor:pointer" onclick="openImgbox()">
     <div id="d-emoji" class="demoji">🎉</div>
+    <div class="dh-expand" id="dh-expand" style="display:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></div>
     <div class="dho"></div>
     <button class="bback" onclick="navBack()">← Назад</button>
     <div class="dtop">
@@ -1269,6 +1277,7 @@ function openEv(id){
   const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
   if(ev.poster_url){img.src=ev.poster_url;img.style.display='block';em.style.display='none'}
   else{img.style.display='none';em.style.display='block';em.textContent=ev.emoji}
+  document.getElementById('dh-expand').style.display=ev.poster_url?'flex':'none';   // подсказка «развернуть» только когда есть афиша
   document.getElementById('dh').style.background=ev.poster_url?'':phGrad(ev.id);
   const orgEl=document.getElementById('d-org');
   if(org){orgEl.textContent=org.name;orgEl.style.display='block';curOrgId=ev.org_id}
@@ -1340,6 +1349,9 @@ function openEv(id){
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").innerHTML=favIcon(favs.includes(curEv));apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
+// Лайтбокс афиши: тап по фото → на весь экран (полная, необрезанная); тап по фону/✕ → закрыть
+function openImgbox(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||!ev.poster_url)return;hap('light');document.getElementById('ib-img').src=ev.poster_url;document.getElementById('imgbox').style.display='flex';}
+function closeImgbox(){const b=document.getElementById('imgbox');if(!b)return;b.style.display='none';document.getElementById('ib-img').src='';}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
 // Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
 function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
