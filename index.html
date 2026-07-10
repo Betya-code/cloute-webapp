@@ -408,7 +408,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <button class="bback" onclick="navBack()">← Назад</button>
     <div class="dtop">
       <button class="bcircle" id="btn-fav" onclick="togFav()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-      <button class="bcircle" onclick="shareev()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
+      <button class="bcircle" onclick="shareEv()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
     </div>
     <div class="dh-info"><div id="d-badges"></div><div class="dtitle" id="d-name"></div></div>
   </div>
@@ -417,7 +417,6 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
     <div class="dinfo" id="d-rows"></div>
     <button class="droute" id="btn-route" onclick="openRoute()">🗺 Построить маршрут</button>
     <button class="droute" id="btn-tg" style="display:none;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#b58bf0" onclick="openTgChannel()">Telegram-канал события</button>
-    <button class="droute" id="btn-copylink" onclick="copyEvLink()" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)">Скопировать ссылку на меро</button>
     <div class="ddesc" id="d-desc"></div>
     <div class="dbtns">
       <button class="bbiggoing" id="btn-going" onclick="togGoingDetail()">Пойду</button>
@@ -737,7 +736,7 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
 <script>
 const API='https://cloute.ru';
-let tgU=null,role='user',uid=0,curEv=null,curOrgId=null,authTok='';
+let tgU=null,role='user',uid=0,curEv=null,curOrgId=null,authTok='',pendingEv=0;
 let evs=[],orgs=[],allEvs=[];
 let favs=JSON.parse(localStorage.getItem('cf')||'[]');
 let going=JSON.parse(localStorage.getItem('cg')||'[]');
@@ -915,7 +914,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   try{
     const sp=(new URLSearchParams(location.search).get('startev'))||(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
     const mm=String(sp).match(/(\d+)/);
-    if(mm){const eid=parseInt(mm[1]);if(evs.find(e=>e.id===eid)||allEvs.find(e=>e.id===eid))openEv(eid);}
+    if(mm){pendingEv=parseInt(mm[1]);if(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv))openEv(pendingEv);}
   }catch(e){}
   // Синхронизируем «Я иду» с сервером (актуально на любом устройстве)
   if(uid){const g=await G('/api/my-going');if(g&&Array.isArray(g.going)){going=g.going;localStorage.setItem('cg',JSON.stringify(going));}
@@ -1116,7 +1115,7 @@ function buyTicketById(id){const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id=
 async function apiFav(id,fav){try{await P('/api/events/'+id+'/fav',{fav})}catch(e){}}
 function qFav(id,btn){hap('light');const i=favs.indexOf(id);const favNow=i<0;if(i>=0){favs.splice(i,1);btn.innerHTML=favIcon(false)}else{favs.push(id);btn.innerHTML=favIcon(true)}localStorage.setItem('cf',JSON.stringify(favs));apiFav(id,favNow)}
 function buildShareText(ev){const org=orgs.find(o=>o.tg_id==ev.org_id);return `${ev.emoji} ${ev.name}\n\n📍 ${ev.venue}\n💵 ${fmtPrice(ev.price)}${org?"\n🏢 "+org.name:""}${ev.age_limit?" · "+ev.age_limit:""}\n\n🎉 Лови движуху в CLOUTE 👇`;}
-function shareLink(id){return 'https://t.me/clout_msk_bot?start=ev'+id}
+function shareLink(id){return 'https://t.me/clout_msk_bot/app?startapp=ev'+id}
 function tgShare(ev){
   if(!ev)return;hap('light');
   const url=shareLink(ev.id),text=buildShareText(ev),tg=window.Telegram?.WebApp;
@@ -1325,15 +1324,6 @@ function openEv(id){
 }
 function togFav(){hap('light');const i=favs.indexOf(curEv);const favNow=i<0;if(i>=0)favs.splice(i,1);else favs.push(curEv);localStorage.setItem("cf",JSON.stringify(favs));document.getElementById("btn-fav").innerHTML=favIcon(favs.includes(curEv));apiFav(curEv,favNow)}
 function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv))}
-function copyEvLink(){
-  const url=shareLink(curEv);const btn=document.getElementById('btn-copylink');
-  const done=()=>{hap('success');if(btn){btn.textContent='Скопировано ✓';setTimeout(()=>{btn.textContent='Скопировать ссылку на меро'},1600);}};
-  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,()=>_fallbackCopy(url,done));return;}}catch(e){}
-  _fallbackCopy(url,done);
-}
-function _fallbackCopy(text,cb){
-  try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);document.execCommand('copy');document.body.removeChild(ta);cb&&cb();}catch(e){alert(text);}
-}
 function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
 // Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
 function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
@@ -1510,6 +1500,8 @@ async function finishOnboard(){
   P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
   btn.textContent='Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
+  // Пришёл по ссылке на конкретное меро → после регистрации открываем сразу его, а не главную
+  if(pendingEv&&(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv))){openEv(pendingEv);pendingEv=0;}
 }
 function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
 function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
