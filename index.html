@@ -1091,6 +1091,14 @@ function ticketUrl(link){
     try{const p=JSON.parse(atob(tm[1].split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p&&p.p)u+='&partner='+encodeURIComponent(p.p);}catch(e){}
     return u;
   }
+  // Если вставлена не голая ссылка, а код кнопки/HTML (напр. виджет Qtickets) — вытащим ссылку события.
+  if(!/^https?:\/\//i.test(link)&&/[<\s]/.test(link)){
+    const h=link.match(/href=["'](https?:\/\/[^"']+)["']/i);   // приоритет — ссылка из href
+    if(h)return h[1];
+    const urls=link.match(/https?:\/\/[^\s"'<>)]+/ig)||[];       // иначе первый URL, кроме скриптов/стилей/CDN
+    const u=urls.find(x=>!/\.(js|css)(\?|#|$)/i.test(x)&&!/cdn\.qtickets/i.test(x));
+    if(u)return u;
+  }
   return link;
 }
 // Достаём event+token из кода кнопки Ticketscloud (если в «Ссылке на билеты» вставлен он)
