@@ -879,14 +879,16 @@ function _plLoop(){
   _plRAF=requestAnimationFrame(_plLoop);
 }
 function _plStart(){_plN=document.getElementById('pl-num');_plB=document.getElementById('pl-bar');_plT0=Date.now();_plRAF=requestAnimationFrame(_plLoop);}
-function _plFinish(){_plTarget=100;}
+function _plFinish(){_plTarget=100;setTimeout(_plDone,450);}   // данные готовы → показать 100 и ГАРАНТИРОВАННО убрать (по таймеру, не завися от rAF)
 function _plDone(){
   if(_plEnded)return; _plEnded=true;               // защита от повторного вызова
-  cancelAnimationFrame(_plRAF);
+  try{cancelAnimationFrame(_plRAF)}catch(e){}
   try{window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light')}catch(e){}
   const p=document.getElementById('preloader'); if(!p)return;
+  const n=document.getElementById('pl-num'); if(n)n.textContent='100';        // добить до 100 визуально
+  const b=document.getElementById('pl-bar'); if(b)b.style.width='100%';
   p.classList.add('hide');
-  setTimeout(()=>{try{p.style.display='none';p.remove()}catch(e){}},480);  // гарантированно убираем слой из DOM
+  setTimeout(()=>{try{p.style.display='none';p.remove()}catch(e){}},420);  // гарантированно убираем слой из DOM
 }
 
 // Достаём номер меро из ссылки (надёжно, из всех источников: connector &startev, Telegram start_param, hash)
@@ -904,7 +906,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
   pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
-  _plStart(); setTimeout(_plFinish,7000);   // прелоадер + страховка, чтобы не завис
+  _plStart(); setTimeout(_plDone,6000);   // прелоадер + ЖЁСТКАЯ страховка: убрать за 6с в любом случае
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
   const token=new URLSearchParams(window.location.search).get('token');
   // Токен из ссылки мини-аппа — запасная авторизация для получения/возврата билета
