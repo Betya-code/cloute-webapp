@@ -1802,9 +1802,10 @@ async function rmOrg(tid){
 async function openAE(){if(!await gateAdmin())return;const d=await G('/api/events');if(d){allEvs=d;evs=filterPast(d);}document.getElementById('sev-t').textContent='Все события';renderEL(allEvs);showS('sev')}
 async function openPromo(){
   const d=await G('/api/events');
-  const all=d||evs;
+  // Только актуальные события — прошедшие продвигать в топ бессмысленно (и в ленте их нет)
+  const all=filterPast(d||allEvs).sort((a,b)=>(b.hot||0)-(a.hot||0));
   const c=document.getElementById('prom-list');
-  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-t">Событий пока нет</div></div>';showS('sprom');return}
+  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-t">Актуальных событий нет</div></div>';showS('sprom');return}
   c.innerHTML=all.map(ev=>{
     const org=orgs.find(o=>o.tg_id==ev.org_id);
     const isHot=ev.hot==1;
