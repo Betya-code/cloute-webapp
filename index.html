@@ -2174,15 +2174,6 @@ async function openEvStats(id){
   showS('sst');
   const s=await G('/api/events/'+id+'/attendance');
   if(!s||s.error){body.innerHTML='<div class="empty"><div class="empty-i">😕</div><div class="empty-t">'+escH(s?.error||'Не удалось загрузить статистику')+'</div></div>';return}
-  // Блок с данными клуба из внешней CRM (если присланы по дате события)
-  const viBlock=s.vi_crm?`
-    <div style="background:rgba(255,255,255,.05);border:1px solid var(--hair);border-radius:14px;padding:14px;margin-top:12px">
-      <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Данные клуба · VI CRM</div>
-      <div style="display:flex;gap:8px">
-        <div style="flex:1;background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:600;color:#b58bf0">${s.vi_crm.registered}</div><div style="font-size:10px;color:#8a8a92;margin-top:2px">Зарегистрировано</div></div>
-        <div style="flex:1;background:rgba(16,185,129,.08);border-radius:10px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:600;color:#34d399">${s.vi_crm.attended}</div><div style="font-size:10px;color:#8a8a92;margin-top:2px">Пришло</div></div>
-      </div>
-    </div>`:'';
   const cats=s.categories||[];
   const revenue=cats.reduce((a,c)=>a+priceNum(c.price)*(c.sold||0),0);
   const views=ev?(ev.views||0):0;
@@ -2207,7 +2198,7 @@ async function openEvStats(id){
         <div style="display:flex;gap:8px;margin-bottom:10px">${big(views,'Просмотров','#b58bf0','rgba(255,255,255,.05)')}</div>
         <div style="background:rgba(255,255,255,.05);border:1px solid var(--hair);border-radius:14px;padding:16px;text-align:center">
           <div style="font-size:12px;color:#8a8a92;line-height:1.55">Бесплатное меро без билетов.<br>Включи «Регистрацию по билетам» при редактировании — бот начнёт выдавать билеты, и здесь появится их количество.</div>
-        </div>${viBlock}`;
+        </div>`;
       return;
     }
     body.innerHTML=`
@@ -2221,7 +2212,7 @@ async function openEvStats(id){
         <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">Бесплатное · выдано ботом</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;color:#b58bf0;margin-top:6px">${issued}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#8a8a92;margin-top:6px">пришло ${attended} · конверсия просмотр→билет ${views>0?Math.round(issued/views*100):0}%</div>
-      </div>${viBlock}`;
+      </div>`;
     return;
   }
   const paidSold=cats.length?sold:tcTix;
@@ -2240,7 +2231,7 @@ async function openEvStats(id){
       <div style="font-size:11px;color:#8a8a92;margin-top:4px">${cats.length?`Конверсия просмотр→покупка: ${convP}%`:'Оплата и сканирование билетов — на стороне Ticketscloud'}</div>
     </div>
     ${cats.length?`<div style="font-size:11px;font-weight:500;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">По категориям билетов</div>${catRows}`:''}
-    ${viBlock}`;
+    `;
 }
 let _scanShare=null;
 function _evName(id){const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);return ev?ev.name:''}
