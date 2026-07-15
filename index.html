@@ -844,14 +844,18 @@ async function G(p){
     return await r.json();
   }catch(e){console.error('GET error:',p,e);return null}
 }
-async function P(p,d,timeoutMs=15000){
-  try{
-    const r=await Promise.race([
-      fetch(API+p,{method:'POST',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({...d,userId:uid})}),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),timeoutMs))
-    ]);
-    return await r.json();
-  }catch(e){console.error('POST error:',p,e);return null}
+async function P(p,d,timeoutMs=15000,retries=0){
+  // retries>0 — тихий авто-повтор при обрыве сети/таймауте/не-JSON (напр. 502 в момент рестарта).
+  // Включать ТОЛЬКО для идемпотентных операций (повтор не создаёт дубль), напр. регистрация билета.
+  for(let i=0;i<=retries;i++){
+    try{
+      const r=await Promise.race([
+        fetch(API+p,{method:'POST',headers:_hdr({'Content-Type':'application/json'}),body:JSON.stringify({...d,userId:uid})}),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),timeoutMs))
+      ]);
+      return await r.json();
+    }catch(e){console.error('POST error:',p,e);if(i<retries){await new Promise(s=>setTimeout(s,900));continue}return null}
+  }
 }
 async function D(p){
   try{
@@ -1364,7 +1368,7 @@ async function getFreeTicket(id){
   if(!window.Telegram?.WebApp?.initData&&!authTok){alert(tgReopenMsg());return}
   const btn=document.getElementById('btn-going');const old=btn.textContent;
   btn.disabled=true;btn.textContent='Получаем…';
-  const r=await P('/api/events/'+id+'/register',{});
+  const r=await P('/api/events/'+id+'/register',{},12000,1);   // авто-повтор при коротком обрыве сети
   btn.disabled=false;
   if(!r||r.error){
     btn.textContent=old;
