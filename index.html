@@ -909,6 +909,9 @@ function _readStartEv(){
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
   pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
+  // Прогреваем кэш аватарки ещё на старте (Telegram-фото грузится с их серверов и бывает медленным):
+  // к моменту открытия Кабинета оно уже в кэше → показывается мгновенно.
+  try{const _pf=JSON.parse(localStorage.getItem('cpf')||'{}');const _av=_pf.customPhoto||_pf.photoUrl||tgU?.photo_url;if(_av){const _im=new Image();_im.src=_av;}}catch(e){}
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
   _plStart(); setTimeout(_plDone,6000);   // прелоадер + ЖЁСТКАЯ страховка: убрать за 6с в любом случае
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
@@ -1676,7 +1679,7 @@ function renderCab(){
   const name=pf.name||tgU?.first_name||'Пользователь';
   const photo=pf.customPhoto||pf.photoUrl||tgU?.photo_url;
   const ava=document.getElementById('cava');
-  if(photo)ava.innerHTML=`<img src="${escH(photo)}">`;
+  if(photo)ava.innerHTML=`<img src="${escH(photo)}" decoding="async">`;
   else ava.innerHTML='<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   document.getElementById('cname').textContent=role==='org'?(orgs.find(o=>o.tg_id==uid)?.name||name):name;
   document.getElementById('cuname').textContent=tgU?.username?'@'+tgU.username:'';
