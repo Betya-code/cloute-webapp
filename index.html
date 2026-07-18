@@ -905,10 +905,21 @@ function _readStartEv(){
     return mm?parseInt(mm[1]):0;
   }catch(e){return 0;}
 }
+// Промоутер из ссылки (startapp=e<eid>p<code>): ловим меро+код, применяем при регистрации на это меро.
+function _readStartPromo(){
+  try{
+    let sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
+    if(!sp){const h=new URLSearchParams((location.hash||'').replace(/^#/,''));sp=h.get('tgWebAppStartParam')||'';}
+    if(!sp)sp=new URLSearchParams(location.search).get('startapp')||'';
+    const m=String(sp).match(/^e(\d+)p([a-z0-9]+)$/i);
+    return m?{ev:parseInt(m[1]),code:m[2]}:null;
+  }catch(e){return null;}
+}
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
   pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
+  try{const _pr=_readStartPromo();if(_pr&&_pr.code){localStorage.setItem('promo',JSON.stringify(_pr));if(!pendingEv)pendingEv=_pr.ev;}}catch(e){}  // промоутер из ссылки
   // Прогреваем кэш аватарки ещё на старте (Telegram-фото грузится с их серверов и бывает медленным):
   // к моменту открытия Кабинета оно уже в кэше → показывается мгновенно.
   try{const _pf=JSON.parse(localStorage.getItem('cpf')||'{}');const _av=_pf.customPhoto||_pf.photoUrl||tgU?.photo_url;if(_av){const _im=new Image();_im.src=_av;}}catch(e){}
@@ -1371,7 +1382,8 @@ async function getFreeTicket(id){
   if(!window.Telegram?.WebApp?.initData&&!authTok){alert(tgReopenMsg());return}
   const btn=document.getElementById('btn-going');const old=btn.textContent;
   btn.disabled=true;btn.textContent='Получаем…';
-  const r=await P('/api/events/'+id+'/register',{},12000,1);   // авто-повтор при коротком обрыве сети
+  let _promo='';try{const _p=JSON.parse(localStorage.getItem('promo')||'null');if(_p&&_p.ev===id)_promo=_p.code;}catch(e){}  // промоутер, если пришёл по его ссылке на это меро
+  const r=await P('/api/events/'+id+'/register',{promoter:_promo},12000,1);   // авто-повтор при коротком обрыве сети
   btn.disabled=false;
   if(!r||r.error){
     btn.textContent=old;
@@ -2174,6 +2186,45 @@ function renderEL(list){
 function priceNum(p){return parseInt(String(p==null?'':p).replace(/\D/g,''),10)||0}
 function fmtMoney(n){return new Intl.NumberFormat('ru-RU').format(n)+' ₽'}
 
+async function renderPromoters(eid){
+  const box=document.getElementById('promobox'); if(!box)return;
+  box.innerHTML='<div style="font-size:12px;color:#8a8a92;padding:6px 0">Загрузка промоутеров…</div>';
+  const d=await G('/api/events/'+eid+'/promoters');
+  const list=(d&&d.promoters)||[];
+  const rows=list.map(p=>`
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--hair);border-radius:12px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(p.name)}</div><div style="font-size:12px;color:#8a8a92;margin-top:2px">регистраций ${p.registered||0} · пришло ${p.came||0}</div></div>
+        <button onclick="delPromoter(${p.id},${eid})" style="flex-shrink:0;background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.4);color:#ff6b6b;padding:5px 9px;border-radius:8px;font-size:11px;cursor:pointer">Удалить</button>
+      </div>
+      <button onclick="copyPromo('${p.code}',${eid})" style="width:100%;margin-top:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#b58bf0;padding:9px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer">🔗 Скопировать ссылку</button>
+    </div>`).join('');
+  box.innerHTML=`
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;margin:6px 0 10px">Промоутеры</div>
+    ${rows||'<div style="font-size:12px;color:#8a8a92;padding:2px 0 10px">Пока никого. Добавь промоутера — он получит личную ссылку, и здесь будет видно, сколько людей он привёл.</div>'}
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input id="promo-name" placeholder="Имя промоутера" maxlength="60" style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--hair);border-radius:10px;padding:11px;color:#fff;font-size:14px;font-family:'Inter',sans-serif">
+      <button onclick="addPromoter(${eid})" style="background:var(--ac);border:none;color:#fff;padding:0 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Добавить</button>
+    </div>`;
+}
+async function addPromoter(eid){
+  const inp=document.getElementById('promo-name');const name=(inp?inp.value:'').trim();
+  if(!name){alert('Введи имя промоутера');return}
+  const r=await P('/api/events/'+eid+'/promoters',{name});
+  if(!r||r.error){alert('❌ '+((r&&r.error)||'Не получилось'));return}
+  hap('light');renderPromoters(eid);
+}
+async function delPromoter(pid,eid){
+  if(!confirm('Удалить промоутера? Его ссылка перестанет привязывать новых (уже привязанные останутся).'))return;
+  await D('/api/promoters/'+pid);
+  renderPromoters(eid);
+}
+function copyPromo(code,eid){
+  const link='https://t.me/clout_msk_bot?startapp=e'+eid+'p'+code;
+  hap('light');
+  try{if(navigator.clipboard){navigator.clipboard.writeText(link);alert('Ссылка промоутера скопирована:\n'+link);return}}catch(e){}
+  prompt('Ссылка промоутера:',link);
+}
 async function openEvStats(id){
   const ev=allEvs.find(e=>e.id===id)||evs.find(e=>e.id===id);
   const body=document.getElementById('sst-body');
@@ -2219,7 +2270,9 @@ async function openEvStats(id){
         <div style="font-size:11px;color:#8a8a92;text-transform:uppercase;letter-spacing:.08em">Бесплатное · выдано ботом</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;color:#b58bf0;margin-top:6px">${issued}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#8a8a92;margin-top:6px">пришло ${attended} · конверсия просмотр→билет ${views>0?Math.round(issued/views*100):0}%</div>
-      </div>`;
+      </div>
+      <div id="promobox" style="margin-top:14px"></div>`;
+    renderPromoters(id);
     return;
   }
   const paidSold=cats.length?sold:tcTix;
