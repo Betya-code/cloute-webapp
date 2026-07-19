@@ -343,11 +343,37 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 #ib-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .dh .dho,.dh .dh-info{pointer-events:none}
 .dh-expand{position:absolute;right:12px;bottom:12px;z-index:4;width:30px;height:30px;border-radius:8px;background:rgba(10,10,11,.5);border:1px solid rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none}
+/* Пикеры даты/времени для формы события */
+.pick-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:250;display:none;align-items:flex-end;justify-content:center}
+.pick-ov.show{display:flex}
+.pick-sheet{width:100%;max-width:440px;background:var(--cd);border:1px solid var(--hair);border-radius:20px 20px 0 0;padding:16px 16px calc(24px + env(safe-area-inset-bottom));animation:sheetUp .22s ease}
+@keyframes sheetUp{from{transform:translateY(30px);opacity:.5}to{transform:translateY(0);opacity:1}}
+.pick-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pick-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;color:#fff}
+.pick-nav{background:rgba(255,255,255,.06);border:1px solid var(--hair);color:#fff;width:38px;height:38px;border-radius:11px;font-size:20px;line-height:1;cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-wd{text-align:center;font-size:11px;color:#8a8a92;padding:2px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:14px;cursor:pointer;color:#fff;background:rgba(255,255,255,.04)}
+.cal-day.muted{color:#3a3a40;background:transparent;cursor:default}
+.cal-day.today{border:1px solid var(--ac)}
+.cal-day.sel{background:var(--ac);color:#fff;font-weight:700}
+.time-list{max-height:46vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.time-opt{padding:12px;text-align:center;font-size:16px;border-radius:10px;cursor:pointer;color:#fff}
+.time-opt.sel{background:var(--ac);font-weight:700}
 </style>
 </head>
 <body>
 <div id="preloader"><div style="display:flex;align-items:baseline;gap:3px"><div id="pl-num">0</div><div id="pl-pct">%</div></div><div id="pl-track"><div id="pl-bar"></div></div></div>
 <div id="imgbox" onclick="closeImgbox(event)"><button id="ib-close" onclick="closeImgbox()">✕</button><img id="ib-img" src="" alt="Афиша"></div>
+<div class="pick-ov" id="datepick" onclick="if(event.target===this)closeDatePick()"><div class="pick-sheet">
+  <div class="pick-hdr"><button class="pick-nav" onclick="dpMove(-1)">‹</button><div class="pick-title" id="dp-title"></div><button class="pick-nav" onclick="dpMove(1)">›</button></div>
+  <div class="cal-grid" id="dp-wd"></div>
+  <div class="cal-grid" id="dp-grid" style="margin-top:4px"></div>
+</div></div>
+<div class="pick-ov" id="timepick" onclick="if(event.target===this)closeTimePick()"><div class="pick-sheet">
+  <div class="pick-hdr"><div class="pick-title" id="tp-title">Выбери время</div><button class="pick-nav" onclick="closeTimePick()">✕</button></div>
+  <div class="time-list" id="tp-list"></div>
+</div></div>
 
 <!-- ONBOARDING -->
 <div id="vob" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--dk);overflow-y:auto">
@@ -571,10 +597,10 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
         <label class="pulbl">Выбрать афишу из галереи<input type="file" accept="image/*" onchange="prevPost(this)" style="display:none"></label>
         <input class="fi" id="fe-pu" placeholder="Или вставь ссылку на афишу">
         <input class="fi" id="fe-nm" placeholder="Название *">
-        <input class="fi" id="fe-dt" placeholder="Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+        <input class="fi" id="fe-dt" placeholder="📅 Дата *" readonly onclick="openDatePick('fe-dt')" style="cursor:pointer">
         <div style="display:flex;gap:8px">
-          <input class="fi" id="fe-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
-          <input class="fi" id="fe-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+          <input class="fi" id="fe-ts" placeholder="⏰ Начало *" readonly onclick="openTimePick('fe-ts')" style="flex:1;margin-bottom:0;cursor:pointer">
+          <input class="fi" id="fe-te" placeholder="🏁 Конец" readonly onclick="openTimePick('fe-te')" style="flex:1;margin-bottom:0;cursor:pointer">
         </div>
         <div style="height:8px"></div>
         <input class="fi" id="fe-vn" placeholder="Место *">
@@ -654,10 +680,10 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
       <label class="pulbl">Изменить афишу<input type="file" accept="image/*" onchange="prevEpost(this)" style="display:none"></label>
       <input class="fi" id="ee-pu" placeholder="Или вставь ссылку на афишу">
       <input class="fi" id="ee-nm" placeholder="Название *">
-      <input class="fi" id="ee-dt" placeholder="Дата * (ДД.ММ.ГГГГ)" maxlength="10" inputmode="numeric" oninput="autoDt(this)">
+      <input class="fi" id="ee-dt" placeholder="📅 Дата *" readonly onclick="openDatePick('ee-dt')" style="cursor:pointer">
       <div style="display:flex;gap:8px">
-        <input class="fi" id="ee-ts" placeholder="⏰ Начало * (22:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
-        <input class="fi" id="ee-te" placeholder="🏁 Конец (04:00)" maxlength="5" inputmode="numeric" oninput="autoTm(this)" style="flex:1;margin-bottom:0">
+        <input class="fi" id="ee-ts" placeholder="⏰ Начало *" readonly onclick="openTimePick('ee-ts')" style="flex:1;margin-bottom:0;cursor:pointer">
+        <input class="fi" id="ee-te" placeholder="🏁 Конец" readonly onclick="openTimePick('ee-te')" style="flex:1;margin-bottom:0;cursor:pointer">
       </div>
       <div style="height:8px"></div>
       <input class="fi" id="ee-vn" placeholder="Место *">
@@ -985,13 +1011,31 @@ window.addEventListener('touchstart',e=>{_ptY=(window.scrollY<=0&&document.getEl
 window.addEventListener('touchmove',e=>{if(_ptY===null)return;if(e.touches[0].clientY-_ptY>75)_ptReady=true},{passive:true});
 window.addEventListener('touchend',()=>{if(_ptReady){_ptReady=false;doRefresh()}_ptY=null},{passive:true});
 
+// Меро уходит из ленты не в полночь, а по КОНЦУ события (важно для ночных: до 5 утра — значит висит до 5 утра).
+// Конец берём из time ("22:00 — 05:00"): если конец <= начала → это уже следующий день. Нет конца — держим +6ч.
+// Совсем нет времени — держим до 06:00 следующего дня (запас для ночных).
 function filterPast(list){
-  const now=new Date();now.setHours(0,0,0,0);
+  const now=new Date();
   return list.filter(e=>{
-    const p=e.date.split('.');
+    const p=(e.date||'').split('.');
     if(p.length<3)return true;
-    const d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
-    return d>=now;
+    const y=+p[2],mo=+p[1]-1,da=+p[0];
+    if(!(y>0)||isNaN(mo)||!(da>0))return true;              // кривая дата — не прячем (пусть висит)
+    const tm=(e.time||'').match(/(\d{1,2}):(\d{2})(?:\s*[—–-]\s*(\d{1,2}):(\d{2}))?/);
+    const end=new Date(y,mo,da,0,0,0,0);
+    if(tm){
+      const sMin=(+tm[1])*60+(+tm[2]);
+      if(tm[3]!=null){                                       // есть время конца
+        end.setHours(+tm[3],+tm[4],0,0);
+        if(((+tm[3])*60+(+tm[4]))<=sMin)end.setDate(end.getDate()+1);   // конец за полночь → +1 день
+      }else{                                                 // только начало — держим +6 часов
+        end.setHours(+tm[1],+tm[2],0,0);
+        end.setTime(end.getTime()+6*3600*1000);
+      }
+    }else{                                                   // времени нет — до 06:00 след. дня
+      end.setDate(end.getDate()+1);end.setHours(6,0,0,0);
+    }
+    return now<end;
   });
 }
 
@@ -2399,6 +2443,55 @@ async function delGuest(id){
 }
 function autoDt(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'.'+v.slice(2);if(v.length>5)v=v.slice(0,5)+'.'+v.slice(5);i.value=v.slice(0,10)}
 function autoTm(i){let v=i.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+':'+v.slice(2);i.value=v.slice(0,5)}
+// ── Пикер даты (мини-календарь) ──
+let _dpTarget=null,_dpY=0,_dpM=0;
+const _MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function openDatePick(inputId){
+  _dpTarget=inputId;
+  const cur=(document.getElementById(inputId).value||'').split('.');const now=new Date();
+  if(cur.length===3&&+cur[2]){_dpY=+cur[2];_dpM=+cur[1]-1;}else{_dpY=now.getFullYear();_dpM=now.getMonth();}
+  renderDp();document.getElementById('datepick').classList.add('show');
+}
+function closeDatePick(){document.getElementById('datepick').classList.remove('show');}
+function dpMove(d){_dpM+=d;if(_dpM<0){_dpM=11;_dpY--;}if(_dpM>11){_dpM=0;_dpY++;}renderDp();}
+function renderDp(){
+  document.getElementById('dp-title').textContent=_MN[_dpM]+' '+_dpY;
+  document.getElementById('dp-wd').innerHTML=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<div class="cal-wd">${w}</div>`).join('');
+  const off=(new Date(_dpY,_dpM,1).getDay()+6)%7;                 // Пн=0
+  const days=new Date(_dpY,_dpM+1,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  const sel=(document.getElementById(_dpTarget).value||'').split('.');
+  let html='';
+  for(let i=0;i<off;i++)html+='<div class="cal-day muted"></div>';
+  for(let d=1;d<=days;d++){
+    const dd=new Date(_dpY,_dpM,d);const past=dd<today;
+    const cls=['cal-day'];if(past)cls.push('muted');
+    if(dd.getTime()===today.getTime())cls.push('today');
+    if(sel.length===3&&+sel[0]===d&&(+sel[1]-1)===_dpM&&+sel[2]===_dpY)cls.push('sel');
+    html+=`<div class="${cls.join(' ')}" ${past?'':`onclick="dpPick(${d})"`}>${d}</div>`;
+  }
+  document.getElementById('dp-grid').innerHTML=html;
+}
+function dpPick(d){
+  document.getElementById(_dpTarget).value=String(d).padStart(2,'0')+'.'+String(_dpM+1).padStart(2,'0')+'.'+_dpY;
+  hap('light');closeDatePick();
+}
+// ── Пикер времени (прокручиваемый список, шаг 15 мин) ──
+let _tpTarget=null;
+function openTimePick(inputId){
+  _tpTarget=inputId;const cur=document.getElementById(inputId).value;
+  document.getElementById('tp-title').textContent=/te$/.test(inputId)?'Время конца':'Время начала';
+  let html='';
+  for(let h=0;h<24;h++)for(let m=0;m<60;m+=15){
+    const t=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+    html+=`<div class="time-opt${t===cur?' sel':''}" onclick="tpPick('${t}')">${t}</div>`;
+  }
+  document.getElementById('tp-list').innerHTML=html;
+  document.getElementById('timepick').classList.add('show');
+  setTimeout(()=>{const s=document.querySelector('#tp-list .sel')||document.querySelectorAll('#tp-list .time-opt')[80];if(s)s.scrollIntoView({block:'center'});},30);
+}
+function closeTimePick(){document.getElementById('timepick').classList.remove('show');}
+function tpPick(t){document.getElementById(_tpTarget).value=t;hap('light');closeTimePick();}
 function prevPost(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('pprev-img').src=e.target.result;document.getElementById('pprev').style.display='block'};r.readAsDataURL(file)}
 function prevEpost(input){const file=input.files[0];if(!file)return;_editAvaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('eprev-img').src=e.target.result;document.getElementById('eprev').style.display='block'};r.readAsDataURL(file)}
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(file)})}
