@@ -358,6 +358,26 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 .time-list{max-height:46vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .time-opt{padding:12px;text-align:center;font-size:16px;border-radius:10px;cursor:pointer;color:#fff}
 .time-opt.sel{background:var(--ac);font-weight:700}
+/* Раздел «Промоутеры» */
+.prm-hint{font-size:12px;color:#8a8a92;line-height:1.55;background:rgba(255,255,255,.04);border:1px solid var(--hair);border-radius:12px;padding:12px;margin-bottom:12px}
+.prm-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;scrollbar-width:none}
+.prm-chips::-webkit-scrollbar{display:none}
+.prm-chip{flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid var(--hair);color:#c7c7cf;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
+.prm-chip.active{background:var(--ac);border-color:var(--ac);color:#fff}
+.prm-total{display:flex;gap:8px;margin:6px 0 14px}
+.prm-tcard{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--hair);border-radius:14px;padding:13px 6px;text-align:center}
+.prm-tnum{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:#fff;line-height:1}
+.prm-tlbl{font-size:10px;color:#8a8a92;margin-top:5px;text-transform:uppercase;letter-spacing:.05em}
+.prm-card{display:flex;align-items:center;gap:11px;background:var(--cd);border:1px solid var(--hair);border-radius:14px;padding:12px;margin-bottom:9px}
+.prm-rank{width:30px;height:30px;flex-shrink:0;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:14px;background:rgba(255,255,255,.06);color:#8a8a92}
+.prm-rank.top{background:var(--ac);color:#fff}
+.prm-name{font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prm-sub{font-size:12px;color:#8a8a92;margin-top:2px}
+.prm-share{flex-shrink:0;background:var(--ac);border:none;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.prm-del{flex-shrink:0;background:transparent;border:none;color:#555;font-size:15px;cursor:pointer;padding:4px 2px;width:22px}
+.prm-add{display:flex;gap:8px;margin-top:14px}
+.prm-add input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--hair);border-radius:11px;padding:12px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+.prm-add button{background:var(--ac);border:none;color:#fff;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
@@ -720,6 +740,14 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   <div id="sst" class="sv">
     <div class="sh"><button class="sbk" onclick="showS('sev')">← Назад</button><div class="stit">Статистика события</div></div>
     <div class="sbody" id="sst-body">
+      <div style="text-align:center;padding:30px;color:#8a8a92">Загружаем...</div>
+    </div>
+  </div>
+
+  <!-- ПРОМОУТЕРЫ -->
+  <div id="sprm" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Промоутеры</div></div>
+    <div class="sbody" id="sprm-body">
       <div style="text-align:center;padding:30px;color:#8a8a92">Загружаем...</div>
     </div>
   </div>
@@ -1753,6 +1781,7 @@ function renderCab(){
     document.getElementById('cmenu').innerHTML=`
       <div class="ci" style="border-color:rgba(255,255,255,.14)" onclick="openOAdd()"><div class="ciico" style="background:var(--ac);color:#fff">${ic('plus',20)}</div><div><div class="citit">Добавить мероприятие</div><div class="cisub">Создать событие</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openOE()"><div class="ciico">${ic('cal',20)}</div><div><div class="citit">Мои мероприятия</div><div class="cisub">${myEvs.length} событий</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openOrgPromoters()" style="border-color:rgba(181,139,240,.3);background:rgba(181,139,240,.06)"><div class="ciico" style="background:var(--ac);color:#fff">${ic('users',20)}</div><div><div class="citit">Промоутеры</div><div class="cisub">Кто сколько привёл · ссылки</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openDrafts()"><div class="ciico">${ic('edit',20)}</div><div><div class="citit">Черновики</div><div class="cisub" id="drafts-count">0 черновиков</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openOS()"><div class="ciico">${ic('chart',20)}</div><div><div class="citit">Статистика</div><div class="cisub">Просмотры событий</div></div><div class="carr">›</div></div>`;
   } else {
@@ -2228,43 +2257,83 @@ function renderEL(list){
 function priceNum(p){return parseInt(String(p==null?'':p).replace(/\D/g,''),10)||0}
 function fmtMoney(n){return new Intl.NumberFormat('ru-RU').format(n)+' ₽'}
 
-async function renderPromoters(eid){
-  const box=document.getElementById('promobox'); if(!box)return;
-  box.innerHTML='<div style="font-size:12px;color:#8a8a92;padding:6px 0">Загрузка промоутеров…</div>';
+// ── ПРОМОУТЕРЫ (раздел кабинета орга) ──
+let _prmEvents=[], _prmEv=null;
+async function openOrgPromoters(){
+  showS('sprm');
+  const body=document.getElementById('sprm-body');
+  body.innerHTML='<div style="text-align:center;padding:34px;color:#8a8a92">Загружаем…</div>';
+  const d=await G('/api/events'); if(Array.isArray(d))allEvs=d;
+  _prmEvents=(allEvs||[]).filter(e=>e.org_id==uid&&uid>0&&e.reg_open);
+  if(!_prmEvents.length){
+    body.innerHTML=`<div style="text-align:center;padding:44px 24px">
+      <div style="width:58px;height:58px;margin:0 auto 16px;border-radius:16px;background:rgba(181,139,240,.12);display:flex;align-items:center;justify-content:center">${ic('users',26,'#b58bf0')}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;margin-bottom:8px">Промоутеры — на бесплатных меро</div>
+      <div style="font-size:13px;color:#8a8a92;line-height:1.6;max-width:330px;margin:0 auto">Включи у события «Регистрацию по билетам» — и заводи промоутеров: каждый получит свою ссылку, а ты будешь видеть, сколько людей он привёл и сколько дошло до входа.</div>
+    </div>`;
+    return;
+  }
+  if(!_prmEv||!_prmEvents.find(e=>e.id===_prmEv))_prmEv=_prmEvents[0].id;
+  const chips=_prmEvents.length>1?`<div class="prm-chips">${_prmEvents.map(e=>`<button class="prm-chip${e.id===_prmEv?' active':''}" onclick="prmSelectEvent(${e.id})">${escH(e.name)}</button>`).join('')}</div>`:`<div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;margin:2px 0 10px">${escH(_prmEvents[0].name)}</div>`;
+  body.innerHTML=`
+    <div class="prm-hint">Заводи промоутеров и делись их ссылками. Кто зарегается по ссылке — засчитается промоутеру. Ниже рейтинг: кто больше привёл.</div>
+    ${chips}
+    <div id="prm-list"><div style="text-align:center;padding:24px;color:#8a8a92">Загружаем…</div></div>`;
+  prmRender(_prmEv);
+}
+function prmSelectEvent(eid){
+  _prmEv=eid;
+  document.querySelectorAll('#sprm .prm-chip').forEach((c,i)=>c.classList.toggle('active',_prmEvents[i]&&_prmEvents[i].id===eid));
+  prmRender(eid);
+}
+async function prmRender(eid){
+  const list=document.getElementById('prm-list'); if(!list)return;
   const d=await G('/api/events/'+eid+'/promoters');
-  const list=(d&&d.promoters)||[];
-  const rows=list.map(p=>`
-    <div style="background:rgba(255,255,255,.04);border:1px solid var(--hair);border-radius:12px;padding:12px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-        <div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(p.name)}</div><div style="font-size:12px;color:#8a8a92;margin-top:2px">регистраций ${p.registered||0} · пришло ${p.came||0}</div></div>
-        <button onclick="delPromoter(${p.id},${eid})" style="flex-shrink:0;background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.4);color:#ff6b6b;padding:5px 9px;border-radius:8px;font-size:11px;cursor:pointer">Удалить</button>
+  const ps=(((d&&d.promoters)||[]).slice()).sort((a,b)=>(b.registered||0)-(a.registered||0)||(b.came||0)-(a.came||0));
+  const totR=ps.reduce((s,p)=>s+(p.registered||0),0), totC=ps.reduce((s,p)=>s+(p.came||0),0);
+  const cards=ps.map((p,i)=>{
+    const conv=p.registered?Math.round((p.came||0)/p.registered*100):0;
+    return `<div class="prm-card">
+      <div class="prm-rank${i===0&&p.registered>0?' top':''}">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div class="prm-name">${escH(p.name)}</div>
+        <div class="prm-sub">${p.registered||0} рег · ${p.came||0} пришло${p.registered?` · конв. ${conv}%`:''}</div>
       </div>
-      <button onclick="copyPromo('${p.code}',${eid})" style="width:100%;margin-top:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#b58bf0;padding:9px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer">🔗 Скопировать ссылку</button>
-    </div>`).join('');
-  box.innerHTML=`
-    <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;margin:6px 0 10px">Промоутеры</div>
-    ${rows||'<div style="font-size:12px;color:#8a8a92;padding:2px 0 10px">Пока никого. Добавь промоутера — он получит личную ссылку, и здесь будет видно, сколько людей он привёл.</div>'}
-    <div style="display:flex;gap:8px;margin-top:6px">
-      <input id="promo-name" placeholder="Имя промоутера" maxlength="60" style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--hair);border-radius:10px;padding:11px;color:#fff;font-size:14px;font-family:'Inter',sans-serif">
-      <button onclick="addPromoter(${eid})" style="background:var(--ac);border:none;color:#fff;padding:0 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Добавить</button>
+      <button class="prm-share" onclick="prmShare('${p.code}',${eid})">Отправить</button>
+      <button class="prm-del" onclick="prmDel(${p.id},${eid})" title="Удалить">✕</button>
+    </div>`;
+  }).join('');
+  list.innerHTML=`
+    <div class="prm-total">
+      <div class="prm-tcard"><div class="prm-tnum">${totR}</div><div class="prm-tlbl">приведено</div></div>
+      <div class="prm-tcard"><div class="prm-tnum" style="color:#34d399">${totC}</div><div class="prm-tlbl">пришло</div></div>
+      <div class="prm-tcard"><div class="prm-tnum">${ps.length}</div><div class="prm-tlbl">промоутеров</div></div>
+    </div>
+    ${cards||'<div style="text-align:center;padding:18px 8px;color:#8a8a92;font-size:13px;line-height:1.5">Пока никого. Добавь первого — он получит ссылку, и здесь появятся его цифры.</div>'}
+    <div class="prm-add">
+      <input id="prm-name" placeholder="Имя промоутера" maxlength="60">
+      <button onclick="prmAdd(${eid})">Добавить</button>
     </div>`;
 }
-async function addPromoter(eid){
-  const inp=document.getElementById('promo-name');const name=(inp?inp.value:'').trim();
+async function prmAdd(eid){
+  const inp=document.getElementById('prm-name');const name=(inp?inp.value:'').trim();
   if(!name){alert('Введи имя промоутера');return}
   const r=await P('/api/events/'+eid+'/promoters',{name});
   if(!r||r.error){alert('❌ '+((r&&r.error)||'Не получилось'));return}
-  hap('light');renderPromoters(eid);
+  hap('success');prmRender(eid);
 }
-async function delPromoter(pid,eid){
+async function prmDel(pid,eid){
   if(!confirm('Удалить промоутера? Его ссылка перестанет привязывать новых (уже привязанные останутся).'))return;
-  await D('/api/promoters/'+pid);
-  renderPromoters(eid);
+  await D('/api/promoters/'+pid);prmRender(eid);
 }
-function copyPromo(code,eid){
+function prmShare(code,eid){
+  const ev=_prmEvents.find(e=>e.id===eid)||{};
   const link='https://t.me/clout_msk_bot?startapp=e'+eid+'p'+code;
+  const text='Твоя ссылка промоутера на «'+(ev.name||'событие')+'». Зови гостей по ней — кто зарегается, засчитается тебе.';
+  const share='https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(text);
   hap('light');
-  try{if(navigator.clipboard){navigator.clipboard.writeText(link);alert('Ссылка промоутера скопирована:\n'+link);return}}catch(e){}
+  try{if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(share);return}}catch(e){}
+  try{if(navigator.clipboard){navigator.clipboard.writeText(link);alert('Ссылка скопирована:\n'+link);return}}catch(e){}
   prompt('Ссылка промоутера:',link);
 }
 async function openEvStats(id){
@@ -2313,8 +2382,7 @@ async function openEvStats(id){
         <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;color:#b58bf0;margin-top:6px">${issued}${lim?` / ${lim}`:''}</div>
         <div style="font-size:12px;color:#8a8a92;margin-top:6px">пришло ${attended} · конверсия просмотр→билет ${views>0?Math.round(issued/views*100):0}%</div>
       </div>
-      <div id="promobox" style="margin-top:14px"></div>`;
-    renderPromoters(id);
+      `;
     return;
   }
   const paidSold=cats.length?sold:tcTix;
