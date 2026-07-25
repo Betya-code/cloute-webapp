@@ -960,9 +960,14 @@ function _readStartEv(){
 // Промоутер из ссылки (startapp=e<eid>p<code>): ловим меро+код, применяем при регистрации на это меро.
 function _readStartPromo(){
   try{
+    const q=new URLSearchParams(location.search);
+    // 1) через коннектор (надёжно открывает меро): ?startev=11&startpromo=КОД
+    const qev=parseInt(q.get('startev')||'0'), qcode=(q.get('startpromo')||'').trim();
+    if(qev>0&&qcode)return {ev:qev,code:qcode};
+    // 2) через startapp / start_param: e11pКОД
     let sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
     if(!sp){const h=new URLSearchParams((location.hash||'').replace(/^#/,''));sp=h.get('tgWebAppStartParam')||'';}
-    if(!sp)sp=new URLSearchParams(location.search).get('startapp')||'';
+    if(!sp)sp=q.get('startapp')||'';
     const m=String(sp).match(/^e(\d+)p([a-z0-9]+)$/i);
     return m?{ev:parseInt(m[1]),code:m[2]}:null;
   }catch(e){return null;}
@@ -2328,7 +2333,7 @@ async function prmDel(pid,eid){
 }
 function prmShare(code,eid){
   const ev=_prmEvents.find(e=>e.id===eid)||{};
-  const link='https://t.me/clout_msk_bot?startapp=e'+eid+'p'+code;
+  const link='https://t.me/clout_msk_bot?start=ev'+eid+'p'+code;
   const text='Твоя ссылка промоутера на «'+(ev.name||'событие')+'». Зови гостей по ней — кто зарегается, засчитается тебе.';
   const share='https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(text);
   hap('light');
