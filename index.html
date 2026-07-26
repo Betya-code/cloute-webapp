@@ -1309,7 +1309,7 @@ async function loadMyTickets(){
   const refEl=document.getElementById('tk-refund');
   if(refEl)refEl.style.display=(d&&Array.isArray(d.tickets)&&d.tickets.some(t=>!t.free))?'block':'none';
   if(!d||!Array.isArray(d.tickets)||!d.tickets.length)return;
-  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
+  await loadScript('/js/qrcode.min.js');
   const qrBlock=(bc)=>`
     <div style="text-align:center;margin-top:14px">
       <div style="display:inline-block;background:#fff;padding:10px;border-radius:12px">${qrImg(bc)}</div>
