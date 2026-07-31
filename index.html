@@ -799,16 +799,23 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
 
 <script>
 const API='https://cloute.ru';
+// Безопасные обёртки над localStorage. В Telegram-WebView (iOS, приватный режим,
+// заблокированные cookie) доступ к localStorage может кинуть исключение, а битое
+// значение — сломать JSON.parse. Раньше любой такой сбой на верхнем уровне скрипта
+// не давал определиться НИ ОДНОЙ функции → пустой чёрный экран навсегда. Теперь — тихий фолбэк.
+function lsGet(k,def){try{const v=localStorage.getItem(k);return v==null?def:JSON.parse(v)}catch(e){return def}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function lsRaw(k){try{return localStorage.getItem(k)}catch(e){return null}}
 let tgU=null,role='user',uid=0,curEv=null,curOrgId=null,authTok='',pendingEv=0;
 let evs=[],orgs=[],allEvs=[];
-let favs=JSON.parse(localStorage.getItem('cf')||'[]');
-let going=JSON.parse(localStorage.getItem('cg')||'[]');
-let myReg=JSON.parse(localStorage.getItem('myreg')||'[]');
+let favs=lsGet('cf',[]);
+let going=lsGet('cg',[]);
+let myReg=lsGet('myreg',[]);
 let _avaFile=null,editEvId=null,_editAvaFile=null;
 let selCalDay=null,statsEvId=null,statsTimer=null,calY=null,calM=null;
 let currentFilter='all',currentCat='all',filterFree=false,filterWeekend=false;
 let loadFailed=false;
-let searchHist=JSON.parse(localStorage.getItem('csh')||'[]');
+let searchHist=lsGet('csh',[]);
 
 // ── ХЕЛПЕРЫ ───────────────────────────────────────────────
 function plural(n,forms){const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return forms[2];if(b>1&&b<5)return forms[1];if(b===1)return forms[0];return forms[2]}
@@ -894,7 +901,7 @@ async function G(p){
   try{
     const r=await Promise.race([
       fetch(API+p,{headers:_hdr()}),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),12000))
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),8000))
     ]);
     return await r.json();
   }catch(e){console.error('GET error:',p,e);return null}
@@ -977,12 +984,19 @@ function _readStartPromo(){
 }
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
-  if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();tgU=window.Telegram.WebApp.initDataUnsafe?.user}
+  if(window.Telegram?.WebApp){
+    const _tg=window.Telegram.WebApp;_tg.ready();_tg.expand();tgU=_tg.initDataUnsafe?.user;
+    // Нативная кнопка «Назад» Telegram: на Android аппаратный «назад» иначе ЗАКРЫВАЕТ апп целиком.
+    try{_tg.BackButton&&_tg.BackButton.onClick(()=>{document.body.classList.contains('subview')?navBack():(_tg.BackButton.hide&&_tg.BackButton.hide());});}catch(e){}
+    // Нативные диалоги: в iOS-WebView обычный alert() местами подавляется — «🎟 Билет получен!»
+    // и ошибки просто не видны. Перенаправляем на Telegram.showAlert с фолбэком.
+    try{const _oa=window.alert;window.alert=m=>{try{if(_tg.showAlert){_tg.showAlert(String(m));return;}}catch(e){}try{_oa(m)}catch(e){}};}catch(e){}
+  }
   pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
   try{const _pr=_readStartPromo();if(_pr&&_pr.code){localStorage.setItem('promo',JSON.stringify(_pr));if(!pendingEv)pendingEv=_pr.ev;}}catch(e){}  // промоутер из ссылки
   // Прогреваем кэш аватарки ещё на старте (Telegram-фото грузится с их серверов и бывает медленным):
   // к моменту открытия Кабинета оно уже в кэше → показывается мгновенно.
-  try{const _pf=JSON.parse(localStorage.getItem('cpf')||'{}');const _av=_pf.customPhoto||_pf.photoUrl||tgU?.photo_url;if(_av){const _im=new Image();_im.src=_av;}}catch(e){}
+  try{const _pf=lsGet('cpf',{})||{};const _av=_pf.customPhoto||_pf.photoUrl||tgU?.photo_url;if(_av){const _im=new Image();_im.src=_av;}}catch(e){}
   showFeedSkeleton();                       // мгновенный каркас вместо белого экрана
   _plStart(); setTimeout(_plDone,6000);   // прелоадер + ЖЁСТКАЯ страховка: убрать за 6с в любом случае
   const feedP=loadAll();                    // лента грузится сразу, параллельно с ролью (не ждёт /api/me)
@@ -1003,8 +1017,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   if(role==='admin'){b.textContent='Админ';b.className='rbadge ra'}
   else if(role==='org'){b.textContent='Организатор';b.className='rbadge ro'}
   if(role==='user'){
-    let pf=JSON.parse(localStorage.getItem('cpf')||'null');
-    if(!pf&&uid){const sp=await G('/api/profile/'+uid);if(sp?.email){pf=sp;localStorage.setItem('cpf',JSON.stringify(pf))}}
+    let pf=lsGet('cpf',null);
+    if(!pf&&uid){const sp=await G('/api/profile/'+uid);if(sp?.email){pf=sp;lsSet('cpf',pf)}}
     if(!pf)showOb();
   }
   await feedP;                              // дождаться ленты (как правило уже готова к этому моменту)
@@ -1026,14 +1040,19 @@ window.addEventListener('DOMContentLoaded',async()=>{
   // Автообновление каждые 30 сек
   setInterval(async()=>{
     const ed=await G('/api/events');
-    if(ed){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(allEvs)){allEvs=ed;evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();(document.getElementById('cnt-ev')||{}).textContent=evs.length;}}
+    if(Array.isArray(ed)){loadFailed=false;if(JSON.stringify(ed)!==JSON.stringify(allEvs)){allEvs=ed;evs=filterPast(ed);applyFilters();renderCal();renderTodayRow();(document.getElementById('cnt-ev')||{}).textContent=evs.length;}}
   },30000);
 });
 
 async function loadAll(){
-  const[ed,od]=await Promise.all([G('/api/events'),G('/api/orgs')]);
-  loadFailed=!ed;
-  if(ed){allEvs=ed;evs=filterPast(ed);}if(od)orgs=od;
+  try{
+    const[ed,od]=await Promise.all([G('/api/events'),G('/api/orgs')]);
+    // ВАЖНО: API при 500/401 отдаёт JSON-объект (не массив). Раньше filterPast(объект)
+    // падал на «.filter не функция» и рушил весь init → вечный скелет. Теперь строго массив.
+    loadFailed=!Array.isArray(ed);
+    if(Array.isArray(ed)){allEvs=ed;evs=filterPast(ed);}
+    if(Array.isArray(od))orgs=od;
+  }catch(e){console.error('loadAll:',e);loadFailed=true;}
   (document.getElementById('cnt-ev')||{}).textContent=evs.length;
   applyFilters();renderCal();
   renderTodayRow();
@@ -1091,6 +1110,7 @@ function nav(p,back){
   view.classList.add('active');
   if(back)view.classList.add('slide-back');
   const ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('active');
+  try{const bb=window.Telegram?.WebApp?.BackButton;if(bb){(p==='d'||p==='org')?bb.show():bb.hide();}}catch(e){}
   window.scrollTo(0,0);
   if(p==='c'){const t=new Date();calY=t.getFullYear();calM=t.getMonth();selCalDay=null;renderCal();}if(p==='k')renderCab();if(p==='s')renderSearchSuggest();
 }
@@ -1116,7 +1136,7 @@ function applyFilters(){
   const tod=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
   let list=evs;
   if(currentFilter==='today')list=list.filter(e=>e.date===tod);
-  else if(currentFilter==='week')list=list.filter(e=>{const p=e.date.split('.');const d=new Date(p[2],p[1]-1,p[0]);return(d-now)/(864e5)>=0&&(d-now)/(864e5)<=7});
+  else if(currentFilter==='week')list=list.filter(e=>{const p=(e.date||'').split('.');if(p.length<3)return false;const d=new Date(p[2],p[1]-1,p[0]);return(d-now)/(864e5)>=0&&(d-now)/(864e5)<=7});
   if(currentCat!=='all'){const em=catMap[currentCat];if(em)list=list.filter(e=>e.emoji===em)}
   if(filterFree)list=list.filter(isFree);
   if(filterWeekend)list=list.filter(e=>isWeekend(e.date));
@@ -1311,7 +1331,15 @@ async function loadMyTickets(){
   const d=await G('/api/my-tickets');
   const refEl=document.getElementById('tk-refund');
   if(refEl)refEl.style.display=(d&&Array.isArray(d.tickets)&&d.tickets.some(t=>!t.free))?'block':'none';
-  if(!d||!Array.isArray(d.tickets)||!d.tickets.length)return;
+  // РАНЬШЕ один тихий выход на все три случая → человек видел пустоту и думал «билет пропал».
+  const noAuth=!window.Telegram?.WebApp?.initData&&!authTok;
+  if(!d){box.innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить билеты.<br>Проверь интернет.</div><button class="bretry" onclick="loadMyTickets()">↻ Повторить</button></div>';return;}
+  if(!Array.isArray(d.tickets)||!d.tickets.length){
+    box.innerHTML=noAuth
+      ?'<div class="empty"><div class="empty-i">🔑</div><div class="empty-t">Чтобы увидеть билеты, открой CLOUTE через кнопку в боте <b>@clout_msk_bot</b>.</div></div>'
+      :'<div class="empty"><div class="empty-i">🎟</div><div class="empty-t">Билетов пока нет.<br>Оформи на любом событии — появятся здесь.</div></div>';
+    return;
+  }
   await loadScript('/js/qrcode.min.js');
   const qrBlock=(bc)=>`
     <div style="text-align:center;margin-top:14px">
@@ -1328,7 +1356,7 @@ async function loadMyTickets(){
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
           <div style="font-size:11px;${t.free?'color:#cbb6f0;background:rgba(255,255,255,.08)':'color:#cfc7db;background:rgba(255,255,255,.06)'};padding:3px 9px;border-radius:10px;white-space:nowrap">${t.free?(t.used?'использован':'бесплатно'):'оплачено'}</div>
-          ${t.free?`<button onclick="cancelFreeTicket('${escH((t.barcodes&&t.barcodes[0])||'')}')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`:`<button onclick="openExt('https://customer.ticketscloud.com/')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`}
+          ${t.free?`<button data-bc="${escH((t.barcodes&&t.barcodes[0])||'')}" onclick="cancelFreeTicket(this.dataset.bc)" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`:`<button onclick="openExt('https://customer.ticketscloud.com/')" style="background:rgba(255,60,60,.14);border:1px solid rgba(255,60,60,.45);color:#ff6b6b;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">↩︎ Возврат</button>`}
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
@@ -1363,13 +1391,14 @@ function countView(ev){
   // Не накручиваем: организатор своего события и админ не считаются
   if(role==='admin'||(uid&&ev.org_id==uid))return;
   // 1 просмотр с устройства на событие
-  const seen=JSON.parse(localStorage.getItem('cvw')||'[]');
+  const seen=lsGet('cvw',[]);
   if(seen.includes(ev.id))return;
-  seen.push(ev.id);localStorage.setItem('cvw',JSON.stringify(seen));
+  seen.push(ev.id);lsSet('cvw',seen);
   G('/api/events/'+ev.id+'/view');
 }
 function openEv(id){
-  curEv=id;const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);if(!ev)return;
+  curEv=id;const ev=evs.find(e=>e.id===id)||allEvs.find(e=>e.id===id);
+  if(!ev){alert('Событие не найдено — возможно, оно уже прошло или было удалено. Посмотри актуальную афишу на главной.');return;}
   countView(ev);
   const org=orgs.find(o=>o.tg_id==ev.org_id);
   const img=document.getElementById('d-img'),em=document.getElementById('d-emoji');
@@ -1417,6 +1446,9 @@ function openEv(id){
         // Виджет доступен → показываем оверлей, оплата идёт пошагово внутри приложения.
         tcBuy.style.display='block';
         tcInit();
+        // СТРАХОВКА: если после клика виджет не открыл окно оплаты за 1.6с (упал на LTE/блокировке),
+        // прячем «мёртвый» оверлей и открываем прямую страницу оплаты — иначе билет не купить.
+        tcBuy.onclick=()=>{setTimeout(()=>{try{if(!document.querySelector('iframe[src*="ticketscloud"],[class*="ticketscloud"],[class*="tickets-cloud"],[id*="ticketscloud"]')){tcBuy.style.display='none';buyTicket();}}catch(e){}},1600);};
       }else{
         // Виджета нет → оверлей прячем, работает прямая кнопка (открывает оплату TC).
         tcBuy.style.display='none';
@@ -1450,7 +1482,13 @@ function shareEv(){tgShare(evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curE
 // Лайтбокс афиши: тап по фото → на весь экран (полная, необрезанная); тап по фону/✕ → закрыть
 function openImgbox(){const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);if(!ev||!ev.poster_url)return;hap('light');document.getElementById('ib-img').src=ev.poster_url;document.getElementById('imgbox').style.display='flex';}
 function closeImgbox(){const b=document.getElementById('imgbox');if(!b)return;b.style.display='none';document.getElementById('ib-img').src='';}
-function buyTicket(){const ev=evs.find(e=>e.id===curEv);if(ev?.link){hap('light');openExt(ticketUrl(ev.link))}}
+function buyTicket(){
+  // РАНЬШЕ искали только в evs (будущие из ленты) → при переходе по ссылке из канала
+  // или на ночное меро ev=undefined и тап не делал НИЧЕГО («нельзя купить билет»).
+  const ev=evs.find(e=>e.id===curEv)||allEvs.find(e=>e.id===curEv);
+  if(ev?.link){hap('light');openExt(ticketUrl(ev.link));}
+  else{alert('Ссылка на билеты пока не указана. Загляни в Telegram-канал клуба или напиши организатору.');}
+}
 // Понятная подсказка, когда вход Telegram не подтверждён (нет initData → сервер вернёт 401)
 function tgReopenMsg(){return 'Чтобы получить билет, открой CLOUTE через кнопку в боте.\n\nНажми «🎫 Открыть событие» в чате с @clout_msk_bot (или отправь /start) и попробуй снова. По старой ссылке или во внешнем браузере билет оформить нельзя.';}
 async function getFreeTicket(id){
@@ -1551,7 +1589,7 @@ function renderCal(){
   document.getElementById('cal-m').textContent=mns[m]+' '+y;
   const isCurMonth=(y===today.getFullYear()&&m===today.getMonth()),todayD=today.getDate();
   const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),off=first===0?6:first-1;
-  const evd=new Set(evs.filter(e=>{const p=e.date.split('.');return parseInt(p[1])===m+1&&parseInt(p[2])===y}).map(e=>parseInt(e.date.split('.')[0])));
+  const evd=new Set(evs.filter(e=>{const p=(e.date||'').split('.');return p.length>=3&&parseInt(p[1])===m+1&&parseInt(p[2])===y}).map(e=>parseInt(e.date.split('.')[0])));
   let h=['П','В','С','Ч','П','С','В'].map(d=>`<div class="cdn">${d}</div>`).join('');
   for(let i=0;i<off;i++)h+='<div class="cd emp"></div>';
   for(let d=1;d<=days;d++){const it=isCurMonth&&d===todayD,he=evd.has(d),is=d===selCalDay&&!it;h+=`<div class="cd ${it?'tod':''} ${he&&!it&&!is?'hev':''} ${is?'sel':''}" onclick="selD(${d})">${d}</div>`}
@@ -1574,7 +1612,7 @@ function selD(d){
   const mns=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
   const mnsu=['ЯНВ','ФЕВ','МАР','АПР','МАЯ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
   document.getElementById('cal-t').textContent=isToday?'Сегодня':`${d} ${mns[m-1]}`;
-  const list=evs.filter(e=>{const p=e.date.split('.');return parseInt(p[0])===d&&parseInt(p[1])===m&&parseInt(p[2])===y});
+  const list=evs.filter(e=>{const p=(e.date||'').split('.');return p.length>=3&&parseInt(p[0])===d&&parseInt(p[1])===m&&parseInt(p[2])===y});
   const c=document.getElementById('cal-e');
   if(!list.length){c.innerHTML='<div style="text-align:center;padding:28px 14px"><div style="font-size:36px;margin-bottom:8px">🥱</div><div style="font-size:14px;font-weight:700;color:#554466">Пока отходняк</div></div>';return}
   c.innerHTML=list.map(ecCard).join('');
@@ -1584,7 +1622,7 @@ function selD(d){
 function doSearch(q){
   const c=document.getElementById('sr');if(!q.trim()){renderSearchSuggest();return}
   const ql=q.toLowerCase();
-  const found=evs.filter(e=>{const org=orgs.find(o=>o.tg_id==e.org_id);return e.name.toLowerCase().includes(ql)||e.venue.toLowerCase().includes(ql)||(org&&org.name.toLowerCase().includes(ql))});
+  const found=evs.filter(e=>{const org=orgs.find(o=>o.tg_id==e.org_id);return (e.name||'').toLowerCase().includes(ql)||(e.venue||'').toLowerCase().includes(ql)||(org&&(org.name||'').toLowerCase().includes(ql))});
   if(!found.length){c.innerHTML='<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Ничего не найдено</div></div>';return}
   c.innerHTML=found.map(ecCard).join('');
 }
@@ -1595,7 +1633,7 @@ function renderSearchSuggest(){
   const c=document.getElementById('sr');let h='';
   if(searchHist.length){
     h+='<div style="display:flex;justify-content:space-between;align-items:center"><div class="ssug-h">Недавние</div><div class="ssug-h" style="cursor:pointer;color:#8855aa" onclick="clearSearchHist()">очистить</div></div>';
-    h+='<div class="ssug-row">'+searchHist.map(q=>`<div class="ssug-chip" onclick="applySearchChip(${JSON.stringify(q)})">🕑 ${escH(q)}</div>`).join('')+'</div>';
+    h+='<div class="ssug-row">'+searchHist.map(q=>`<div class="ssug-chip" data-q="${escH(q)}" onclick="applySearchChip(this.dataset.q)">🕑 ${escH(q)}</div>`).join('')+'</div>';
   }
   const pop=[...evs].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
   if(pop.length){
@@ -1624,6 +1662,7 @@ async function finishOnboard(){
   localStorage.setItem('cpf',JSON.stringify(pf));
   try{localStorage.setItem('consent_pd',JSON.stringify({v:PD_POLICY_VERSION,ts:new Date().toISOString()}))}catch(e){}
   if(uid&&email)P('/api/profile/'+uid,{email,name}); // сохраняем почту и имя на сервер
+  else if(email)alert('Почта сохранена. Чтобы билеты привязались к аккаунту, заходи в CLOUTE через кнопку в боте @clout_msk_bot.'); // открыт вне бота → uid=0, привязать некуда
   P('/api/consent',{version:PD_POLICY_VERSION}); // фиксируем согласие на сервере (best-effort)
   btn.textContent='Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
@@ -1871,7 +1910,7 @@ function renderOL(){
   c.innerHTML=orgs.map(o=>{
     const ava=`<img src="${escH(o.photo_url||'')}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;${o.photo_url?'':'display:none'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:44px;height:44px;border-radius:50%;background:#1c1c1f;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;display:${o.photo_url?'none':'flex'}"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a8a92" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="9" y1="16" x2="15" y2="16"/></svg></div>`;
     const un=o.tg_username||'';
-    const tap=un?`onclick="openOrgDM('${escH(un)}')" style="cursor:pointer"`:'';
+    const tap=un?`data-un="${escH(un)}" onclick="openOrgDM(this.dataset.un)" style="cursor:pointer"`:'';
     const sub=un?`@${escH(un)} · нажми — написать`:`ID: ${o.tg_id}`;
     return `<div style="background:var(--cd);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" ${tap}>${ava}<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(o.name)}</div><div style="font-size:12px;color:#b58bf0;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})" style="flex-shrink:0">Удалить</button></div></div>`;
   }).join('');
@@ -2005,6 +2044,7 @@ function openDrafts(){
   showS('sdr');
 }
 
+let _draftEditId=null;
 function loadDraft(id){
   const draft=getDrafts().find(d=>d.id===id);
   if(!draft)return;
@@ -2027,8 +2067,9 @@ function loadDraft(id){
     for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===draft.emoji){sel.selectedIndex=i;break}}
     const ageSel=document.getElementById('fe-age');
     for(let i=0;i<ageSel.options.length;i++){if(ageSel.options[i].value===draft.age_limit){ageSel.selectedIndex=i;break}}
-    // Удаляем черновик после загрузки
-    deleteDraft(id, true);
+    // Черновик НЕ удаляем при открытии — только после успешного «Сохранить» (см. saveEv).
+    // Иначе свернул Telegram/перезапуск до сохранения → черновик потерян навсегда.
+    _draftEditId=id;
   }, 150);
 }
 
@@ -2169,7 +2210,8 @@ async function openOrgApply(){
   st.innerHTML='<div style="text-align:center;padding:34px 0;color:#8a8a92">Загрузка…</div>';
   showS('soa');
   const r=await G('/api/my-application');
-  const app=r?.application;
+  if(!r){st.innerHTML='<div style="text-align:center;padding:34px 12px;color:#8a8a92">Не удалось загрузить. Проверь интернет.<br><br><button class="bretry" onclick="openOrgApply()">↻ Повторить</button></div>';return;}  // раньше сбой → пустая форма → дубль заявки
+  const app=r.application;
   if(!app||(app.status==='rejected'&&app.can_reapply)){showOAForm();return}
   renderAppStatus(app);
 }
@@ -2297,6 +2339,8 @@ function prmSelectEvent(eid){
 async function prmRender(eid){
   const list=document.getElementById('prm-list'); if(!list)return;
   const d=await G('/api/events/'+eid+'/promoters');
+  // РАНЬШЕ сбой сети → «Пока никого» → орг заводил промоутеров заново (старые ссылки живут).
+  if(!d){list.innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить.<br>Проверь интернет.</div><button class="bretry" onclick="prmRender('+eid+')">↻ Повторить</button></div>';return;}
   const ps=(((d&&d.promoters)||[]).slice()).sort((a,b)=>(b.registered||0)-(a.registered||0)||(b.came||0)-(a.came||0));
   const totR=ps.reduce((s,p)=>s+(p.registered||0),0), totC=ps.reduce((s,p)=>s+(p.came||0),0);
   const cards=ps.map((p,i)=>{
@@ -2307,7 +2351,7 @@ async function prmRender(eid){
         <div class="prm-name">${escH(p.name)}</div>
         <div class="prm-sub">${p.registered||0} рег · ${p.came||0} пришло${p.registered?` · конв. ${conv}%`:''}</div>
       </div>
-      <button class="prm-share" onclick="prmShare('${p.code}',${eid})">Отправить</button>
+      <button class="prm-share" data-code="${escH(p.code)}" onclick="prmShare(this.dataset.code,${eid})">Отправить</button>
       <button class="prm-del" onclick="prmDel(${p.id},${eid})" title="Удалить">✕</button>
     </div>`;
   }).join('');
@@ -2323,11 +2367,15 @@ async function prmRender(eid){
       <button onclick="prmAdd(${eid})">Добавить</button>
     </div>`;
 }
+let _prmBusy=false;
 async function prmAdd(eid){
+  if(_prmBusy)return;   // защита от двойного тапа (дубль промоутера)
   const inp=document.getElementById('prm-name');const name=(inp?inp.value:'').trim();
   if(!name){alert('Введи имя промоутера');return}
+  _prmBusy=true;
   const r=await P('/api/events/'+eid+'/promoters',{name});
-  if(!r||r.error){alert('❌ '+((r&&r.error)||'Не получилось'));return}
+  _prmBusy=false;
+  if(!r||r.error){alert('❌ '+((r&&r.error)||'Сеть барахлит, попробуй ещё раз'));return}
   hap('success');prmRender(eid);
 }
 async function prmDel(pid,eid){
@@ -2462,8 +2510,11 @@ async function loadGuests(eventId){
   _guestEv=eventId;
   const box=document.getElementById('guestbox');if(!box)return;
   const r=await G('/api/events/'+eventId+'/guests');
-  renderGuests(r&&Array.isArray(r.guests)?r.guests:[]);
+  // РАНЬШЕ сбой сети → пустой список → орг думал «пусто» и заводил гостей заново.
+  if(!r){box.innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить список.<br>Проверь интернет.</div><button class="bretry" onclick="loadGuests('+eventId+')">↻ Повторить</button></div>';return;}
+  renderGuests(Array.isArray(r.guests)?r.guests:[]);
 }
+let _guestBusy=false;
 function gAva(g){
   const n=(g.name||g.username||'?').trim();
   const ch=(n[0]||'?').toUpperCase();
@@ -2496,14 +2547,17 @@ function renderGuests(guests){
     ${guests.length?rows:'<div style="text-align:center;color:#8a8a92;padding:18px;font-size:13px">Список пуст — впиши первого гостя</div>'}`;
 }
 async function addGuest(){
-  if(!_guestEv)return;
+  if(!_guestEv||_guestBusy)return;   // _guestBusy — защита от двойного тапа (дубль гостя)
   const raw=document.getElementById('g-name').value.trim();
   const noteEl=document.getElementById('g-note');const note=noteEl?noteEl.value.trim():'';
   if(!raw){alert('Впиши имя или @username');return}
   let name=raw,user='';
   if(raw[0]==='@'){user=raw.slice(1);name='';}
+  _guestBusy=true;
   const r=await P('/api/events/'+_guestEv+'/guests',{name,username:user,note});
-  if(r&&r.error){alert('❌ '+r.error);return}
+  _guestBusy=false;
+  if(!r){alert('Сеть барахлит — гость не добавлен. Попробуй ещё раз.');return}
+  if(r.error){alert('❌ '+r.error);return}
   loadGuests(_guestEv);
 }
 async function toggleGuest(id,arrived){
@@ -2569,7 +2623,26 @@ function tpPick(t){document.getElementById(_tpTarget).value=t;hap('light');close
 function prevPost(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('pprev-img').src=e.target.result;document.getElementById('pprev').style.display='block'};r.readAsDataURL(file)}
 function prevEpost(input){const file=input.files[0];if(!file)return;_editAvaFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('eprev-img').src=e.target.result;document.getElementById('eprev').style.display='block'};r.readAsDataURL(file)}
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(file)})}
-async function uploadImg(file){try{const b64=await fileToB64(file);const r=await P('/api/upload',{image:b64},30000);return r&&r.url?r.url:null}catch(e){return null}}
+// Сжимаем фото на клиенте: снимок с телефона 4-8 МБ в base64 раздувается до ~10 МБ и не
+// влезает в таймаут на мобильном интернете. Ресайз до 1280px + JPEG q0.8 = обычно 100-300 КБ.
+function compressImg(file,maxPx=1280,q=0.8){
+  return new Promise((res)=>{
+    try{
+      const url=URL.createObjectURL(file);const img=new Image();
+      img.onload=()=>{try{
+        let w=img.width,h=img.height;
+        if(Math.max(w,h)>maxPx){const k=maxPx/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k);}
+        const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        URL.revokeObjectURL(url);
+        res((cv.toDataURL('image/jpeg',q).split(',')[1])||null);
+      }catch(e){URL.revokeObjectURL(url);res(null);}};
+      img.onerror=()=>{URL.revokeObjectURL(url);res(null);};
+      img.src=url;
+    }catch(e){res(null);}
+  });
+}
+async function uploadImg(file){try{let b64=await compressImg(file);if(!b64)b64=await fileToB64(file);const r=await P('/api/upload',{image:b64},30000);return r&&r.url?r.url:null}catch(e){return null}}
 
 async function saveEv(){
   const nm=document.getElementById('fe-nm').value.trim(),dt=document.getElementById('fe-dt').value.trim();
@@ -2586,7 +2659,9 @@ async function saveEv(){
   if(fi?.files[0]){const up=await uploadImg(fi.files[0]);if(up)pu=up;else{alert('❌ Не удалось загрузить фото. Проверь интернет и попробуй ещё раз.');btn.textContent='Сохранить';btn.disabled=false;return}}
   const r=await P('/api/events',{name:nm,date:dt,time:timeStr,venue:vn,price:readPrice('fe'),link:document.getElementById('fe-lk').value.trim(),desc:document.getElementById('fe-dc').value.trim(),emoji:document.getElementById('fe-em').value,age_limit:document.getElementById('fe-age').value,poster_url:pu,tg:document.getElementById('fe-tg').value.trim(),...readReg('fe')});
   btn.textContent='Сохранить';btn.disabled=false;
+  if(!r){alert('Не удалось сохранить — сеть барахлит. Проверь интернет и попробуй ещё раз. Введённое не пропало.');return;}  // раньше null трактовался как успех → форма очищалась
   if(r?.error){alert('❌ '+r.error);return}
+  if(_draftEditId){deleteDraft(_draftEditId,true);_draftEditId=null;}   // черновик удаляем только ПОСЛЕ успешного сохранения
   ['fe-nm','fe-dt','fe-ts','fe-te','fe-vn','fe-pr','fe-lk','fe-tg','fe-dc','fe-pu','fe-reglim'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('fe-free').checked=false;togFreeInput('fe');
   if(fi)fi.value='';document.getElementById('pprev').style.display='none';
