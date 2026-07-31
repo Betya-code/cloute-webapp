@@ -812,7 +812,7 @@ let favs=lsGet('cf',[]);
 let going=lsGet('cg',[]);
 let myReg=lsGet('myreg',[]);
 let _avaFile=null,editEvId=null,_editAvaFile=null;
-let selCalDay=null,statsEvId=null,statsTimer=null,calY=null,calM=null;
+let selCalDay=null,statsEvId=null,statsTimer=null,calY=null,calM=null,prmTimer=null;
 let currentFilter='all',currentCat='all',filterFree=false,filterWeekend=false;
 let loadFailed=false;
 let searchHist=lsGet('csh',[]);
@@ -2330,15 +2330,35 @@ async function openOrgPromoters(){
     ${chips}
     <div id="prm-list"><div style="text-align:center;padding:24px;color:#8a8a92">Загружаем…</div></div>`;
   prmRender(_prmEv);
+  prmStartAuto(_prmEv);
 }
 function prmSelectEvent(eid){
   _prmEv=eid;
   document.querySelectorAll('#sprm .prm-chip').forEach((c,i)=>c.classList.toggle('active',_prmEvents[i]&&_prmEvents[i].id===eid));
   prmRender(eid);
+  prmStartAuto(eid);
 }
-async function prmRender(eid){
+// Цифры в базе растут сразу, но экран их не перечитывал — орг видел «замерший» рейтинг
+// и думал, что статистика опаздывает. Обновляем сам, пока панель открыта.
+function prmStopAuto(){ if(prmTimer){clearInterval(prmTimer);prmTimer=null} }
+function prmStartAuto(eid){
+  prmStopAuto();
+  prmTimer=setInterval(()=>{
+    // экран закрыли — таймер больше не нужен
+    const sc=document.getElementById('sprm');
+    if(!sc||!sc.classList.contains('active')||!document.getElementById('prm-list')){prmStopAuto();return}
+    if(document.hidden)return;            // аппа свёрнута — не дёргаем сеть
+    const inp=document.getElementById('prm-name');
+    // орг печатает имя — не перерисовываем, иначе текст пропадёт из-под пальцев
+    if(inp&&(document.activeElement===inp||inp.value.trim()))return;
+    prmRender(eid,true);
+  },15000);
+}
+async function prmRender(eid,quiet){
   const list=document.getElementById('prm-list'); if(!list)return;
   const d=await G('/api/events/'+eid+'/promoters');
+  // тихое авто-обновление не должно затирать экран ошибкой при коротком обрыве
+  if(!d&&quiet)return;
   // РАНЬШЕ сбой сети → «Пока никого» → орг заводил промоутеров заново (старые ссылки живут).
   if(!d){list.innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить.<br>Проверь интернет.</div><button class="bretry" onclick="prmRender('+eid+')">↻ Повторить</button></div>';return;}
   const ps=(((d&&d.promoters)||[]).slice()).sort((a,b)=>(b.registered||0)-(a.registered||0)||(b.came||0)-(a.came||0));
@@ -2360,6 +2380,10 @@ async function prmRender(eid){
       <div class="prm-tcard"><div class="prm-tnum">${totR}</div><div class="prm-tlbl">приведено</div></div>
       <div class="prm-tcard"><div class="prm-tnum" style="color:#34d399">${totC}</div><div class="prm-tlbl">пришло</div></div>
       <div class="prm-tcard"><div class="prm-tnum">${ps.length}</div><div class="prm-tlbl">промоутеров</div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-2px 0 12px;font-size:11px;color:#6a6a75;line-height:1.5">
+      <span>«Пришло» считается на входе по сканеру</span>
+      <span style="white-space:nowrap">обновлено ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
     </div>
     ${cards||'<div style="text-align:center;padding:18px 8px;color:#8a8a92;font-size:13px;line-height:1.5">Пока никого. Добавь первого — он получит ссылку, и здесь появятся его цифры.</div>'}
     <div class="prm-add">
