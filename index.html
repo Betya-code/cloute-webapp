@@ -1029,7 +1029,9 @@ window.addEventListener('DOMContentLoaded',async()=>{
     let _t=0,_done=false;
     const _tryOpen=()=>{
       if(_done||!pendingEv)return;
-      if(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv)){_done=true;openEv(pendingEv);return;}
+      // прошедшее меро по старой ссылке не открываем — filterPast знает, когда оно кончилось
+      const _e=evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv);
+      if(_e){_done=true;pendingEv=0;if(filterPast([_e]).length)openEv(_e.id);return;}
       if(++_t<20)setTimeout(_tryOpen,250);
     };
     _tryOpen();
@@ -1667,7 +1669,8 @@ async function finishOnboard(){
   btn.textContent='Войти в CLOUTE';btn.disabled=false;
   document.getElementById('vob').style.display='none';
   // Пришёл по ссылке на конкретное меро → после регистрации открываем сразу его, а не главную
-  if(pendingEv&&(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv))){openEv(pendingEv);pendingEv=0;}
+  const _pe=pendingEv&&(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv));
+  if(_pe){pendingEv=0;if(filterPast([_pe]).length)openEv(_pe.id);}
 }
 function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
 function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
