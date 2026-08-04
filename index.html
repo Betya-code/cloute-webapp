@@ -2364,18 +2364,20 @@ async function prmRender(eid,quiet){
   if(!d&&quiet)return;
   // РАНЬШЕ сбой сети → «Пока никого» → орг заводил промоутеров заново (старые ссылки живут).
   if(!d){list.innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить.<br>Проверь интернет.</div><button class="bretry" onclick="prmRender('+eid+')">↻ Повторить</button></div>';return;}
-  const ps=(((d&&d.promoters)||[]).slice()).sort((a,b)=>(b.registered||0)-(a.registered||0)||(b.came||0)-(a.came||0));
+  // архивные — вниз списка: их ссылка мертва, но цифры остаются в истории
+  const ps=(((d&&d.promoters)||[]).slice()).sort((a,b)=>(a.archived||0)-(b.archived||0)||(b.registered||0)-(a.registered||0)||(b.came||0)-(a.came||0));
   const totR=ps.reduce((s,p)=>s+(p.registered||0),0), totC=ps.reduce((s,p)=>s+(p.came||0),0);
   const cards=ps.map((p,i)=>{
     const conv=p.registered?Math.round((p.came||0)/p.registered*100):0;
-    return `<div class="prm-card">
-      <div class="prm-rank${i===0&&p.registered>0?' top':''}">${i+1}</div>
+    const arc=!!p.archived;
+    return `<div class="prm-card"${arc?' style="opacity:.5"':''}>
+      <div class="prm-rank${!arc&&i===0&&p.registered>0?' top':''}">${arc?'—':i+1}</div>
       <div style="flex:1;min-width:0">
-        <div class="prm-name">${escH(p.name)}</div>
+        <div class="prm-name">${escH(p.name)}${arc?' <span style="font-size:10px;font-weight:600;color:#8a8a92">в архиве</span>':''}</div>
         <div class="prm-sub">${p.registered||0} рег · ${p.came||0} пришло${p.registered?` · конв. ${conv}%`:''}</div>
       </div>
-      <button class="prm-share" data-code="${escH(p.code)}" onclick="prmShare(this.dataset.code,${eid})">Отправить</button>
-      <button class="prm-del" onclick="prmDel(${p.id},${eid})" title="Удалить">✕</button>
+      ${arc?'':`<button class="prm-share" data-code="${escH(p.code)}" onclick="prmShare(this.dataset.code,${eid})">Отправить</button>
+      <button class="prm-del" onclick="prmDel(${p.id},${eid})" title="В архив">✕</button>`}
     </div>`;
   }).join('');
   list.innerHTML=`
@@ -2403,10 +2405,11 @@ async function prmAdd(eid){
   const r=await P('/api/events/'+eid+'/promoters',{name});
   _prmBusy=false;
   if(!r||r.error){alert('❌ '+((r&&r.error)||'Сеть барахлит, попробуй ещё раз'));return}
+  if(inp)inp.value='';
   hap('success');prmRender(eid);
 }
 async function prmDel(pid,eid){
-  if(!confirm('Удалить промоутера? Его ссылка перестанет привязывать новых (уже привязанные останутся).'))return;
+  if(!confirm('Убрать промоутера в архив? Его ссылка перестанет работать, но его цифры останутся в статистике.'))return;
   await D('/api/promoters/'+pid);prmRender(eid);
 }
 function prmShare(code,eid){
