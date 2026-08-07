@@ -1034,7 +1034,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
       if(_done||!pendingEv)return;
       // прошедшее меро по старой ссылке не открываем — filterPast знает, когда оно кончилось
       const _e=evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv);
-      if(_e){_done=true;pendingEv=0;if(filterPast([_e]).length)openEv(_e.id);return;}
+      if(_e){_done=true;pendingEv=0;
+        if(filterPast([_e]).length)openEv(_e.id);
+        else alert('«'+_e.name+'» уже прошло — по этой ссылке билет не получить.\nПосмотри, что будет дальше 👇');
+        return;}
       if(++_t<20)setTimeout(_tryOpen,250);
     };
     _tryOpen();
@@ -1674,7 +1677,9 @@ async function finishOnboard(){
   document.getElementById('vob').style.display='none';
   // Пришёл по ссылке на конкретное меро → после регистрации открываем сразу его, а не главную
   const _pe=pendingEv&&(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv));
-  if(_pe){pendingEv=0;if(filterPast([_pe]).length)openEv(_pe.id);}
+  if(_pe){pendingEv=0;
+    if(filterPast([_pe]).length)openEv(_pe.id);
+    else alert('«'+_pe.name+'» уже прошло — по этой ссылке билет не получить.\nПосмотри, что будет дальше 👇');}
 }
 function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
 function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
