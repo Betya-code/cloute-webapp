@@ -996,7 +996,22 @@ window.addEventListener('DOMContentLoaded',async()=>{
     try{const _oa=window.alert;window.alert=m=>{try{if(_tg.showAlert){_tg.showAlert(String(m));return;}}catch(e){}try{_oa(m)}catch(e){}};}catch(e){}
   }
   pendingEv=_readStartEv();                  // сразу запоминаем, на какое меро пришли по ссылке
-  try{const _pr=_readStartPromo();if(_pr&&_pr.code){localStorage.setItem('promo',JSON.stringify(_pr));if(!pendingEv)pendingEv=_pr.ev;}}catch(e){}  // промоутер из ссылки
+  // промоутер из ссылки. Личная ссылка меро не несёт — спрашиваем сервер, куда вести гостя
+  try{const _pr=_readStartPromo();if(_pr&&_pr.code){
+    localStorage.setItem('promo',JSON.stringify(_pr));
+    if(!pendingEv&&_pr.ev)pendingEv=_pr.ev;
+    if(!pendingEv)G('/api/promo/'+encodeURIComponent(_pr.code)).then(d=>{
+      // одно меро у орга — открываем сразу; несколько — гость выберет в ленте
+      if(!(d&&d.ok&&d.events&&d.events.length===1))return;
+      const _id=d.events[0];let _t=0;
+      const _try=()=>{                       // лента могла ещё не загрузиться — ждём её
+        if(curEv)return;
+        if(evs.find(e=>e.id===_id)||allEvs.find(e=>e.id===_id)){openEv(_id);return}
+        if(++_t<20)setTimeout(_try,250);
+      };
+      _try();
+    }).catch(()=>{});
+  }}catch(e){}
   // Прогреваем кэш аватарки ещё на старте (Telegram-фото грузится с их серверов и бывает медленным):
   // к моменту открытия Кабинета оно уже в кэше → показывается мгновенно.
   try{const _pf=lsGet('cpf',{})||{};const _av=_pf.customPhoto||_pf.photoUrl||tgU?.photo_url;if(_av){const _im=new Image();_im.src=_av;}}catch(e){}
