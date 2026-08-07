@@ -595,6 +595,16 @@ body.subview .bn{transform:translateY(calc(100% + 24px));pointer-events:none}
   </div>
 
   <!-- ADMIN ORGS -->
+  <div id="sau" class="sv">
+    <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Пользователи</div></div>
+    <div class="sbody">
+      <input class="fi" id="au-q" placeholder="Поиск по имени или @username" oninput="renderUL()" style="margin-bottom:10px">
+      <select class="fi" id="au-ev" onchange="renderUL()" style="margin-bottom:10px"></select>
+      <div class="prm-chips" id="au-chips"></div>
+      <div id="au-cnt" style="font-size:12px;color:#8a8a92;margin:8px 0 10px"></div>
+      <div id="ul"></div>
+    </div>
+  </div>
   <div id="sao" class="sv">
     <div class="sh"><button class="sbk" onclick="showS('sm')">← Назад</button><div class="stit">Организаторы</div></div>
     <div class="sbody">
@@ -1844,6 +1854,7 @@ function renderCab(){
     document.getElementById('cstats').innerHTML=`<div><div class="csnum">${evs.length}</div><div class="cslbl">событий</div></div><div><div class="csnum">${orgs.length}</div><div class="cslbl">оргов</div></div>`;
     document.getElementById('cmenu').innerHTML=`
       <div class="ci" onclick="openAS()"><div class="ciico">${ic('chart',20)}</div><div><div class="citit">Статистика</div><div class="cisub">Пользователи, события</div></div><div class="carr">›</div></div>
+      <div class="ci" onclick="openAU()"><div class="ciico">${ic('users',20)}</div><div><div class="citit">Пользователи</div><div class="cisub">Найти человека · написать в личку</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openAO()"><div class="ciico">${ic('building',20)}</div><div><div class="citit">Организаторы</div><div class="cisub">${orgs.length} подключено</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openAE()"><div class="ciico">${ic('cal',20)}</div><div><div class="citit">Все события</div><div class="cisub">${evs.length} событий</div></div><div class="carr">›</div></div>
       <div class="ci" onclick="openPromo()" style="border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.04)"><div class="ciico" style="background:var(--ac);color:#fff">${ic('star',20)}</div><div><div class="citit">Продвижение</div><div class="cisub">Управление топом ленты</div></div><div class="carr">›</div></div>`;
@@ -1940,6 +1951,72 @@ function renderOL(){
     const tap=un?`data-un="${escH(un)}" onclick="openOrgDM(this.dataset.un)" style="cursor:pointer"`:'';
     const sub=un?`@${escH(un)} · нажми — написать`:`ID: ${o.tg_id}`;
     return `<div style="background:var(--cd);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" ${tap}>${ava}<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(o.name)}</div><div style="font-size:12px;color:#b58bf0;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div></div></div><button class="bdel" onclick="rmOrg(${o.tg_id})" style="flex-shrink:0">Удалить</button></div></div>`;
+  }).join('');
+}
+let _users=[],_auF='all';
+const AU_FILTERS=[['all','Все'],['new','Новые за неделю'],['reg','Взяли билет'],['came','Пришли'],['noshow','Не пришли'],['never','Без билетов']];
+async function openAU(){
+  if(!await gateAdmin())return;
+  showS('sau');
+  document.getElementById('ul').innerHTML='<div style="text-align:center;padding:24px;color:#8a8a92">Загружаем…</div>';
+  const d=await G('/api/admin/users');
+  if(!d||!Array.isArray(d.users)){document.getElementById('ul').innerHTML='<div class="empty"><div class="empty-i">📡</div><div class="empty-t">Не удалось загрузить.<br>Проверь интернет.</div><button class="bretry" onclick="openAU()">↻ Повторить</button></div>';return}
+  _users=d.users;
+  // меро для выпадашки — из уже загруженной ленты, плюс те, что встречаются у людей
+  const seen=new Set();_users.forEach(u=>(u.regs||[]).forEach(id=>seen.add(id)));
+  const opts=['<option value="0">Все мероприятия</option>'].concat(
+    [...seen].sort((a,b)=>b-a).map(id=>`<option value="${id}">${escH(_evName(id))}</option>`));
+  document.getElementById('au-ev').innerHTML=opts.join('');
+  document.getElementById('au-chips').innerHTML=AU_FILTERS.map(([k,l])=>
+    `<button class="prm-chip${k===_auF?' active':''}" onclick="auSetF('${k}')">${l}</button>`).join('');
+  renderUL();
+}
+function _evName(id){const e=(allEvs||[]).find(x=>x.id===id);return e?e.name:('Меро #'+id)}
+function auSetF(k){_auF=k;document.querySelectorAll('#au-chips .prm-chip').forEach((c,i)=>c.classList.toggle('active',AU_FILTERS[i][0]===k));renderUL()}
+function renderUL(){
+  const c=document.getElementById('ul'); if(!c)return;
+  const q=(document.getElementById('au-q')?.value||'').trim().toLowerCase();
+  const ev=parseInt(document.getElementById('au-ev')?.value||'0');
+  const weekAgo=Date.now()-7*86400000;
+  const has=(arr,id)=>id?(arr||[]).includes(id):(arr||[]).length>0;
+  const list=_users.filter(u=>{
+    if(q&&!((u.first_name||'')+' @'+(u.username||'')).toLowerCase().includes(q))return false;
+    switch(_auF){
+      case 'new':    return u.joined_at&&new Date(u.joined_at.replace(' ','T')).getTime()>weekAgo;
+      case 'reg':    return has(u.regs,ev);
+      case 'came':   return has(u.came,ev);
+      case 'noshow': return has(u.regs,ev)&&!has(u.came,ev);   // взял билет, но не дошёл
+      case 'never':  return !(u.regs||[]).length;
+      default:       return ev?has(u.regs,ev):true;
+    }
+  });
+  const LIMIT=120;                     // 1300 карточек разом вешают телефон
+  const shown=list.slice(0,LIMIT);
+  const withUn=list.filter(u=>u.username).length;
+  document.getElementById('au-cnt').textContent=
+    `найдено ${list.length} · написать можно ${withUn}`+(list.length>LIMIT?` · показаны первые ${LIMIT}`:'');
+  if(!shown.length){c.innerHTML='<div style="text-align:center;color:#8a8a92;padding:18px;font-size:13px">Никого не нашлось</div>';return}
+  c.innerHTML=shown.map(u=>{
+    const un=u.username||'';
+    const tap=un?`data-un="${escH(un)}" onclick="openOrgDM(this.dataset.un)" style="cursor:pointer"`:'';
+    const sub=un?`@${escH(un)} · нажми — написать`:'нет @username — написать нельзя';
+    const ava=`<img src="${escH(u.photo_url||'')}" loading="lazy" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;${u.photo_url?'':'display:none'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:40px;height:40px;border-radius:50%;background:#1c1c1f;align-items:center;justify-content:center;flex-shrink:0;display:${u.photo_url?'none':'flex'}">${ic('user',20)}</div>`;
+    // история: где был (зелёным) и где только зарегался
+    const hist=(u.regs||[]).map(id=>{
+      const went=(u.came||[]).includes(id);
+      return `<span style="font-size:10px;padding:2px 7px;border-radius:20px;white-space:nowrap;background:${went?'rgba(52,211,153,.14)':'rgba(255,255,255,.06)'};color:${went?'#34d399':'#8a8a92'}">${went?'✓ ':''}${escH(_evName(id))}</span>`;
+    }).join('');
+    return `<div style="background:var(--cd);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px" ${tap}>
+        ${ava}
+        <div style="min-width:0;flex:1">
+          <div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(u.first_name||'Без имени')}</div>
+          <div style="font-size:12px;color:${un?'#b58bf0':'#6a6a75'};margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sub}</div>
+        </div>
+        <div style="font-size:11px;color:#8a8a92;flex-shrink:0;text-align:right">${(u.came||[]).length}/${(u.regs||[]).length}<div style="font-size:9px">пришёл/взял</div></div>
+      </div>
+      ${hist?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:9px">${hist}</div>`:''}
+    </div>`;
   }).join('');
 }
 function openOrgDM(username){
