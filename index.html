@@ -1528,7 +1528,10 @@ async function getFreeTicket(id){
   hap('medium');
   // Билет выдаётся по подписи Telegram (initData) ИЛИ по токену из ссылки мини-аппа.
   // Если нет ни того, ни другого (открыли вне бота / по старой ссылке) — подсказываем.
-  if(!window.Telegram?.WebApp?.initData&&!authTok){alert(tgReopenMsg());return}
+  if(!window.Telegram?.WebApp?.initData&&!authTok){
+    // маячок: иначе такие срывы умирают на телефоне и видны только по жалобам
+    try{P('/api/noauth-hit',{ev:id,src:window.Telegram?.WebApp?'нет-initData':'вне-телеграма'},4000)}catch(e){}
+    alert(tgReopenMsg());return}
   const btn=document.getElementById('btn-going');const old=btn.textContent;
   btn.disabled=true;btn.textContent='Получаем…';
   // Промоутер живёт у орга: код шлём на любое меро, сервер сам сверит, что орг тот же
