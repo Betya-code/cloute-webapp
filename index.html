@@ -995,6 +995,28 @@ function _readStartPromo(){
     return mp?{ev:0,code:mp[1]}:null;
   }catch(e){return null;}
 }
+// Ведём гостя туда, где промоутер сейчас работает. Нужно и для личной ссылки (в ней нет меро),
+// и для старых ссылок на уже прошедшее меро — иначе человек упирается в тупик.
+function promoOpen(code,onNone){
+  G('/api/promo/'+encodeURIComponent(code)).then(d=>{
+    if(!(d&&d.ok&&d.events&&d.events.length===1)){if(onNone)onNone();return}
+    const _id=d.events[0];let _t=0;
+    const _try=()=>{                       // лента могла ещё не загрузиться — ждём её
+      if(curEv)return;
+      if(evs.find(e=>e.id===_id)||allEvs.find(e=>e.id===_id)){openEv(_id);return}
+      if(++_t<20)setTimeout(_try,250);
+    };
+    _try();
+  }).catch(()=>{if(onNone)onNone()});
+}
+function _savedPromoCode(){try{return (JSON.parse(localStorage.getItem('promo')||'null')||{}).code||''}catch(e){return ''}}
+// Меро по ссылке закончилось: если ссылка была промоутерской — уводим на его текущее меро,
+// иначе честно говорим, что прошло.
+function pastLinkFallback(name){
+  const code=_savedPromoCode();
+  const say=()=>alert('«'+name+'» уже прошло — по этой ссылке билет не получить.\nПосмотри, что будет дальше 👇');
+  if(code)promoOpen(code,say); else say();
+}
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   if(window.Telegram?.WebApp){
@@ -1010,17 +1032,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   try{const _pr=_readStartPromo();if(_pr&&_pr.code){
     localStorage.setItem('promo',JSON.stringify(_pr));
     if(!pendingEv&&_pr.ev)pendingEv=_pr.ev;
-    if(!pendingEv)G('/api/promo/'+encodeURIComponent(_pr.code)).then(d=>{
-      // одно меро у орга — открываем сразу; несколько — гость выберет в ленте
-      if(!(d&&d.ok&&d.events&&d.events.length===1))return;
-      const _id=d.events[0];let _t=0;
-      const _try=()=>{                       // лента могла ещё не загрузиться — ждём её
-        if(curEv)return;
-        if(evs.find(e=>e.id===_id)||allEvs.find(e=>e.id===_id)){openEv(_id);return}
-        if(++_t<20)setTimeout(_try,250);
-      };
-      _try();
-    }).catch(()=>{});
+    if(!pendingEv)promoOpen(_pr.code);
   }}catch(e){}
   // Прогреваем кэш аватарки ещё на старте (Telegram-фото грузится с их серверов и бывает медленным):
   // к моменту открытия Кабинета оно уже в кэше → показывается мгновенно.
@@ -1060,8 +1072,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
       // прошедшее меро по старой ссылке не открываем — filterPast знает, когда оно кончилось
       const _e=evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv);
       if(_e){_done=true;pendingEv=0;
-        if(filterPast([_e]).length)openEv(_e.id);
-        else alert('«'+_e.name+'» уже прошло — по этой ссылке билет не получить.\nПосмотри, что будет дальше 👇');
+        if(filterPast([_e]).length)openEv(_e.id); else pastLinkFallback(_e.name);
         return;}
       if(++_t<20)setTimeout(_tryOpen,250);
     };
@@ -1706,8 +1717,7 @@ async function finishOnboard(){
   // Пришёл по ссылке на конкретное меро → после регистрации открываем сразу его, а не главную
   const _pe=pendingEv&&(evs.find(e=>e.id===pendingEv)||allEvs.find(e=>e.id===pendingEv));
   if(_pe){pendingEv=0;
-    if(filterPast([_pe]).length)openEv(_pe.id);
-    else alert('«'+_pe.name+'» уже прошло — по этой ссылке билет не получить.\nПосмотри, что будет дальше 👇');}
+    if(filterPast([_pe]).length)openEv(_pe.id); else pastLinkFallback(_pe.name);}
 }
 function showPrivacy(){renderPrivacy();document.getElementById('vprivacy').style.display='block';window.scrollTo(0,0)}
 function closePrivacy(){document.getElementById('vprivacy').style.display='none'}
